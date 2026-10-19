@@ -1,0 +1,55 @@
+[gd_scene load_steps=6 format=3 uid="uid://bq8gravedashchunk01"]
+
+[ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_chunk"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dirt"]
+albedo_color = Color(0.22, 0.28, 0.18, 1)
+roughness = 0.95
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lane"]
+size = Vector3(0.08, 0.02, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lane"]
+albedo_color = Color(0.35, 0.4, 0.28, 1)
+emission_enabled = true
+emission = Color(0.25, 0.3, 0.2, 1)
+emission_energy_multiplier = 0.3
+
+[node name="Chunk_Graveyard_01" type="Node3D"]
+script = ExtResource("1_chunk")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_ground")
+surface_material_override/0 = SubResource("StandardMaterial3D_dirt")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="LaneMarkerL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.01, 0)
+mesh = SubResource("BoxMesh_lane")
+surface_material_override/0 = SubResource("StandardMaterial3D_lane")
+
+[node name="LaneMarkerR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.01, 0)
+mesh = SubResource("BoxMesh_lane")
+surface_material_override/0 = SubResource("StandardMaterial3D_lane")
+
+[node name="EdgeLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0.4, 0)
+mesh = SubResource("BoxMesh_lane")
+
+[node name="EdgeRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 0.4, 0)
+mesh = SubResource("BoxMesh_lane")
