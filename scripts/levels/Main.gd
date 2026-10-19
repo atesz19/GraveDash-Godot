@@ -1,5 +1,5 @@
 extends Node3D
-## Main — play scene bootstrap. Applies the starting Graveyard biome via BiomeManager.
+## Main — play scene bootstrap. Graveyard start; BiomeManager may fade into Haunted Castle.
 
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var moon_light: DirectionalLight3D = $MoonLight

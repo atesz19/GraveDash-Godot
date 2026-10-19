@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=23 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="Script" path="res://scripts/levels/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -21,6 +21,8 @@
 [ext_resource type="PackedScene" uid="uid://bq8secondchance" path="res://scenes/powerups/SecondChance.tscn" id="19_second"]
 [ext_resource type="PackedScene" uid="uid://bq8cursedspeed" path="res://scenes/powerups/CursedSpeed.tscn" id="20_cursed"]
 [ext_resource type="PackedScene" uid="uid://bq8pauseoverlay" path="res://scenes/ui/PauseOverlay.tscn" id="21_pause"]
+[ext_resource type="PackedScene" uid="uid://bq8castleatmo" path="res://scenes/levels/CastleAtmosphere.tscn" id="22_castle"]
+[ext_resource type="PackedScene" uid="uid://bq8biometrans" path="res://scenes/levels/BiomeTransition.tscn" id="23_trans"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -57,6 +59,11 @@ player_path = NodePath("../Player")
 
 [node name="GraveyardAtmosphere" parent="." instance=ExtResource("14_atmo")]
 player_path = NodePath("../Player")
+
+[node name="CastleAtmosphere" parent="." instance=ExtResource("22_castle")]
+player_path = NodePath("../Player")
+
+[node name="BiomeTransition" parent="." instance=ExtResource("23_trans")]
 
 [node name="ChaserSpawner" parent="." instance=ExtResource("16_chasers")]
 chaser_count = 2

@@ -79,8 +79,9 @@ func _sync_chunk_from_biome() -> void:
 
 
 func _on_biome_changed(_biome_id: String) -> void:
-	## Future biomes can swap chunk scenes; keep current runway intact for now.
+	## Swap chunk scene/pool for newly spawned chunks; existing ones recycle into their own pool.
 	_sync_chunk_from_biome()
+	_register_chunk_pools_for_biome()
 
 
 func _process(_delta: float) -> void:
@@ -120,12 +121,11 @@ func _ensure_scenes() -> void:
 
 
 func _register_pools() -> void:
-	var chunk_pool := BiomeManager.get_chunk_pool_id()
-	## Keep legacy constant in sync with the active biome pool id.
-	if not ObjectPool.has_pool(chunk_pool):
-		ObjectPool.register_pool(chunk_pool, chunk_scene, CHUNKS_AHEAD + 2)
-	if chunk_pool != POOL_CHUNK and not ObjectPool.has_pool(POOL_CHUNK):
-		ObjectPool.register_pool(POOL_CHUNK, chunk_scene, CHUNKS_AHEAD + 2)
+	_register_chunk_pools_for_biome()
+	## Always keep Graveyard pool warm so early chunks release cleanly.
+	if not ObjectPool.has_pool(POOL_CHUNK):
+		var gy := preload("res://scenes/levels/Chunk_Graveyard_01.tscn")
+		ObjectPool.register_pool(POOL_CHUNK, gy, CHUNKS_AHEAD + 2)
 	if not ObjectPool.has_pool(POOL_PIT):
 		ObjectPool.register_pool(POOL_PIT, pit_scene, 8)
 	if not ObjectPool.has_pool(POOL_GRAVESTONE):
@@ -148,6 +148,24 @@ func _register_pools() -> void:
 		ObjectPool.register_pool(POOL_SECOND, second_chance_scene, 3)
 	if not ObjectPool.has_pool(POOL_CURSED):
 		ObjectPool.register_pool(POOL_CURSED, cursed_speed_scene, 4)
+
+
+func _register_chunk_pools_for_biome() -> void:
+	var variants := BiomeManager.get_chunk_variants()
+	if variants.is_empty():
+		var pool_id := BiomeManager.get_chunk_pool_id()
+		if not ObjectPool.has_pool(pool_id) and chunk_scene:
+			ObjectPool.register_pool(pool_id, chunk_scene, CHUNKS_AHEAD + 2)
+		return
+	for variant in variants:
+		if not (variant is Dictionary):
+			continue
+		var vid := str(variant.get("id", ""))
+		var scene: PackedScene = variant.get("scene") as PackedScene
+		if vid == "" or scene == null:
+			continue
+		if not ObjectPool.has_pool(vid):
+			ObjectPool.register_pool(vid, scene, CHUNKS_AHEAD + 2)
 
 
 func _spawn_chunk_at(origin_z: float) -> Node3D:
@@ -346,7 +364,7 @@ func _acquire_pooled(pool_id: String) -> Node3D:
 
 
 func _chunk_pool_id() -> String:
-	return BiomeManager.get_chunk_pool_id()
+	return BiomeManager.pick_chunk_pool_id()
 
 
 func _acquire_chunk() -> Node3D:
@@ -354,10 +372,17 @@ func _acquire_chunk() -> Node3D:
 	var node := ObjectPool.acquire(pool_id)
 	if node == null and pool_id != POOL_CHUNK:
 		node = ObjectPool.acquire(POOL_CHUNK)
+		pool_id = POOL_CHUNK
 	if node is Node3D:
-		return node as Node3D
+		var chunk := node as Node3D
+		if "pool_id" in chunk:
+			chunk.pool_id = pool_id
+		return chunk
 	if chunk_scene:
-		return chunk_scene.instantiate() as Node3D
+		var fallback := chunk_scene.instantiate() as Node3D
+		if fallback and "pool_id" in fallback:
+			fallback.pool_id = pool_id
+		return fallback
 	return null
 
 
@@ -366,11 +391,18 @@ func _release_chunk(chunk: Node3D) -> void:
 		return
 	if chunk.has_method("on_recycled"):
 		chunk.call("on_recycled")
-	var pool_id := _chunk_pool_id()
+	## Prefer the pool stamped at acquire so Graveyard chunks recycle correctly after Castle switch.
+	var pool_id := ""
+	if "pool_id" in chunk:
+		pool_id = str(chunk.pool_id)
+	if pool_id == "" or not ObjectPool.has_pool(pool_id):
+		pool_id = BiomeManager.get_chunk_pool_id()
 	if ObjectPool.has_pool(pool_id):
 		ObjectPool.release(pool_id, chunk)
-	else:
+	elif ObjectPool.has_pool(POOL_CHUNK):
 		ObjectPool.release(POOL_CHUNK, chunk)
+	else:
+		chunk.queue_free()
 
 
 func _recycle_behind() -> void:

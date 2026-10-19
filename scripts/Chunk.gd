@@ -10,6 +10,9 @@ const GROUND_THICKNESS: float = 1.0
 @onready var obstacles_root: Node3D = $Obstacles
 @onready var collectibles_root: Node3D = $Collectibles
 
+## Set by LevelGenerator when acquired (so release uses the correct pool after biome switch).
+var pool_id: String = ""
+
 var _obstacles: Array[Node] = []
 var _collectibles: Array[Node] = []
 

@@ -1,0 +1,63 @@
+[gd_scene load_steps=6 format=3 uid="uid://bq8chandelier"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_chain"]
+top_radius = 0.03
+bottom_radius = 0.03
+height = 2.2
+radial_segments = 6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_metal"]
+albedo_color = Color(0.25, 0.22, 0.2, 1)
+metallic = 0.7
+roughness = 0.45
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ring"]
+top_radius = 0.55
+bottom_radius = 0.55
+height = 0.12
+radial_segments = 12
+
+[sub_resource type="SphereMesh" id="SphereMesh_candle"]
+radius = 0.08
+height = 0.16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+albedo_color = Color(1, 0.7, 0.35, 1)
+emission_enabled = true
+emission = Color(1, 0.55, 0.2, 1)
+emission_energy_multiplier = 3.5
+
+[node name="DecorChandelier" type="Node3D"]
+
+[node name="Chain" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1, 0)
+mesh = SubResource("CylinderMesh_chain")
+surface_material_override/0 = SubResource("StandardMaterial3D_metal")
+
+[node name="Ring" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.2, 0)
+mesh = SubResource("CylinderMesh_ring")
+surface_material_override/0 = SubResource("StandardMaterial3D_metal")
+
+[node name="CandleA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -2.05, 0)
+mesh = SubResource("SphereMesh_candle")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="CandleB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -2.05, 0)
+mesh = SubResource("SphereMesh_candle")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="CandleC" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.05, 0.4)
+mesh = SubResource("SphereMesh_candle")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.0, 0)
+light_color = Color(1, 0.6, 0.3, 1)
+light_energy = 1.8
+omni_range = 9.0
+omni_attenuation = 1.2
+shadow_enabled = false

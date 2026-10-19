@@ -2,7 +2,7 @@
 
 Horror endless runner (Subway Surfers–style) built with **Godot 4.3 / 4.4**, GDScript, 3D, Mobile renderer — targeted at Android landscape @ 60 FPS.
 
-MVP through **step 10 (UI)**: gameplay systems plus Main Menu, Settings, polished Game Over, shared dark theme.
+MVP through **step 10 (UI)** and **step 9 Haunted Castle biome**: menus plus Graveyard → Castle distance transition.
 
 ## Requirements
 
@@ -53,7 +53,8 @@ Audio mute prefs via `AudioManager` → `SaveSystem` (`user://gravedash_save.cfg
 - Game Over: distance, souls/score, high score, Retry, Main Menu, disabled “Watch Ad” stub
 - Pause overlay (Esc): Resume / Main Menu
 - HUD: score, distance, best, power-up icons/timers (Ghost Form + others)
-- Full gameplay: lanes, obstacles, collectibles, power-ups, chasers, Graveyard biome
+- Full gameplay: lanes, obstacles, collectibles, power-ups, chasers
+- **Biomes:** Graveyard start → **Haunted Castle** after ~1200–1500 m (black fog fade; corridor chunks with walls/chandeliers/curtains)
 
 ## License
 

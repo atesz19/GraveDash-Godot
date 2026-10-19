@@ -11,15 +11,38 @@ extends Node3D
 var _player: Node3D
 
 
+var _active: bool = true
+
+
 func _ready() -> void:
 	_player = get_node_or_null(player_path) as Node3D
+	_set_active(BiomeManager.current_biome == "graveyard")
+	if not BiomeManager.biome_changed.is_connected(_on_biome_changed):
+		BiomeManager.biome_changed.connect(_on_biome_changed)
+	if not BiomeManager.biome_applied.is_connected(_on_biome_applied):
+		BiomeManager.biome_applied.connect(_on_biome_applied)
+
+
+func _on_biome_changed(biome_id: String) -> void:
+	_set_active(biome_id == "graveyard")
+
+
+func _on_biome_applied(biome_id: String) -> void:
+	_set_active(biome_id == "graveyard")
+
+
+func _set_active(active: bool) -> void:
+	_active = active
+	visible = active
 	if leaves:
-		leaves.emitting = true
+		leaves.emitting = active
 	if wisps:
-		wisps.emitting = true
+		wisps.emitting = active
 
 
 func _process(_delta: float) -> void:
+	if not _active:
+		return
 	if _player == null:
 		_player = get_node_or_null(player_path) as Node3D
 		if _player == null:
