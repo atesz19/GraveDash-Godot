@@ -1,11 +1,18 @@
 extends CanvasLayer
-## HUD — Score, distance, Best, and active power-up icons + timers.
+## HUD — Score, multiplier, distance, Best, missions, and active power-up icons.
 
 const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
 
 @onready var score_label: Label = $Margin/VBox/ScoreLabel
+@onready var mult_label: Label = $Margin/VBox/MultLabel
 @onready var distance_label: Label = $Margin/VBox/DistanceLabel
 @onready var best_label: Label = $Margin/VBox/BestLabel
+@onready var mission_box: VBoxContainer = $Margin/VBox/MissionBox
+@onready var mission_labels: Array[Label] = [
+	$Margin/VBox/MissionBox/Mission1,
+	$Margin/VBox/MissionBox/Mission2,
+	$Margin/VBox/MissionBox/Mission3,
+]
 @onready var powerup_box: VBoxContainer = $Margin/VBox/PowerupBox
 @onready var root_margin: MarginContainer = $Margin
 
@@ -20,6 +27,11 @@ func _ready() -> void:
 	ScoreManager.score_changed.connect(_on_score_changed)
 	ScoreManager.distance_changed.connect(_on_distance_changed)
 	ScoreManager.highscore_changed.connect(_on_highscore_changed)
+	if MissionManager:
+		if not MissionManager.multiplier_changed.is_connected(_on_multiplier_changed):
+			MissionManager.multiplier_changed.connect(_on_multiplier_changed)
+		if not MissionManager.missions_changed.is_connected(_on_missions_changed):
+			MissionManager.missions_changed.connect(_on_missions_changed)
 	_cache_rows()
 	_hide_all_powerups()
 	_refresh_all()
@@ -75,6 +87,8 @@ func _refresh_all() -> void:
 	_on_score_changed(ScoreManager.score)
 	_on_distance_changed(ScoreManager.distance)
 	_on_highscore_changed(ScoreManager.highscore)
+	_on_multiplier_changed(MissionManager.get_multiplier() if MissionManager else 1)
+	_on_missions_changed()
 
 
 func _hide_all_powerups() -> void:
@@ -84,6 +98,27 @@ func _hide_all_powerups() -> void:
 
 func _on_score_changed(new_score: int) -> void:
 	score_label.text = "Score  %d" % new_score
+
+
+func _on_multiplier_changed(new_mult: int) -> void:
+	if mult_label:
+		mult_label.text = "Multiplier  ×%d" % new_mult
+
+
+func _on_missions_changed() -> void:
+	if mission_box == null or MissionManager == null:
+		return
+	var missions: Array[Dictionary] = MissionManager.get_active_missions()
+	for i in mission_labels.size():
+		var label: Label = mission_labels[i]
+		if label == null:
+			continue
+		if i < missions.size():
+			label.visible = true
+			label.text = MissionManager.format_mission_line(missions[i])
+		else:
+			label.visible = false
+			label.text = ""
 
 
 func _on_distance_changed(new_distance: float) -> void:
@@ -152,4 +187,3 @@ func _on_state_changed(_previous: Variant, current: Variant) -> void:
 		current == GameManager.State.PLAYING or current == GameManager.State.PAUSED
 	)
 	visible = playing_or_paused
-

@@ -36,13 +36,13 @@ grow_vertical = 2
 
 [node name="PausePanel" type="PanelContainer" parent="Root/Center"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 220)
+custom_minimum_size = Vector2(360, 380)
 layout_mode = 2
 theme = ExtResource("2_theme")
 
 [node name="VBox" type="VBoxContainer" parent="Root/Center/PausePanel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Title" type="Label" parent="Root/Center/PausePanel/VBox"]
@@ -57,6 +57,50 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
 theme_override_font_sizes/font_size = 13
 text = "Esc to resume"
+horizontal_alignment = 1
+
+[node name="MultLabel" type="Label" parent="Root/Center/PausePanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.72, 0.35, 1)
+theme_override_font_sizes/font_size = 16
+text = "Multiplier  ×1"
+horizontal_alignment = 1
+
+[node name="MissionBox" type="VBoxContainer" parent="Root/Center/PausePanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="MissionHeader" type="Label" parent="Root/Center/PausePanel/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.58, 0.52, 1)
+theme_override_font_sizes/font_size = 12
+text = "Missions"
+horizontal_alignment = 1
+
+[node name="Mission1" type="Label" parent="Root/Center/PausePanel/VBox/MissionBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 1"
+horizontal_alignment = 1
+
+[node name="Mission2" type="Label" parent="Root/Center/PausePanel/VBox/MissionBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 2"
+horizontal_alignment = 1
+
+[node name="Mission3" type="Label" parent="Root/Center/PausePanel/VBox/MissionBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 3"
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="Root/Center/PausePanel/VBox"]

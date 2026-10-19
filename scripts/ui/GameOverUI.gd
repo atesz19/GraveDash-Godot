@@ -6,8 +6,14 @@ const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
 @onready var panel: Control = $Root
 @onready var title_label: Label = $Root/Center/Panel/VBox/Title
 @onready var score_label: Label = $Root/Center/Panel/VBox/ScoreLabel
+@onready var mult_label: Label = $Root/Center/Panel/VBox/MultLabel
 @onready var distance_label: Label = $Root/Center/Panel/VBox/DistanceLabel
 @onready var best_label: Label = $Root/Center/Panel/VBox/BestLabel
+@onready var mission_labels: Array[Label] = [
+	$Root/Center/Panel/VBox/MissionBox/Mission1,
+	$Root/Center/Panel/VBox/MissionBox/Mission2,
+	$Root/Center/Panel/VBox/MissionBox/Mission3,
+]
 @onready var restart_button: Button = $Root/Center/Panel/VBox/RestartButton
 @onready var menu_button: Button = $Root/Center/Panel/VBox/MenuButton
 @onready var ad_button: Button = $Root/Center/Panel/VBox/AdButton
@@ -48,13 +54,33 @@ func _show_overlay() -> void:
 	var wallet: int = ScoreManager.total_souls
 	var dist: int = ScoreManager.get_distance_meters()
 	var best: int = ScoreManager.highscore
+	var mult: int = MissionManager.get_multiplier() if MissionManager else 1
 	distance_label.text = "Distance  %d m" % dist
 	score_label.text = "Run Score  %d   ·   Banked Souls  +%d" % [run_score, banked]
+	if mult_label:
+		mult_label.text = "Multiplier  ×%d" % mult
 	best_label.text = "High Score  %d   ·   Wallet  %d" % [best, wallet]
 	if best > 0 and run_score >= best:
 		best_label.text = "High Score  %d  ★ NEW   ·   Wallet  %d" % [best, wallet]
+	_refresh_missions()
 	panel.visible = true
 	restart_button.grab_focus()
+
+
+func _refresh_missions() -> void:
+	if MissionManager == null:
+		return
+	var missions: Array[Dictionary] = MissionManager.get_active_missions()
+	for i in mission_labels.size():
+		var label: Label = mission_labels[i]
+		if label == null:
+			continue
+		if i < missions.size():
+			label.visible = true
+			label.text = MissionManager.format_mission_line(missions[i])
+		else:
+			label.visible = false
+
 
 
 func _on_restart_pressed() -> void:

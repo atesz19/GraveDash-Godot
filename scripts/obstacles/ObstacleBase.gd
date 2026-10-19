@@ -12,6 +12,10 @@ var lane_index: int = 1
 ## Local Z offset within the parent chunk (chunk origin = center).
 var local_z: float = 0.0
 
+## Dodge mission: count once when player passes this obstacle (-Z) without dying.
+var _dodge_counted: bool = false
+const DODGE_PASS_MARGIN: float = 1.25
+
 
 func _ready() -> void:
 	add_to_group("hazard")
@@ -20,7 +24,12 @@ func _ready() -> void:
 	collision_mask = 2   ## detect player (layer 2)
 	monitoring = true
 	monitorable = true
+	set_physics_process(false)
 	body_entered.connect(_on_body_entered)
+
+
+func _physics_process(_delta: float) -> void:
+	_try_count_dodge()
 
 
 func _on_body_entered(body: Node3D) -> void:
@@ -65,15 +74,41 @@ func on_spawned() -> void:
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	monitoring = true
+	_dodge_counted = false
+	set_physics_process(true)
 	# Clear stale overlaps from previous life in the pool.
 	set_deferred("monitoring", true)
 
 
 ## Reset motion / state before returning to ObjectPool.
 func on_recycled() -> void:
+	_try_count_dodge()
+	set_physics_process(false)
 	monitoring = false
 	visible = false
 	position = Vector3.ZERO
 	rotation = Vector3.ZERO
+	_dodge_counted = false
 	if has_method("_reset_motion"):
 		call("_reset_motion")
+
+
+## Player runs toward -Z; once past this hazard without dying, count a dodge.
+func _try_count_dodge() -> void:
+	if _dodge_counted:
+		return
+	if not GameManager or not GameManager.is_playing():
+		return
+	var player: Node = GameManager.player
+	if player == null or not is_instance_valid(player):
+		return
+	if not (player is Node3D):
+		return
+	if player.get("is_alive") != null and not bool(player.get("is_alive")):
+		return
+	var pz: float = (player as Node3D).global_position.z
+	if pz >= global_position.z - DODGE_PASS_MARGIN:
+		return
+	_dodge_counted = true
+	if MissionManager:
+		MissionManager.report_dodge()

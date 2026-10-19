@@ -55,13 +55,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Root/Center"]
-custom_minimum_size = Vector2(400, 380)
+custom_minimum_size = Vector2(440, 520)
 layout_mode = 2
 theme = ExtResource("2_theme")
 
 [node name="VBox" type="VBoxContainer" parent="Root/Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Title" type="Label" parent="Root/Center/Panel/VBox"]
@@ -91,8 +91,15 @@ horizontal_alignment = 1
 [node name="ScoreLabel" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.85, 0.7, 1)
-theme_override_font_sizes/font_size = 24
-text = "Souls  0"
+theme_override_font_sizes/font_size = 22
+text = "Run Score  0"
+horizontal_alignment = 1
+
+[node name="MultLabel" type="Label" parent="Root/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.72, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "Multiplier  ×1"
 horizontal_alignment = 1
 
 [node name="BestLabel" type="Label" parent="Root/Center/Panel/VBox"]
@@ -100,6 +107,38 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.58, 0.48, 1)
 theme_override_font_sizes/font_size = 16
 text = "High Score  0"
+horizontal_alignment = 1
+
+[node name="MissionBox" type="VBoxContainer" parent="Root/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="MissionHeader" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.58, 0.52, 1)
+theme_override_font_sizes/font_size = 12
+text = "Missions"
+horizontal_alignment = 1
+
+[node name="Mission1" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 1"
+horizontal_alignment = 1
+
+[node name="Mission2" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 2"
+horizontal_alignment = 1
+
+[node name="Mission3" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 3"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Root/Center/Panel/VBox"]

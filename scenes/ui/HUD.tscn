@@ -13,8 +13,8 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 offset_left = 16.0
 offset_top = 12.0
-offset_right = 360.0
-offset_bottom = 280.0
+offset_right = 420.0
+offset_bottom = 420.0
 theme = ExtResource("2_theme")
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 0
@@ -29,6 +29,12 @@ theme_override_colors/font_color = Color(0.9, 0.95, 0.82, 1)
 theme_override_font_sizes/font_size = 26
 text = "Score  0"
 
+[node name="MultLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.72, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "Multiplier  ×1"
+
 [node name="DistanceLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.78, 0.65, 1)
@@ -40,6 +46,34 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.6, 0.48, 1)
 theme_override_font_sizes/font_size = 16
 text = "Best  0"
+
+[node name="MissionBox" type="VBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="MissionHeader" type="Label" parent="Margin/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.58, 0.52, 1)
+theme_override_font_sizes/font_size = 12
+text = "Missions"
+
+[node name="Mission1" type="Label" parent="Margin/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 1"
+
+[node name="Mission2" type="Label" parent="Margin/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 2"
+
+[node name="Mission3" type="Label" parent="Margin/VBox/MissionBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mission 3"
 
 [node name="PowerupBox" type="VBoxContainer" parent="Margin/VBox"]
 layout_mode = 2

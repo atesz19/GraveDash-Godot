@@ -13,6 +13,9 @@ const COST_DEMO := 25
 @onready var settings_panel: Control = %SettingsPanel
 @onready var shop_panel: Control = %ShopPanel
 @onready var high_score_label: Label = %HighScoreLabel
+@onready var mult_label: Label = %MultLabel
+@onready var mission_box: VBoxContainer = %MissionBox
+@onready var mission_labels: Array[Label] = [%Mission1, %Mission2, %Mission3]
 @onready var soul_wallet_label: Label = %SoulWalletLabel
 @onready var start_button: Button = %StartButton
 @onready var shop_button: Button = %ShopButton
@@ -40,6 +43,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.state = GameManager.State.MENU
 	_refresh_highscore()
+	_refresh_multiplier()
+	_refresh_missions()
 	_refresh_souls()
 	_sync_audio_toggles()
 	_show_main()
@@ -59,11 +64,45 @@ func _ready() -> void:
 		ScoreManager.highscore_changed.connect(_on_highscore_changed)
 	if not ScoreManager.total_souls_changed.is_connected(_on_total_souls_changed):
 		ScoreManager.total_souls_changed.connect(_on_total_souls_changed)
+	if MissionManager:
+		if not MissionManager.multiplier_changed.is_connected(_on_multiplier_changed):
+			MissionManager.multiplier_changed.connect(_on_multiplier_changed)
+		if not MissionManager.missions_changed.is_connected(_on_missions_changed):
+			MissionManager.missions_changed.connect(_on_missions_changed)
 	start_button.grab_focus()
 
 
 func _refresh_highscore() -> void:
 	high_score_label.text = "High Score  %d" % ScoreManager.highscore
+
+
+func _refresh_multiplier() -> void:
+	var mult: int = MissionManager.get_multiplier() if MissionManager else 1
+	if mult_label:
+		mult_label.text = "Multiplier  ×%d" % mult
+
+
+func _refresh_missions() -> void:
+	if MissionManager == null:
+		return
+	var missions: Array[Dictionary] = MissionManager.get_active_missions()
+	for i in mission_labels.size():
+		var label: Label = mission_labels[i]
+		if label == null:
+			continue
+		if i < missions.size():
+			label.visible = true
+			label.text = MissionManager.format_mission_line(missions[i])
+		else:
+			label.visible = false
+
+
+func _on_multiplier_changed(_value: int) -> void:
+	_refresh_multiplier()
+
+
+func _on_missions_changed() -> void:
+	_refresh_missions()
 
 
 func _refresh_souls() -> void:

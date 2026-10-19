@@ -1,19 +1,24 @@
 extends Node
-## ScoreManager — live score, distance (meters), high score, and soul wallet.
+## ScoreManager — distance + soul raw points × MissionManager multiplier.
+## Display/highscore score = raw_score × multiplier.
 
 signal score_changed(new_score: int)
 signal distance_changed(new_distance: float)
 signal highscore_changed(new_highscore: int)
 signal run_souls_changed(new_run_souls: int)
 signal total_souls_changed(new_total: int)
+signal raw_score_changed(new_raw: int)
 
-## Points earned this run (distance + collectibles).
+## Raw points this run (distance convert + soul collectibles) before multiplier.
+var raw_score: int = 0
+
+## Display score = raw_score × current multiplier.
 var score: int = 0
 
 ## Meters traveled this run (driven by player forward motion).
 var distance: float = 0.0
 
-## Best score across runs (persisted via SaveSystem / ConfigFile).
+## Best score across runs (persisted; stores multiplied final scores).
 var highscore: int = 0
 
 ## Soul collectible points earned this run (banked into wallet on game over).
@@ -22,22 +27,26 @@ var run_souls: int = 0
 ## Persistent soul currency wallet (shop / meta progress).
 var total_souls: int = 0
 
-## Fractional meter accumulator so we don't drop sub-meter distance points.
 var _distance_point_carry: float = 0.0
-## Prevent double-banking the same run.
 var _souls_banked_this_run: bool = false
 
-## Points awarded per meter of distance.
 const POINTS_PER_METER: float = 1.0
 const SAVE_KEY_HIGHSCORE: String = "highscore"
 const SAVE_KEY_TOTAL_SOULS: String = "total_souls"
-## Legacy key kept for older saves.
-const SAVE_KEY := "highscore"
 
 
 func _ready() -> void:
-	## Defer so SaveSystem._ready has loaded the ConfigFile first.
 	call_deferred("_load_persisted")
+	call_deferred("_bind_multiplier")
+
+
+func _bind_multiplier() -> void:
+	if MissionManager and not MissionManager.multiplier_changed.is_connected(_on_multiplier_changed):
+		MissionManager.multiplier_changed.connect(_on_multiplier_changed)
+
+
+func _on_multiplier_changed(_new_mult: int) -> void:
+	recompute_score()
 
 
 func _load_persisted() -> void:
@@ -48,30 +57,44 @@ func _load_persisted() -> void:
 
 
 func _load_highscore() -> void:
-	## Kept for compatibility with older call sites.
 	_load_persisted()
 
 
 func reset_run() -> void:
+	raw_score = 0
 	score = 0
 	distance = 0.0
 	run_souls = 0
 	_distance_point_carry = 0.0
 	_souls_banked_this_run = false
+	raw_score_changed.emit(raw_score)
 	score_changed.emit(score)
 	distance_changed.emit(distance)
 	run_souls_changed.emit(run_souls)
 
 
-## Add raw points (soul orbs, coffins, distance conversion, etc.).
+func get_multiplier() -> int:
+	if MissionManager:
+		return MissionManager.get_multiplier()
+	return 1
+
+
+func recompute_score() -> void:
+	var mult: int = get_multiplier()
+	var next: int = raw_score * mult
+	if next != score:
+		score = next
+		score_changed.emit(score)
+
+
 func add_score(points: int) -> void:
 	if points == 0:
 		return
-	score = maxi(0, score + points)
-	score_changed.emit(score)
+	raw_score = maxi(0, raw_score + points)
+	raw_score_changed.emit(raw_score)
+	recompute_score()
 
 
-## Soul collectible currency for this run (also still adds to score via callers).
 func add_souls(points: int) -> void:
 	if points <= 0:
 		return
@@ -79,22 +102,22 @@ func add_souls(points: int) -> void:
 	run_souls_changed.emit(run_souls)
 
 
-## Advance distance by `meters` and convert to score.
 func add_distance(meters: float) -> void:
 	if meters <= 0.0:
 		return
 	distance += meters
 	_distance_point_carry += meters * POINTS_PER_METER
-	var earned := int(_distance_point_carry)
+	var earned: int = int(_distance_point_carry)
 	if earned > 0:
 		_distance_point_carry -= float(earned)
-		score += earned
-		score_changed.emit(score)
+		raw_score += earned
+		raw_score_changed.emit(raw_score)
+		recompute_score()
 	distance_changed.emit(distance)
 
 
-## Persist highscore if this run beat the previous best.
 func commit_highscore() -> void:
+	recompute_score()
 	if score <= highscore:
 		return
 	highscore = score
@@ -102,7 +125,6 @@ func commit_highscore() -> void:
 	_write_persisted(SAVE_KEY_HIGHSCORE, highscore)
 
 
-## Bank this run's collectible souls into the persistent wallet (once per run).
 func commit_run_souls() -> void:
 	if _souls_banked_this_run:
 		return
@@ -132,7 +154,6 @@ func get_distance_meters() -> int:
 func _read_persisted(key: String, default: Variant) -> Variant:
 	if has_node("/root/SaveSystem") and SaveSystem.has_method("get_value"):
 		return SaveSystem.get_value(key, default)
-	## Fallback ConfigFile if SaveSystem is missing.
 	var cfg := ConfigFile.new()
 	if cfg.load("user://gravedash_save.cfg") != OK:
 		return default

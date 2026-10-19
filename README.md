@@ -81,22 +81,45 @@ Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/
 
 `resources/ui/GraveDashTheme.tres` — dark gothic StyleBoxes for panels/buttons across Menu, Settings, HUD, Pause, Game Over.
 
-## Settings persistence
+## Score, missions & multiplier
 
-Audio mute prefs via `AudioManager` → `SaveSystem` (`user://gravedash_save.cfg`):
+**Formula:** `final score = (distance points + soul points) × multiplier`  
+Distance converts 1:1 into raw points; soul collectibles add to raw via `ScoreManager.add_score` and also bank into the soul wallet.
+
+| Piece | Behavior |
+|-------|----------|
+| Multiplier | Starts at **×1**; **+1** every **3** completed missions; cap **×30**; persists across launches |
+| Missions | Exactly **3** active slots; completing one refills from the pool |
+| Pool types | `distance`, `souls`, `dodge`, `powerups` |
+
+### SaveSystem keys (`user://gravedash_save.cfg`)
 
 | Key | Meaning |
 |-----|---------|
 | `music_muted` | Music bus / flag |
 | `sfx_muted` | SFX bus / flag |
-| `highscore` | Best score (ScoreManager) |
+| `highscore` | Best **multiplied** run score |
+| `total_souls` | Persistent soul wallet |
+| `score_multiplier` | Long-term score multiplier (1–30) |
+| `missions_completed` | Lifetime mission completions (drives multiplier) |
+| `active_missions` | JSON array of the 3 active mission slots |
+
+Autoload: `MissionManager` (`autoload/MissionManager.gd`) — separate from `ScoreManager`.
+
+### UI surfaces
+
+- **HUD** — score, multiplier, distance, best, 3 missions, power-ups
+- **Main Menu** — high score, multiplier, 3 active missions + progress
+- **Pause / Game Over** — multiplier + mission progress
+
+Headless check: `godot --headless --path . --script res://tools/validate_missions.gd`
 
 ## What’s in this slice
 
-- Main Menu: Start, High Score, Settings (music/SFX mute), Quit
-- Game Over: distance, souls/score, high score, Retry, Main Menu, disabled “Watch Ad” stub
-- Pause overlay (Esc): Resume / Main Menu
-- HUD: score, distance, best, power-up icons/timers
+- Main Menu: Start, soul wallet, shop stub, high score, multiplier, missions, Settings, Quit
+- Game Over: distance, run score, multiplier, missions, high score, Retry, Main Menu, disabled “Watch Ad” stub
+- Pause overlay (Esc): Resume / Main Menu + multiplier & missions
+- HUD: score, multiplier, distance, best, missions, power-up icons/timers
 - Full gameplay: lanes, obstacles, collectibles, power-ups, chasers
 - **Biomes:** Graveyard → **Haunted Castle** after ~1200–1500 m
 - **Android:** export preset, landscape, Internet permission, arm64, touch swipes

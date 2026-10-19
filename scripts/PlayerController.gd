@@ -345,6 +345,7 @@ func apply_ghost_form(duration: float = GHOST_DURATION_DEFAULT) -> void:
 	powerup_collected.emit("ghost_form")
 	ghost_form_changed.emit(true, ghost_time_remaining)
 	powerup_changed.emit("ghost_form", true, ghost_time_remaining)
+	_report_mission_powerup("ghost_form")
 	if not was_active:
 		print("[Player] Ghost Form ON (%.1fs)" % ghost_time_remaining)
 
@@ -397,6 +398,7 @@ func apply_soul_magnet(duration: float = MAGNET_DURATION_DEFAULT) -> void:
 	_apply_magnet_visuals(true)
 	powerup_collected.emit("soul_magnet")
 	powerup_changed.emit("soul_magnet", true, magnet_time_remaining)
+	_report_mission_powerup("soul_magnet")
 	print("[Player] Soul Magnet ON (%.1fs)" % magnet_time_remaining)
 
 
@@ -424,6 +426,7 @@ func apply_holy_light(duration: float = HOLY_DURATION_DEFAULT) -> void:
 	_apply_holy_visuals(true)
 	powerup_collected.emit("holy_light")
 	powerup_changed.emit("holy_light", true, holy_time_remaining)
+	_report_mission_powerup("holy_light")
 	_holy_light_blast()
 	print("[Player] Holy Light ON (%.1fs)" % holy_time_remaining)
 
@@ -523,6 +526,7 @@ func apply_second_chance() -> void:
 	powerup_collected.emit("second_chance")
 	second_chance_changed.emit(true)
 	powerup_changed.emit("second_chance", true, 0.0)
+	_report_mission_powerup("second_chance")
 	print("[Player] Second Chance charged")
 
 
@@ -584,6 +588,7 @@ func apply_cursed_speed(duration: float = CURSED_DURATION_DEFAULT) -> void:
 	_apply_cursed_visuals(true)
 	powerup_collected.emit("cursed_speed")
 	powerup_changed.emit("cursed_speed", true, cursed_time_remaining)
+	_report_mission_powerup("cursed_speed")
 	print("[Player] Cursed Speed ON (%.1fs)" % cursed_time_remaining)
 
 
@@ -631,9 +636,16 @@ func apply_powerup(powerup_id: String, duration: float = 5.0) -> void:
 			has_shield = true
 			_powerup_timers["shield"] = duration
 			powerup_collected.emit("shield")
+			_report_mission_powerup("shield")
 		_:
 			_powerup_timers[powerup_id] = duration
 			powerup_collected.emit(powerup_id)
+			_report_mission_powerup(powerup_id)
+
+
+func _report_mission_powerup(powerup_id: String) -> void:
+	if MissionManager:
+		MissionManager.report_powerup_used(powerup_id)
 
 
 func _on_collect_powerup(node: Object) -> void:

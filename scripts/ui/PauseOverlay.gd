@@ -1,5 +1,5 @@
 extends CanvasLayer
-## PauseOverlay — Esc pause panel with Resume / Main Menu.
+## PauseOverlay — Esc pause panel with Resume / Main Menu + missions.
 
 const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
 
@@ -7,6 +7,8 @@ const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
 @onready var resume_button: Button = %ResumeButton
 @onready var menu_button: Button = %MenuButton
 @onready var panel: PanelContainer = %PausePanel
+@onready var mult_label: Label = %MultLabel
+@onready var mission_labels: Array[Label] = [%Mission1, %Mission2, %Mission3]
 
 
 func _ready() -> void:
@@ -24,12 +26,31 @@ func _ready() -> void:
 
 
 func _on_paused() -> void:
+	_refresh_progress()
 	root.visible = true
 	resume_button.grab_focus()
 
 
 func _on_resumed() -> void:
 	root.visible = false
+
+
+func _refresh_progress() -> void:
+	var mult: int = MissionManager.get_multiplier() if MissionManager else 1
+	if mult_label:
+		mult_label.text = "Multiplier  ×%d" % mult
+	if MissionManager == null:
+		return
+	var missions: Array[Dictionary] = MissionManager.get_active_missions()
+	for i in mission_labels.size():
+		var label: Label = mission_labels[i]
+		if label == null:
+			continue
+		if i < missions.size():
+			label.visible = true
+			label.text = MissionManager.format_mission_line(missions[i])
+		else:
+			label.visible = false
 
 
 func _on_resume() -> void:
