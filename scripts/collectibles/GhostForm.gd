@@ -7,6 +7,7 @@ const GHOST_DURATION: float = 9.0
 func _ready() -> void:
 	collectible_id = "ghost_form"
 	points = 0  ## Ability pickup; no score (activation is the reward).
+	spin_speed = 2.0
 	super._ready()
 
 

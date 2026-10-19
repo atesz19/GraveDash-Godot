@@ -1,32 +1,62 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq8holylight"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8holylight"]
 
 [ext_resource type="Script" path="res://scripts/collectibles/HolyLight.gd" id="1_holy"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_h"]
-radius = 0.55
+radius = 0.6
 
-[sub_resource type="SphereMesh" id="SphereMesh_h"]
-radius = 0.4
-height = 0.8
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h"]
-transparency = 1
-albedo_color = Color(1.0, 0.92, 0.55, 0.85)
+[sub_resource type="StandardMaterial3D" id="Mat_cross"]
+albedo_color = Color(1.0, 0.95, 0.7, 1)
 emission_enabled = true
-emission = Color(1.0, 0.95, 0.6, 1)
-emission_energy_multiplier = 4.0
-roughness = 0.2
+emission = Color(1.0, 0.92, 0.55, 1)
+emission_energy_multiplier = 4.5
+metallic = 0.35
+roughness = 0.25
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+[sub_resource type="StandardMaterial3D" id="Mat_core"]
 transparency = 1
-albedo_color = Color(1.0, 1.0, 0.9, 0.95)
+albedo_color = Color(1.0, 1.0, 0.92, 0.9)
 emission_enabled = true
 emission = Color(1.0, 1.0, 0.85, 1)
-emission_energy_multiplier = 5.0
+emission_energy_multiplier = 6.0
+roughness = 0.15
 
-[sub_resource type="SphereMesh" id="SphereMesh_core"]
-radius = 0.18
-height = 0.36
+[sub_resource type="StandardMaterial3D" id="Mat_halo"]
+transparency = 1
+albedo_color = Color(1.0, 0.92, 0.55, 0.35)
+emission_enabled = true
+emission = Color(1.0, 0.9, 0.5, 1)
+emission_energy_multiplier = 2.5
+roughness = 0.5
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_ray"]
+transparency = 1
+albedo_color = Color(1.0, 0.95, 0.7, 0.4)
+emission_enabled = true
+emission = Color(1.0, 0.9, 0.55, 1)
+emission_energy_multiplier = 3.0
+roughness = 0.4
+cull_mode = 2
+
+[sub_resource type="BoxMesh" id="Mesh_vert"]
+size = Vector3(0.12, 0.72, 0.1)
+
+[sub_resource type="BoxMesh" id="Mesh_horiz"]
+size = Vector3(0.48, 0.12, 0.1)
+
+[sub_resource type="SphereMesh" id="Mesh_core"]
+radius = 0.1
+height = 0.2
+
+[sub_resource type="TorusMesh" id="Mesh_halo"]
+inner_radius = 0.28
+outer_radius = 0.4
+rings = 12
+ring_segments = 18
+
+[sub_resource type="BoxMesh" id="Mesh_ray"]
+size = Vector3(0.05, 0.55, 0.05)
 
 [node name="HolyLight" type="Area3D"]
 collision_layer = 8
@@ -38,16 +68,44 @@ script = ExtResource("1_holy")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_h")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_h")
-surface_material_override/0 = SubResource("StandardMaterial3D_h")
+[node name="Visual" type="Node3D" parent="."]
 
-[node name="Core" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_core")
-surface_material_override/0 = SubResource("StandardMaterial3D_core")
+[node name="CrossV" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_vert")
+surface_material_override/0 = SubResource("Mat_cross")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
+[node name="CrossH" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("Mesh_horiz")
+surface_material_override/0 = SubResource("Mat_cross")
+
+[node name="Core" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("Mesh_core")
+surface_material_override/0 = SubResource("Mat_core")
+
+[node name="Halo" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.12, 0)
+mesh = SubResource("Mesh_halo")
+surface_material_override/0 = SubResource("Mat_halo")
+
+[node name="RayN" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("Mesh_ray")
+surface_material_override/0 = SubResource("Mat_ray")
+
+[node name="RayNE" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.707, -0.707, 0, 0.707, 0.707, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("Mesh_ray")
+surface_material_override/0 = SubResource("Mat_ray")
+
+[node name="RayNW" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.707, 0.707, 0, -0.707, 0.707, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("Mesh_ray")
+surface_material_override/0 = SubResource("Mat_ray")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visual"]
 light_color = Color(1.0, 0.95, 0.7, 1)
-light_energy = 3.0
+light_energy = 3.2
 omni_range = 5.0
 shadow_enabled = false

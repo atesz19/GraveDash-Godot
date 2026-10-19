@@ -8,6 +8,7 @@ extends "res://scripts/collectibles/CollectibleBase.gd"
 func _ready() -> void:
 	collectible_id = ability_id if ability_id != "" else collectible_id
 	points = 0
+	spin_speed = 2.2
 	super._ready()
 
 

@@ -1,20 +1,71 @@
-[gd_scene load_steps=4 format=3 uid="uid://bq8soulorb"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8soulorb"]
 
 [ext_resource type="Script" path="res://scripts/collectibles/SoulOrb.gd" id="1_orb"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_orb"]
-radius = 0.45
+radius = 0.48
 
-[sub_resource type="SphereMesh" id="SphereMesh_orb"]
-radius = 0.35
-height = 0.7
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glow"]
-albedo_color = Color(0.45, 0.85, 0.95, 1)
+[sub_resource type="StandardMaterial3D" id="Mat_core"]
+transparency = 1
+albedo_color = Color(0.55, 0.92, 1.0, 0.92)
 emission_enabled = true
-emission = Color(0.3, 0.75, 0.9, 1)
+emission = Color(0.35, 0.85, 1.0, 1)
+emission_energy_multiplier = 4.5
+roughness = 0.18
+metallic = 0.15
+
+[sub_resource type="SphereMesh" id="Mesh_core"]
+radius = 0.16
+height = 0.32
+
+[sub_resource type="StandardMaterial3D" id="Mat_wisp"]
+transparency = 1
+albedo_color = Color(0.35, 0.75, 0.95, 0.45)
+emission_enabled = true
+emission = Color(0.25, 0.7, 0.95, 1)
 emission_energy_multiplier = 2.2
-roughness = 0.35
+roughness = 0.4
+cull_mode = 2
+
+[sub_resource type="CapsuleMesh" id="Mesh_wisp"]
+radius = 0.05
+height = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_shard"]
+transparency = 1
+albedo_color = Color(0.65, 0.9, 1.0, 0.7)
+emission_enabled = true
+emission = Color(0.4, 0.8, 1.0, 1)
+emission_energy_multiplier = 3.0
+roughness = 0.25
+
+[sub_resource type="PrismMesh" id="Mesh_shard"]
+size = Vector3(0.12, 0.28, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_flame"]
+size = Vector3(0.06, 0.22, 0.06)
+
+[sub_resource type="StandardMaterial3D" id="Mat_flame"]
+transparency = 1
+albedo_color = Color(0.7, 0.95, 1.0, 0.55)
+emission_enabled = true
+emission = Color(0.5, 0.9, 1.0, 1)
+emission_energy_multiplier = 3.8
+roughness = 0.2
+cull_mode = 2
+
+[sub_resource type="SphereMesh" id="Mesh_halo"]
+radius = 0.32
+height = 0.64
+
+[sub_resource type="StandardMaterial3D" id="Mat_halo"]
+transparency = 1
+albedo_color = Color(0.3, 0.7, 0.95, 0.18)
+emission_enabled = true
+emission = Color(0.2, 0.65, 0.9, 1)
+emission_energy_multiplier = 1.4
+roughness = 1.0
+cull_mode = 2
 
 [node name="SoulOrb" type="Area3D"]
 collision_layer = 8
@@ -26,12 +77,58 @@ script = ExtResource("1_orb")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_orb")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_orb")
-surface_material_override/0 = SubResource("StandardMaterial3D_glow")
+[node name="Visual" type="Node3D" parent="."]
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
+[node name="Halo" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_halo")
+surface_material_override/0 = SubResource("Mat_halo")
+
+[node name="Core" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_core")
+surface_material_override/0 = SubResource("Mat_core")
+
+[node name="WispA" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, -0.5, 0, 0.5, 0.866, 0, 0, 0, 1, 0.12, 0.05, 0)
+mesh = SubResource("Mesh_wisp")
+surface_material_override/0 = SubResource("Mat_wisp")
+
+[node name="WispB" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, 0.5, 0, -0.5, 0.866, 0, 0, 0, 1, -0.12, -0.02, 0.05)
+mesh = SubResource("Mesh_wisp")
+surface_material_override/0 = SubResource("Mat_wisp")
+
+[node name="WispC" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.707, 0, 0.707, 0, 1, 0, -0.707, 0, 0.707, 0.02, 0.08, -0.1)
+mesh = SubResource("Mesh_wisp")
+surface_material_override/0 = SubResource("Mat_wisp")
+
+[node name="Shard1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.94, 0.342, 0, -0.342, 0.94, 0, 0, 0, 1, 0.22, 0.18, 0.05)
+mesh = SubResource("Mesh_shard")
+surface_material_override/0 = SubResource("Mat_shard")
+
+[node name="Shard2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.766, -0.643, 0, 0.643, 0.766, 0, 0, 0, 1, -0.2, 0.12, -0.08)
+mesh = SubResource("Mesh_shard")
+surface_material_override/0 = SubResource("Mat_shard")
+
+[node name="Shard3" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.5, 0.866, 0, -0.866, 0.5, 0, 0, 0, 1, 0.05, -0.22, 0.12)
+mesh = SubResource("Mesh_shard")
+surface_material_override/0 = SubResource("Mat_shard")
+
+[node name="Flame1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.28, 0)
+mesh = SubResource("Mesh_flame")
+surface_material_override/0 = SubResource("Mat_flame")
+
+[node name="Flame2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, -0.06, 0.32, 0.04)
+mesh = SubResource("Mesh_flame")
+surface_material_override/0 = SubResource("Mat_flame")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visual"]
 light_color = Color(0.4, 0.85, 1.0, 1)
-light_energy = 1.4
-omni_range = 3.0
+light_energy = 1.6
+omni_range = 3.2
 shadow_enabled = false

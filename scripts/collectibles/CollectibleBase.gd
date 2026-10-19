@@ -20,6 +20,9 @@ var local_z: float = 0.0
 var _picked: bool = false
 var _bob_t: float = 0.0
 var _base_y: float = FLOAT_Y
+## Yaw spin rate (rad/s). Ability orbs spin a bit faster for readability.
+var spin_speed: float = 1.6
+var _visual: Node3D = null
 
 
 func _ready() -> void:
@@ -30,16 +33,26 @@ func _ready() -> void:
 	monitoring = true
 	monitorable = true
 	body_entered.connect(_on_body_entered)
+	_visual = get_node_or_null("Visual") as Node3D
 
 
 func _process(delta: float) -> void:
 	if _picked or not visible:
 		return
 	if _try_magnet_pull(delta):
+		## Keep spinning while being pulled so the prop stays lively.
+		_spin_visual(delta)
 		return
 	_bob_t += delta
-	position.y = _base_y + sin(_bob_t * 3.0) * 0.12
-	rotate_y(delta * 1.6)
+	position.y = _base_y + sin(_bob_t * 3.0) * 0.14
+	_spin_visual(delta)
+
+
+func _spin_visual(delta: float) -> void:
+	if _visual != null and is_instance_valid(_visual):
+		_visual.rotate_y(delta * spin_speed)
+	else:
+		rotate_y(delta * spin_speed)
 
 
 func _try_magnet_pull(delta: float) -> bool:
@@ -120,3 +133,5 @@ func on_recycled() -> void:
 	position = Vector3.ZERO
 	rotation = Vector3.ZERO
 	_bob_t = 0.0
+	if _visual != null and is_instance_valid(_visual):
+		_visual.rotation = Vector3.ZERO

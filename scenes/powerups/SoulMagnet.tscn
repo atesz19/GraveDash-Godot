@@ -1,23 +1,57 @@
-[gd_scene load_steps=5 format=3 uid="uid://bq8soulmagnet"]
+[gd_scene load_steps=11 format=3 uid="uid://bq8soulmagnet"]
 
 [ext_resource type="Script" path="res://scripts/collectibles/SoulMagnet.gd" id="1_magnet"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_m"]
-radius = 0.55
+radius = 0.6
 
-[sub_resource type="TorusMesh" id="TorusMesh_m"]
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.75, 0.78, 0.82, 1)
+emission_enabled = true
+emission = Color(0.35, 0.45, 0.55, 1)
+emission_energy_multiplier = 1.2
+metallic = 0.85
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_red"]
+albedo_color = Color(0.9, 0.2, 0.15, 1)
+emission_enabled = true
+emission = Color(1.0, 0.25, 0.1, 1)
+emission_energy_multiplier = 3.5
+metallic = 0.4
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_blue"]
+albedo_color = Color(0.15, 0.45, 0.95, 1)
+emission_enabled = true
+emission = Color(0.2, 0.55, 1.0, 1)
+emission_energy_multiplier = 3.5
+metallic = 0.4
+roughness = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_spark"]
+transparency = 1
+albedo_color = Color(0.4, 0.85, 1.0, 0.55)
+emission_enabled = true
+emission = Color(0.3, 0.8, 1.0, 1)
+emission_energy_multiplier = 4.0
+roughness = 0.2
+cull_mode = 2
+
+[sub_resource type="TorusMesh" id="Mesh_arch"]
 inner_radius = 0.18
-outer_radius = 0.42
-rings = 12
+outer_radius = 0.38
+rings = 14
 ring_segments = 20
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m"]
-transparency = 1
-albedo_color = Color(0.15, 0.55, 0.85, 0.8)
-emission_enabled = true
-emission = Color(0.2, 0.65, 1.0, 1)
-emission_energy_multiplier = 3.2
-roughness = 0.3
+[sub_resource type="BoxMesh" id="Mesh_pole"]
+size = Vector3(0.16, 0.38, 0.16)
+
+[sub_resource type="BoxMesh" id="Mesh_tip"]
+size = Vector3(0.2, 0.12, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_spark"]
+size = Vector3(0.04, 0.04, 0.28)
 
 [node name="SoulMagnet" type="Area3D"]
 collision_layer = 8
@@ -29,12 +63,50 @@ script = ExtResource("1_magnet")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_m")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("TorusMesh_m")
-surface_material_override/0 = SubResource("StandardMaterial3D_m")
+[node name="Visual" type="Node3D" parent="."]
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-light_color = Color(0.25, 0.7, 1.0, 1)
+[node name="Arch" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.22, 0)
+mesh = SubResource("Mesh_arch")
+surface_material_override/0 = SubResource("Mat_body")
+
+[node name="PoleL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, -0.08, 0)
+mesh = SubResource("Mesh_pole")
+surface_material_override/0 = SubResource("Mat_body")
+
+[node name="PoleR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.08, 0)
+mesh = SubResource("Mesh_pole")
+surface_material_override/0 = SubResource("Mat_body")
+
+[node name="TipL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, -0.32, 0)
+mesh = SubResource("Mesh_tip")
+surface_material_override/0 = SubResource("Mat_red")
+
+[node name="TipR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, -0.32, 0)
+mesh = SubResource("Mesh_tip")
+surface_material_override/0 = SubResource("Mat_blue")
+
+[node name="Spark1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22, 0)
+mesh = SubResource("Mesh_spark")
+surface_material_override/0 = SubResource("Mat_spark")
+
+[node name="Spark2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, 0, -0.12, 0)
+mesh = SubResource("Mesh_spark")
+surface_material_override/0 = SubResource("Mat_spark")
+
+[node name="Spark3" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 0, -0.3, 0)
+mesh = SubResource("Mesh_spark")
+surface_material_override/0 = SubResource("Mat_spark")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visual"]
+light_color = Color(0.3, 0.7, 1.0, 1)
 light_energy = 2.2
 omni_range = 4.0
 shadow_enabled = false

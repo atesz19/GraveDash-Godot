@@ -1,20 +1,49 @@
-[gd_scene load_steps=5 format=3 uid="uid://bq8secondchance"]
+[gd_scene load_steps=11 format=3 uid="uid://bq8secondchance"]
 
 [ext_resource type="Script" path="res://scripts/collectibles/SecondChance.gd" id="1_sc"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_sc"]
-radius = 0.55
+radius = 0.6
 
-[sub_resource type="BoxMesh" id="BoxMesh_sc"]
-size = Vector3(0.55, 0.12, 0.85)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sc"]
-transparency = 1
-albedo_color = Color(0.25, 0.85, 0.55, 0.85)
+[sub_resource type="StandardMaterial3D" id="Mat_shield"]
+albedo_color = Color(0.2, 0.75, 0.5, 1)
 emission_enabled = true
-emission = Color(0.2, 0.9, 0.5, 1)
-emission_energy_multiplier = 3.0
+emission = Color(0.15, 0.85, 0.45, 1)
+emission_energy_multiplier = 3.2
+metallic = 0.55
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_wing"]
+transparency = 1
+albedo_color = Color(0.55, 0.95, 0.75, 0.7)
+emission_enabled = true
+emission = Color(0.35, 0.95, 0.6, 1)
+emission_energy_multiplier = 2.8
 roughness = 0.35
+cull_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_emblem"]
+albedo_color = Color(0.95, 0.95, 0.85, 1)
+emission_enabled = true
+emission = Color(0.9, 1.0, 0.7, 1)
+emission_energy_multiplier = 4.5
+metallic = 0.4
+roughness = 0.2
+
+[sub_resource type="PrismMesh" id="Mesh_shield"]
+size = Vector3(0.42, 0.55, 0.12)
+
+[sub_resource type="PrismMesh" id="Mesh_wing"]
+size = Vector3(0.28, 0.4, 0.06)
+
+[sub_resource type="BoxMesh" id="Mesh_cross_v"]
+size = Vector3(0.06, 0.22, 0.05)
+
+[sub_resource type="BoxMesh" id="Mesh_cross_h"]
+size = Vector3(0.16, 0.06, 0.05)
+
+[sub_resource type="BoxMesh" id="Mesh_feather"]
+size = Vector3(0.05, 0.28, 0.04)
 
 [node name="SecondChance" type="Area3D"]
 collision_layer = 8
@@ -26,12 +55,45 @@ script = ExtResource("1_sc")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_sc")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_sc")
-surface_material_override/0 = SubResource("StandardMaterial3D_sc")
+[node name="Visual" type="Node3D" parent="."]
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
+[node name="Shield" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("Mesh_shield")
+surface_material_override/0 = SubResource("Mat_shield")
+
+[node name="WingL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.766, 0.643, 0, -0.643, 0.766, 0, 0, 0, 1, -0.38, 0.12, 0)
+mesh = SubResource("Mesh_wing")
+surface_material_override/0 = SubResource("Mat_wing")
+
+[node name="WingR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.766, -0.643, 0, 0.643, 0.766, 0, 0, 0, 1, 0.38, 0.12, 0)
+mesh = SubResource("Mesh_wing")
+surface_material_override/0 = SubResource("Mat_wing")
+
+[node name="FeatherL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.94, 0.342, 0, -0.342, 0.94, 0, 0, 0, 1, -0.48, 0.28, 0.02)
+mesh = SubResource("Mesh_feather")
+surface_material_override/0 = SubResource("Mat_wing")
+
+[node name="FeatherR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.94, -0.342, 0, 0.342, 0.94, 0, 0, 0, 1, 0.48, 0.28, 0.02)
+mesh = SubResource("Mesh_feather")
+surface_material_override/0 = SubResource("Mat_wing")
+
+[node name="EmblemV" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.08)
+mesh = SubResource("Mesh_cross_v")
+surface_material_override/0 = SubResource("Mat_emblem")
+
+[node name="EmblemH" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0.08)
+mesh = SubResource("Mesh_cross_h")
+surface_material_override/0 = SubResource("Mat_emblem")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visual"]
 light_color = Color(0.3, 0.95, 0.55, 1)
-light_energy = 2.0
+light_energy = 2.2
 omni_range = 4.0
 shadow_enabled = false

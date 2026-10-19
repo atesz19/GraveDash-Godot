@@ -1,35 +1,64 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq8ghostform"]
+[gd_scene load_steps=13 format=3 uid="uid://bq8ghostform"]
 
 [ext_resource type="Script" path="res://scripts/collectibles/GhostForm.gd" id="1_ghost"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ghost"]
-radius = 0.55
+radius = 0.6
 
-[sub_resource type="SphereMesh" id="SphereMesh_ghost"]
-radius = 0.42
-height = 0.84
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ghost"]
+[sub_resource type="StandardMaterial3D" id="Mat_ghost"]
 transparency = 1
-albedo_color = Color(0.45, 0.2, 0.65, 0.75)
+albedo_color = Color(0.55, 0.35, 0.85, 0.55)
 emission_enabled = true
-emission = Color(0.55, 0.15, 0.8, 1)
-emission_energy_multiplier = 3.5
-roughness = 0.25
+emission = Color(0.6, 0.25, 0.95, 1)
+emission_energy_multiplier = 3.2
+roughness = 0.3
+cull_mode = 2
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ring"]
+[sub_resource type="StandardMaterial3D" id="Mat_ghost_solid"]
 transparency = 1
-albedo_color = Color(0.1, 0.02, 0.12, 0.55)
+albedo_color = Color(0.4, 0.2, 0.7, 0.7)
 emission_enabled = true
-emission = Color(0.25, 0.05, 0.35, 1)
-emission_energy_multiplier = 1.5
+emission = Color(0.5, 0.15, 0.85, 1)
+emission_energy_multiplier = 2.8
+roughness = 0.35
 
-[sub_resource type="TorusMesh" id="TorusMesh_ring"]
-inner_radius = 0.25
-outer_radius = 0.48
-rings = 12
-ring_segments = 16
-material = SubResource("StandardMaterial3D_ring")
+[sub_resource type="StandardMaterial3D" id="Mat_eye"]
+albedo_color = Color(0.95, 0.9, 1.0, 1)
+emission_enabled = true
+emission = Color(0.85, 0.7, 1.0, 1)
+emission_energy_multiplier = 5.0
+roughness = 0.1
+
+[sub_resource type="SphereMesh" id="Mesh_head"]
+radius = 0.22
+height = 0.44
+
+[sub_resource type="CapsuleMesh" id="Mesh_body"]
+radius = 0.18
+height = 0.55
+
+[sub_resource type="PrismMesh" id="Mesh_skirt"]
+size = Vector3(0.42, 0.28, 0.22)
+
+[sub_resource type="BoxMesh" id="Mesh_arm"]
+size = Vector3(0.08, 0.32, 0.08)
+
+[sub_resource type="SphereMesh" id="Mesh_eye"]
+radius = 0.045
+height = 0.09
+
+[sub_resource type="CapsuleMesh" id="Mesh_wisp"]
+radius = 0.04
+height = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_wisp"]
+transparency = 1
+albedo_color = Color(0.45, 0.2, 0.7, 0.35)
+emission_enabled = true
+emission = Color(0.4, 0.1, 0.75, 1)
+emission_energy_multiplier = 1.8
+roughness = 0.5
+cull_mode = 2
 
 [node name="GhostForm" type="Area3D"]
 collision_layer = 8
@@ -41,16 +70,60 @@ script = ExtResource("1_ghost")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_ghost")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_ghost")
-surface_material_override/0 = SubResource("StandardMaterial3D_ghost")
+[node name="Visual" type="Node3D" parent="."]
 
-[node name="Ring" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
-mesh = SubResource("TorusMesh_ring")
+[node name="Head" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 0)
+mesh = SubResource("Mesh_head")
+surface_material_override/0 = SubResource("Mat_ghost")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-light_color = Color(0.65, 0.25, 0.95, 1)
-light_energy = 2.4
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("Mesh_body")
+surface_material_override/0 = SubResource("Mat_ghost_solid")
+
+[node name="Skirt" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, 1, 0, -0.28, 0)
+mesh = SubResource("Mesh_skirt")
+surface_material_override/0 = SubResource("Mat_ghost")
+
+[node name="ArmL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, 0.5, 0, -0.5, 0.866, 0, 0, 0, 1, -0.28, 0.08, 0)
+mesh = SubResource("Mesh_arm")
+surface_material_override/0 = SubResource("Mat_ghost_solid")
+
+[node name="ArmR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.866, -0.5, 0, 0.5, 0.866, 0, 0, 0, 1, 0.28, 0.08, 0)
+mesh = SubResource("Mesh_arm")
+surface_material_override/0 = SubResource("Mat_ghost_solid")
+
+[node name="EyeL" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.42, 0.16)
+mesh = SubResource("Mesh_eye")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="EyeR" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.42, 0.16)
+mesh = SubResource("Mesh_eye")
+surface_material_override/0 = SubResource("Mat_eye")
+
+[node name="MaskBridge" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0.18)
+mesh = SubResource("Mesh_arm")
+surface_material_override/0 = SubResource("Mat_ghost_solid")
+
+[node name="TrailA" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.94, 0.342, 0, -0.342, 0.94, 0, 0, 0, 1, -0.12, -0.42, -0.08)
+mesh = SubResource("Mesh_wisp")
+surface_material_override/0 = SubResource("Mat_wisp")
+
+[node name="TrailB" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.94, -0.342, 0, 0.342, 0.94, 0, 0, 0, 1, 0.12, -0.45, -0.05)
+mesh = SubResource("Mesh_wisp")
+surface_material_override/0 = SubResource("Mat_wisp")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visual"]
+light_color = Color(0.65, 0.3, 0.95, 1)
+light_energy = 2.6
 omni_range = 4.5
 shadow_enabled = false

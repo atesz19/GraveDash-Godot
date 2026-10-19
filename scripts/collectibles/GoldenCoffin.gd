@@ -5,6 +5,7 @@ extends "res://scripts/collectibles/CollectibleBase.gd"
 func _ready() -> void:
 	collectible_id = "golden_coffin"
 	points = 25
+	spin_speed = 0.9
 	super._ready()
 
 
