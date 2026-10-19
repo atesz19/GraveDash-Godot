@@ -58,7 +58,9 @@ res://
 - Chunk length 45, 5 ahead, rear recycle via `ObjectPool`
 - Placeholder Graveyard ground chunk + night fog lighting
 - Pooled obstacles: open pit, fallen gravestone, side-incoming sweeper
-- Game Over overlay with score / best + **Restart** (reloads main scene)
+- Collectibles: Soul orb (1), Big Soul (5), Golden Coffin (25) via ObjectPool
+- Live HUD (Score / Distance m / Best) + Game Over overlay with Restart
+- High score persisted through SaveSystem (`user://gravedash_save.cfg`)
 
 ## Not yet (later MVP steps)
 

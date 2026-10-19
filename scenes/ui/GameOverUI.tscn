@@ -62,6 +62,13 @@ theme_override_font_sizes/font_size = 22
 text = "Score  0"
 horizontal_alignment = 1
 
+[node name="DistanceLabel" type="Label" parent="Root/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "Distance  0 m"
+horizontal_alignment = 1
+
 [node name="BestLabel" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.6, 0.48, 1)

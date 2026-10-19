@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scripts/LevelGenerator.gd" id="2_levelgen"]
@@ -7,6 +7,10 @@
 [ext_resource type="PackedScene" uid="uid://bq8obstaclegrave" path="res://scenes/obstacles/ObstacleGravestone.tscn" id="5_grave"]
 [ext_resource type="PackedScene" uid="uid://bq8obstacleside" path="res://scenes/obstacles/ObstacleSideIncoming.tscn" id="6_side"]
 [ext_resource type="PackedScene" uid="uid://bq8gameoverui" path="res://scenes/ui/GameOverUI.tscn" id="7_gameover"]
+[ext_resource type="PackedScene" uid="uid://bq8hud" path="res://scenes/ui/HUD.tscn" id="8_hud"]
+[ext_resource type="PackedScene" uid="uid://bq8soulorb" path="res://scenes/powerups/SoulOrb.tscn" id="9_soul"]
+[ext_resource type="PackedScene" uid="uid://bq8bigsoul" path="res://scenes/powerups/BigSoul.tscn" id="10_big"]
+[ext_resource type="PackedScene" uid="uid://bq8goldencoffin" path="res://scenes/powerups/GoldenCoffin.tscn" id="11_coffin"]
 
 [sub_resource type="Environment" id="Environment_night"]
 background_mode = 1
@@ -39,7 +43,12 @@ chunk_scene = ExtResource("3_chunk")
 pit_scene = ExtResource("4_pit")
 gravestone_scene = ExtResource("5_grave")
 side_scene = ExtResource("6_side")
+soul_scene = ExtResource("9_soul")
+big_soul_scene = ExtResource("10_big")
+coffin_scene = ExtResource("11_coffin")
 player_path = NodePath("../Player")
+
+[node name="HUD" parent="." instance=ExtResource("8_hud")]
 
 [node name="HUDHint" type="CanvasLayer" parent="."]
 
@@ -49,10 +58,10 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
 offset_top = -72.0
-offset_right = 720.0
+offset_right = 780.0
 offset_bottom = -16.0
 theme_override_colors/font_color = Color(0.85, 0.9, 0.8, 0.85)
 theme_override_font_sizes/font_size = 16
-text = "A/D or ←/→ lanes · Space / ↑ jump · Ctrl/S / ↓ slide · Esc pause · Jump pits & stones"
+text = "A/D lanes · Space jump · Ctrl/S slide · Esc pause · Collect glowing souls"
 
 [node name="GameOverUI" parent="." instance=ExtResource("7_gameover")]

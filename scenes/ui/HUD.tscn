@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq8hud"]
+
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_hud")
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 320.0
+offset_bottom = 120.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ScoreLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 0.82, 1)
+theme_override_font_sizes/font_size = 26
+text = "Score  0"
+
+[node name="DistanceLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.65, 1)
+theme_override_font_sizes/font_size = 18
+text = "Distance  0 m"
+
+[node name="BestLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.48, 1)
+theme_override_font_sizes/font_size = 16
+text = "Best  0"

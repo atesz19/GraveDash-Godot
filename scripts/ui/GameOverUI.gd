@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var panel: Control = $Root
 @onready var title_label: Label = $Root/Center/Panel/VBox/Title
 @onready var score_label: Label = $Root/Center/Panel/VBox/ScoreLabel
+@onready var distance_label: Label = $Root/Center/Panel/VBox/DistanceLabel
 @onready var best_label: Label = $Root/Center/Panel/VBox/BestLabel
 @onready var restart_button: Button = $Root/Center/Panel/VBox/RestartButton
 
@@ -30,6 +31,8 @@ func _on_game_started() -> void:
 
 func _show_overlay() -> void:
 	score_label.text = "Score  %d" % ScoreManager.score
+	if distance_label:
+		distance_label.text = "Distance  %d m" % ScoreManager.get_distance_meters()
 	best_label.text = "Best   %d" % ScoreManager.highscore
 	panel.visible = true
 	restart_button.grab_focus()

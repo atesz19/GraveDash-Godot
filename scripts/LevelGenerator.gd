@@ -1,35 +1,42 @@
 extends Node3D
-## LevelGenerator — endless chunk spawner + lane-aware obstacle placement.
-## Keeps CHUNKS_AHEAD segments ahead of the player; recycles via ObjectPool.
+## LevelGenerator — chunk spawner + lane-aware obstacles & soul collectibles.
 
 const CHUNK_LENGTH: float = 45.0
 const CHUNKS_AHEAD: int = 5
 const RECYCLE_MARGIN: float = 10.0
+
 const POOL_CHUNK: String = "chunk_graveyard"
 const POOL_PIT: String = "obstacle_pit"
 const POOL_GRAVESTONE: String = "obstacle_gravestone"
 const POOL_SIDE: String = "obstacle_side"
+const POOL_SOUL: String = "collectible_soul"
+const POOL_BIG_SOUL: String = "collectible_big_soul"
+const POOL_COFFIN: String = "collectible_golden_coffin"
 
 const LANE_COUNT: int = 3
-## Stay clear of chunk seams so obstacles don't sit on the edge.
 const Z_MARGIN: float = 6.0
+## Z-band width used to keep obstacles/souls from stacking.
+const BAND_SIZE: float = 4.0
 
 @export var chunk_scene: PackedScene
 @export var pit_scene: PackedScene
 @export var gravestone_scene: PackedScene
 @export var side_scene: PackedScene
+@export var soul_scene: PackedScene
+@export var big_soul_scene: PackedScene
+@export var coffin_scene: PackedScene
 @export var player_path: NodePath = ^"../Player"
-## How many obstacle slots to roll per chunk (after the safe intro chunks).
+
 @export var obstacles_per_chunk_min: int = 1
 @export var obstacles_per_chunk_max: int = 3
-## First N chunks (by spawn order) stay empty so the player can accelerate.
+@export var souls_per_chunk_min: int = 3
+@export var souls_per_chunk_max: int = 5
 @export var safe_chunk_count: int = 1
 
 var _player: Node3D
 var _chunks: Array[Node3D] = []
 var _next_spawn_z: float = 0.0
 var _chunks_spawned: int = 0
-
 var _rng := RandomNumberGenerator.new()
 
 
@@ -62,6 +69,12 @@ func _ensure_scenes() -> void:
 		gravestone_scene = preload("res://scenes/obstacles/ObstacleGravestone.tscn")
 	if side_scene == null:
 		side_scene = preload("res://scenes/obstacles/ObstacleSideIncoming.tscn")
+	if soul_scene == null:
+		soul_scene = preload("res://scenes/powerups/SoulOrb.tscn")
+	if big_soul_scene == null:
+		big_soul_scene = preload("res://scenes/powerups/BigSoul.tscn")
+	if coffin_scene == null:
+		coffin_scene = preload("res://scenes/powerups/GoldenCoffin.tscn")
 
 
 func _register_pools() -> void:
@@ -73,6 +86,12 @@ func _register_pools() -> void:
 		ObjectPool.register_pool(POOL_GRAVESTONE, gravestone_scene, 8)
 	if not ObjectPool.has_pool(POOL_SIDE):
 		ObjectPool.register_pool(POOL_SIDE, side_scene, 6)
+	if not ObjectPool.has_pool(POOL_SOUL):
+		ObjectPool.register_pool(POOL_SOUL, soul_scene, 24)
+	if not ObjectPool.has_pool(POOL_BIG_SOUL):
+		ObjectPool.register_pool(POOL_BIG_SOUL, big_soul_scene, 10)
+	if not ObjectPool.has_pool(POOL_COFFIN):
+		ObjectPool.register_pool(POOL_COFFIN, coffin_scene, 4)
 
 
 func _spawn_chunk_at(origin_z: float) -> Node3D:
@@ -91,60 +110,99 @@ func _spawn_chunk_at(origin_z: float) -> Node3D:
 
 	var index := _chunks_spawned
 	_chunks_spawned += 1
+
+	## band → bitmask of occupied lanes (obstacles). Souls avoid these cells.
+	var occupied: Dictionary = {}
 	if index >= safe_chunk_count:
-		_populate_obstacles(chunk, index)
+		occupied = _populate_obstacles(chunk, index)
+	_populate_collectibles(chunk, index, occupied)
 
 	_chunks.append(chunk)
 	return chunk
 
 
-func _populate_obstacles(chunk: Node3D, chunk_index: int) -> void:
+func _populate_obstacles(chunk: Node3D, chunk_index: int) -> Dictionary:
+	var occupied: Dictionary = {}
 	if not chunk.has_method("attach_obstacle"):
-		return
+		return occupied
 
 	var count := _rng.randi_range(obstacles_per_chunk_min, obstacles_per_chunk_max)
-	## Slightly denser as distance grows.
 	if chunk_index > 4:
 		count = mini(count + 1, 4)
 
-	## band → packed lane flags; never fill all 3 lanes in one Z band.
-	var band_lanes: Dictionary = {}
 	for i in count:
 		var kind := _pick_obstacle_kind(chunk_index)
 		var lane := _rng.randi_range(0, LANE_COUNT - 1)
-		var z_off := _rng.randf_range(
-			-CHUNK_LENGTH * 0.5 + Z_MARGIN,
-			CHUNK_LENGTH * 0.5 - Z_MARGIN
-		)
-		var band := int(floor(z_off / 4.0))
-		var occupied: int = int(band_lanes.get(band, 0))
-		## Try up to 3 lanes until we find a free escape route.
-		var placed := false
+		var z_off := _random_z()
+		var band := _band(z_off)
+		var mask: int = int(occupied.get(band, 0))
 		for attempt in LANE_COUNT:
 			var try_lane := (lane + attempt) % LANE_COUNT
 			var bit := 1 << try_lane
-			if occupied & bit:
+			if mask & bit:
 				continue
-			## Refusing a placement that would block every lane.
-			if (occupied | bit) == (1 << LANE_COUNT) - 1:
+			if (mask | bit) == (1 << LANE_COUNT) - 1:
 				continue
-			occupied |= bit
-			band_lanes[band] = occupied
-			var obs := _acquire_obstacle(kind)
+			mask |= bit
+			occupied[band] = mask
+			var obs := _acquire_pooled(kind)
 			if obs == null:
 				break
 			obs.pool_id = kind
 			if obs.has_method("configure"):
 				obs.call("configure", try_lane, z_off)
 			chunk.call("attach_obstacle", obs)
-			placed = true
 			break
-		if not placed:
+	return occupied
+
+
+func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionary) -> void:
+	if not chunk.has_method("attach_collectible"):
+		return
+
+	## Density: 3–5 souls/chunk (2–3 on the safe intro chunk). Not sparse, not packed.
+	var count := _rng.randi_range(souls_per_chunk_min, souls_per_chunk_max)
+	if chunk_index < safe_chunk_count:
+		count = _rng.randi_range(2, 3)
+
+	var soul_cells: Dictionary = {}  ## "lane|band" → true
+	var placed := 0
+	var attempts := 0
+	while placed < count and attempts < count * 6:
+		attempts += 1
+		var lane := _rng.randi_range(0, LANE_COUNT - 1)
+		var z_off := _random_z()
+		var band := _band(z_off)
+		var cell := "%d|%d" % [lane, band]
+		if soul_cells.has(cell):
 			continue
+		## Skip cells that already have an obstacle in this lane/band.
+		var obs_mask: int = int(occupied.get(band, 0))
+		if obs_mask & (1 << lane):
+			continue
+		## Also skip neighbouring bands in the same lane (pit/stone footprint).
+		var near_obs := false
+		for db in [-1, 0, 1]:
+			var m: int = int(occupied.get(band + db, 0))
+			if m & (1 << lane):
+				near_obs = true
+				break
+		if near_obs:
+			continue
+
+		var kind := _pick_collectible_kind(chunk_index)
+		var col := _acquire_pooled(kind)
+		if col == null:
+			break
+		col.pool_id = kind
+		if col.has_method("configure"):
+			col.call("configure", lane, z_off)
+		chunk.call("attach_collectible", col)
+		soul_cells[cell] = true
+		placed += 1
 
 
 func _pick_obstacle_kind(chunk_index: int) -> String:
-	## Intro: mostly stones. Later: mix in pits and side-sweepers.
 	var roll := _rng.randf()
 	if chunk_index < 3:
 		return POOL_GRAVESTONE if roll < 0.7 else POOL_PIT
@@ -155,7 +213,27 @@ func _pick_obstacle_kind(chunk_index: int) -> String:
 	return POOL_SIDE
 
 
-func _acquire_obstacle(pool_id: String) -> Node3D:
+func _pick_collectible_kind(chunk_index: int) -> String:
+	## ~82% orb, ~15% big soul, ~3% golden coffin (rarer early).
+	var roll := _rng.randf()
+	var coffin_chance := 0.015 if chunk_index < 4 else 0.035
+	var big_chance := 0.12 if chunk_index < 3 else 0.15
+	if roll < coffin_chance:
+		return POOL_COFFIN
+	if roll < coffin_chance + big_chance:
+		return POOL_BIG_SOUL
+	return POOL_SOUL
+
+
+func _random_z() -> float:
+	return _rng.randf_range(-CHUNK_LENGTH * 0.5 + Z_MARGIN, CHUNK_LENGTH * 0.5 - Z_MARGIN)
+
+
+func _band(z_off: float) -> int:
+	return int(floor(z_off / BAND_SIZE))
+
+
+func _acquire_pooled(pool_id: String) -> Node3D:
 	var node := ObjectPool.acquire(pool_id)
 	if node is Node3D:
 		return node as Node3D
