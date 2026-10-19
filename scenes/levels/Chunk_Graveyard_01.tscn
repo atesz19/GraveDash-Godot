@@ -53,3 +53,5 @@ mesh = SubResource("BoxMesh_lane")
 [node name="EdgeRight" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 0.4, 0)
 mesh = SubResource("BoxMesh_lane")
+
+[node name="Obstacles" type="Node3D" parent="."]

@@ -57,10 +57,12 @@ res://
 - SpringArm camera + dust particles on the player
 - Chunk length 45, 5 ahead, rear recycle via `ObjectPool`
 - Placeholder Graveyard ground chunk + night fog lighting
+- Pooled obstacles: open pit, fallen gravestone, side-incoming sweeper
+- Game Over overlay with score / best + **Restart** (reloads main scene)
 
 ## Not yet (later MVP steps)
 
-Biomes beyond placeholder Graveyard, obstacles/enemies, power-ups, HUD/shop UI, touch swipe gestures, Android export presets, audio beds.
+Biomes beyond placeholder Graveyard, enemies, power-ups, shop UI, touch swipe gestures, Android export presets, audio beds.
 
 ## License
 

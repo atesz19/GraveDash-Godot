@@ -111,6 +111,13 @@ func clear_pool(pool_id: String) -> void:
 	_pools.erase(pool_id)
 
 
+## Wipe every pool. Call before scene reload so autoload refs stay valid.
+func clear_all_pools() -> void:
+	var ids: Array = _pools.keys()
+	for pool_id in ids:
+		clear_pool(str(pool_id))
+
+
 func _instantiate(pool_id: String) -> Node:
 	var scene: PackedScene = _pools[pool_id]["scene"]
 	var node := scene.instantiate()

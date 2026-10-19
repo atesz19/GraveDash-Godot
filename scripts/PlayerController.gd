@@ -62,7 +62,9 @@ var _capsule_mesh: CapsuleMesh
 
 
 func _ready() -> void:
+	add_to_group("player")
 	GameManager.player = self
+	is_alive = true
 	_capsule_shape = collision_shape.shape as CapsuleShape3D
 	if mesh_instance.mesh is CapsuleMesh:
 		_capsule_mesh = mesh_instance.mesh as CapsuleMesh

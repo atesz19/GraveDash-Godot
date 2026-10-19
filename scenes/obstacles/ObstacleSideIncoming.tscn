@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3 uid="uid://bq8obstacleside"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ObstacleSideIncoming.gd" id="1_side"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_side"]
+size = Vector3(1.2, 2.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+size = Vector3(1.0, 2.0, 1.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bone"]
+albedo_color = Color(0.55, 0.48, 0.4, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_arm"]
+size = Vector3(2.2, 0.35, 0.35)
+
+[node name="ObstacleSideIncoming" type="Area3D"]
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = true
+script = ExtResource("1_side")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("BoxShape3D_side")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+mesh = SubResource("BoxMesh_body")
+surface_material_override/0 = SubResource("StandardMaterial3D_bone")
+
+[node name="Arm" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+mesh = SubResource("BoxMesh_arm")
+surface_material_override/0 = SubResource("StandardMaterial3D_bone")

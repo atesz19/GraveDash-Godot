@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3 uid="uid://bq8obstaclepit"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ObstaclePit.gd" id="1_pit"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pit"]
+size = Vector3(2.2, 1.0, 3.0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hole"]
+size = Vector3(2.0, 0.15, 2.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_void"]
+albedo_color = Color(0.04, 0.05, 0.04, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_rim"]
+size = Vector3(2.3, 0.12, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
+albedo_color = Color(0.35, 0.34, 0.3, 1)
+roughness = 0.9
+
+[node name="ObstaclePit" type="Area3D"]
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = true
+script = ExtResource("1_pit")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+shape = SubResource("BoxShape3D_pit")
+
+[node name="Hole" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+mesh = SubResource("BoxMesh_hole")
+surface_material_override/0 = SubResource("StandardMaterial3D_void")
+
+[node name="RimFront" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 1.5)
+mesh = SubResource("BoxMesh_rim")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="RimBack" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -1.5)
+mesh = SubResource("BoxMesh_rim")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")

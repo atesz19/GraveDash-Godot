@@ -88,8 +88,12 @@ func restart_run() -> void:
 	## Reload the main play scene and start a fresh run.
 	get_tree().paused = false
 	run_time = 0.0
+	player = null
 	if ScoreManager:
 		ScoreManager.reset_run()
+	## Autoload pools survive reload — drop stale instances first.
+	if ObjectPool and ObjectPool.has_method("clear_all_pools"):
+		ObjectPool.clear_all_pools()
 	_set_state(State.PLAYING)
 	get_tree().reload_current_scene()
 	game_started.emit()
