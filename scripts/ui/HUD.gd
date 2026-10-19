@@ -147,7 +147,8 @@ func _pulse_icon(icon: ColorRect, base: Color, remaining: float) -> void:
 
 
 func _on_state_changed(_previous: Variant, current: Variant) -> void:
-	var playing_or_paused := (
+	## Explicit bool: Godot 4.7 cannot infer := from Variant comparisons.
+	var playing_or_paused: bool = (
 		current == GameManager.State.PLAYING or current == GameManager.State.PAUSED
 	)
 	visible = playing_or_paused

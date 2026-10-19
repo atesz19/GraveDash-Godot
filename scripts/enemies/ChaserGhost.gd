@@ -100,7 +100,10 @@ func _update_lane_stick(delta: float) -> void:
 
 func _chase(delta: float) -> void:
 	var run_speed: float = float(player.get("run_speed"))
-	var ghost_protected := player.has_method("is_ghost_form") and player.call("is_ghost_form")
+	## Explicit bool: Godot 4.7 cannot infer := from Variant (call/get).
+	var ghost_protected: bool = (
+		player.has_method("is_ghost_form") and bool(player.call("is_ghost_form"))
+	)
 
 	## Close-in rate: faster if the player camps one lane.
 	var shrink := 0.55
@@ -144,7 +147,7 @@ func _chase(delta: float) -> void:
 	if gap <= ALMOST_DISTANCE:
 		almost_close.emit(gap)
 
-	var escaping := player.get("is_escaping") == true
+	var escaping: bool = bool(player.get("is_escaping"))
 	if not ghost_protected and not escaping and gap <= CATCH_DISTANCE:
 		_catch()
 
