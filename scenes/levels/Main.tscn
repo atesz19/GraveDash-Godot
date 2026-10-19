@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=21 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="Script" path="res://scripts/levels/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://bq8holylight" path="res://scenes/powerups/HolyLight.tscn" id="18_holy"]
 [ext_resource type="PackedScene" uid="uid://bq8secondchance" path="res://scenes/powerups/SecondChance.tscn" id="19_second"]
 [ext_resource type="PackedScene" uid="uid://bq8cursedspeed" path="res://scenes/powerups/CursedSpeed.tscn" id="20_cursed"]
+[ext_resource type="PackedScene" uid="uid://bq8pauseoverlay" path="res://scenes/ui/PauseOverlay.tscn" id="21_pause"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -62,6 +63,8 @@ chaser_count = 2
 player_path = NodePath("../Player")
 
 [node name="HUD" parent="." instance=ExtResource("9_hud")]
+
+[node name="PauseOverlay" parent="." instance=ExtResource("21_pause")]
 
 [node name="HUDHint" type="CanvasLayer" parent="."]
 

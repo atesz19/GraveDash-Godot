@@ -1,16 +1,22 @@
 extends CanvasLayer
 ## HUD — Score, distance, Best, and active power-up icons + timers.
 
+const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
+
 @onready var score_label: Label = $Margin/VBox/ScoreLabel
 @onready var distance_label: Label = $Margin/VBox/DistanceLabel
 @onready var best_label: Label = $Margin/VBox/BestLabel
 @onready var powerup_box: VBoxContainer = $Margin/VBox/PowerupBox
+@onready var root_margin: MarginContainer = $Margin
 
 var _rows: Dictionary = {}  ## id → { row, icon, label }
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var theme_res := load(THEME_PATH) as Theme
+	if theme_res and root_margin:
+		root_margin.theme = theme_res
 	ScoreManager.score_changed.connect(_on_score_changed)
 	ScoreManager.distance_changed.connect(_on_distance_changed)
 	ScoreManager.highscore_changed.connect(_on_highscore_changed)
@@ -18,6 +24,10 @@ func _ready() -> void:
 	_hide_all_powerups()
 	_refresh_all()
 	call_deferred("_bind_player")
+	## Hide HUD on menu/game-over; show while playing / paused.
+	if not GameManager.state_changed.is_connected(_on_state_changed):
+		GameManager.state_changed.connect(_on_state_changed)
+	_on_state_changed(GameManager.state, GameManager.state)
 
 
 func _cache_rows() -> void:
@@ -134,3 +144,11 @@ func _pulse_icon(icon: ColorRect, base: Color, remaining: float) -> void:
 		return
 	var pulse := 0.65 + 0.35 * absf(sin(remaining * 4.0))
 	icon.color = Color(base.r, base.g, base.b, pulse)
+
+
+func _on_state_changed(_previous: Variant, current: Variant) -> void:
+	var playing_or_paused := (
+		current == GameManager.State.PLAYING or current == GameManager.State.PAUSED
+	)
+	visible = playing_or_paused
+

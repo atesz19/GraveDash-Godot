@@ -1,6 +1,7 @@
 extends CanvasLayer
-## GameOverUI — minimal dark overlay shown when GameManager enters GAME_OVER.
-## Restart reloads the main scene via GameManager.restart_run().
+## GameOverUI — dark overlay on GAME_OVER: distance, souls/score, best, Retry / Menu.
+
+const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
 
 @onready var panel: Control = $Root
 @onready var title_label: Label = $Root/Center/Panel/VBox/Title
@@ -8,15 +9,27 @@ extends CanvasLayer
 @onready var distance_label: Label = $Root/Center/Panel/VBox/DistanceLabel
 @onready var best_label: Label = $Root/Center/Panel/VBox/BestLabel
 @onready var restart_button: Button = $Root/Center/Panel/VBox/RestartButton
+@onready var menu_button: Button = $Root/Center/Panel/VBox/MenuButton
+@onready var ad_button: Button = $Root/Center/Panel/VBox/AdButton
+@onready var panel_container: PanelContainer = $Root/Center/Panel
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var theme_res := load(THEME_PATH) as Theme
+	if theme_res and panel_container:
+		panel_container.theme = theme_res
 	panel.visible = false
 	restart_button.pressed.connect(_on_restart_pressed)
+	if menu_button:
+		menu_button.pressed.connect(_on_menu_pressed)
+	if ad_button:
+		## Placeholder — disabled stub for future rewarded continue.
+		ad_button.disabled = true
+		ad_button.visible = true
+		ad_button.tooltip_text = "Coming soon"
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.game_started.connect(_on_game_started)
-	## Hide if we somehow boot mid-game-over.
 	if GameManager.state == GameManager.State.GAME_OVER:
 		_show_overlay()
 
@@ -30,10 +43,14 @@ func _on_game_started() -> void:
 
 
 func _show_overlay() -> void:
-	score_label.text = "Score  %d" % ScoreManager.score
-	if distance_label:
-		distance_label.text = "Distance  %d m" % ScoreManager.get_distance_meters()
-	best_label.text = "Best   %d" % ScoreManager.highscore
+	var souls := ScoreManager.score
+	var dist := ScoreManager.get_distance_meters()
+	var best := ScoreManager.highscore
+	distance_label.text = "Distance  %d m" % dist
+	score_label.text = "Souls  %d" % souls
+	best_label.text = "High Score  %d" % best
+	if best > 0 and souls >= best:
+		best_label.text = "High Score  %d  ★ NEW" % best
 	panel.visible = true
 	restart_button.grab_focus()
 
@@ -41,3 +58,8 @@ func _show_overlay() -> void:
 func _on_restart_pressed() -> void:
 	panel.visible = false
 	GameManager.restart_run()
+
+
+func _on_menu_pressed() -> void:
+	panel.visible = false
+	GameManager.return_to_menu()

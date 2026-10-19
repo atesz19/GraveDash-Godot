@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bq8gameoverui"]
+[gd_scene load_steps=3 format=3 uid="uid://bq8gameoverui"]
 
 [ext_resource type="Script" path="res://scripts/ui/GameOverUI.gd" id="1_ui"]
+[ext_resource type="Theme" uid="uid://bq8gravetheme" path="res://resources/ui/GraveDashTheme.tres" id="2_theme"]
 
 [node name="GameOverUI" type="CanvasLayer"]
 layer = 10
@@ -22,7 +23,28 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.02, 0.03, 0.02, 0.78)
+color = Color(0.02, 0.02, 0.03, 0.82)
+
+[node name="EdgeTop" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.15, 0.02, 0.05, 0.55)
+
+[node name="EdgeBottom" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.08, 0.01, 0.03, 0.6)
 
 [node name="Center" type="CenterContainer" parent="Root"]
 layout_mode = 1
@@ -33,57 +55,72 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Root/Center"]
-custom_minimum_size = Vector2(360, 260)
+custom_minimum_size = Vector2(400, 380)
 layout_mode = 2
+theme = ExtResource("2_theme")
 
 [node name="VBox" type="VBoxContainer" parent="Root/Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="Title" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.2, 0.18, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(0.78, 0.18, 0.2, 1)
+theme_override_font_sizes/font_size = 40
 text = "GAME OVER"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.7, 0.58, 1)
+theme_override_colors/font_color = Color(0.58, 0.55, 0.52, 1)
 theme_override_font_sizes/font_size = 14
 text = "The graveyard claims another runner"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="Root/Center/Panel/VBox"]
+[node name="Sep" type="HSeparator" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.88, 0.78, 1)
-theme_override_font_sizes/font_size = 22
-text = "Score  0"
-horizontal_alignment = 1
 
 [node name="DistanceLabel" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.75, 0.62, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.78, 0.76, 0.7, 1)
+theme_override_font_sizes/font_size = 20
 text = "Distance  0 m"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="Root/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 24
+text = "Souls  0"
 horizontal_alignment = 1
 
 [node name="BestLabel" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.6, 0.48, 1)
+theme_override_colors/font_color = Color(0.55, 0.58, 0.48, 1)
 theme_override_font_sizes/font_size = 16
-text = "Best   0"
+text = "High Score  0"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 
 [node name="RestartButton" type="Button" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(200, 44)
+custom_minimum_size = Vector2(220, 46)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.9, 0.92, 0.82, 1)
-theme_override_font_sizes/font_size = 20
-text = "Restart"
+text = "Retry"
+
+[node name="MenuButton" type="Button" parent="Root/Center/Panel/VBox"]
+custom_minimum_size = Vector2(220, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Main Menu"
+
+[node name="AdButton" type="Button" parent="Root/Center/Panel/VBox"]
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+disabled = true
+text = "Watch Ad to Continue"

@@ -1,0 +1,173 @@
+[gd_scene load_steps=3 format=3 uid="uid://bq8mainmenu"]
+
+[ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
+[ext_resource type="Theme" uid="uid://bq8gravetheme" path="res://resources/ui/GraveDashTheme.tres" id="2_theme"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_menu")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.04, 0.03, 0.05, 1)
+
+[node name="VignetteTop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 180.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.12, 0.02, 0.06, 0.55)
+
+[node name="VignetteBottom" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -200.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.02, 0.01, 0.03, 0.75)
+
+[node name="FogBand" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -120.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.18, 0.16, 0.22, 0.35)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainPanel" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 420)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Brand" type="Label" parent="Center/MainPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.22, 0.28, 1)
+theme_override_font_sizes/font_size = 56
+text = "GraveDash"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="Center/MainPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.58, 0.55, 1)
+theme_override_font_sizes/font_size = 15
+text = "Run the graveyard. Don't look back."
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="Center/MainPanel/VBox"]
+layout_mode = 2
+
+[node name="HighScoreLabel" type="Label" parent="Center/MainPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.72, 0.62, 1)
+theme_override_font_sizes/font_size = 20
+text = "High Score  0"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/MainPanel/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="Center/MainPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Start Game"
+
+[node name="SettingsButton" type="Button" parent="Center/MainPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="Center/MainPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Quit"
+
+[node name="SettingsPanel" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(420, 320)
+layout_mode = 2
+
+[node name="SettingsVBox" type="VBoxContainer" parent="Center/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SettingsTitle" type="Label" parent="Center/SettingsPanel/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.35, 0.38, 1)
+theme_override_font_sizes/font_size = 32
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="SettingsHint" type="Label" parent="Center/SettingsPanel/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "Audio preferences are saved on this device."
+horizontal_alignment = 1
+
+[node name="MusicToggle" type="CheckButton" parent="Center/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Music: On"
+
+[node name="SfxToggle" type="CheckButton" parent="Center/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "SFX: On"
+
+[node name="SettingsSpacer" type="Control" parent="Center/SettingsPanel/SettingsVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="SettingsBackButton" type="Button" parent="Center/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Back"

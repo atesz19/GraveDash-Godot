@@ -1,8 +1,12 @@
 extends Node
 ## GameManager — global game state machine for GraveDash.
 ## States: Menu → Playing ↔ Paused → GameOver → (restart) Menu / Playing.
+## Scene flow: MainMenu.tscn ↔ levels/Main.tscn
 
 enum State { MENU, PLAYING, PAUSED, GAME_OVER }
+
+const MENU_SCENE := "res://scenes/ui/MainMenu.tscn"
+const GAME_SCENE := "res://scenes/levels/Main.tscn"
 
 signal state_changed(previous: State, current: State)
 signal game_started
@@ -44,10 +48,24 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Transition helpers -------------------------------------------------------
 
 func start_game() -> void:
+	## Soft start when already inside the gameplay scene.
 	run_time = 0.0
 	if ScoreManager:
 		ScoreManager.reset_run()
 	_set_state(State.PLAYING)
+	game_started.emit()
+
+
+func go_to_gameplay() -> void:
+	## Menu → Main play scene.
+	get_tree().paused = false
+	run_time = 0.0
+	player = null
+	if ScoreManager:
+		ScoreManager.reset_run()
+	_clear_pools()
+	_set_state(State.PLAYING)
+	get_tree().change_scene_to_file(GAME_SCENE)
 	game_started.emit()
 
 
@@ -81,26 +99,42 @@ func return_to_menu() -> void:
 	get_tree().paused = false
 	player = null
 	run_time = 0.0
+	_clear_pools()
 	_set_state(State.MENU)
+	get_tree().change_scene_to_file(MENU_SCENE)
 
 
 func restart_run() -> void:
-	## Reload the main play scene and start a fresh run.
+	## Reload gameplay and start a fresh run.
 	get_tree().paused = false
 	run_time = 0.0
 	player = null
 	if ScoreManager:
 		ScoreManager.reset_run()
-	## Autoload pools survive reload — drop stale instances first.
-	if ObjectPool and ObjectPool.has_method("clear_all_pools"):
-		ObjectPool.clear_all_pools()
+	_clear_pools()
 	_set_state(State.PLAYING)
-	get_tree().reload_current_scene()
+	var tree := get_tree()
+	var current_path := ""
+	if tree.current_scene:
+		current_path = str(tree.current_scene.scene_file_path)
+	if current_path == GAME_SCENE:
+		tree.reload_current_scene()
+	else:
+		tree.change_scene_to_file(GAME_SCENE)
 	game_started.emit()
 
 
 func is_playing() -> bool:
 	return state == State.PLAYING
+
+
+func is_menu() -> bool:
+	return state == State.MENU
+
+
+func _clear_pools() -> void:
+	if ObjectPool and ObjectPool.has_method("clear_all_pools"):
+		ObjectPool.clear_all_pools()
 
 
 func _set_state(next: State) -> void:
@@ -109,4 +143,4 @@ func _set_state(next: State) -> void:
 	var previous := state
 	state = next
 	state_changed.emit(previous, state)
-	print("[GameManager] %s → %s" % [State.keys()[previous], State.keys()[state]])
+	print("[GameManager] %s → %s" % [State.keys()[previous], State.keys()[next]])
