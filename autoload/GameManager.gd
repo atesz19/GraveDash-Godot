@@ -91,6 +91,7 @@ func trigger_game_over() -> void:
 	get_tree().paused = false
 	if ScoreManager:
 		ScoreManager.commit_highscore()
+		ScoreManager.commit_run_souls()
 	_set_state(State.GAME_OVER)
 	game_over.emit()
 

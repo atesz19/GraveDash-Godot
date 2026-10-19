@@ -90,6 +90,8 @@ func _pickup(_body: Node3D) -> void:
 	_picked = true
 	monitoring = false
 	ScoreManager.add_score(points)
+	if SOUL_IDS.has(collectible_id) and points > 0:
+		ScoreManager.add_souls(points)
 	collected.emit(points, collectible_id)
 	## Tell parent chunk to drop its reference, then return to the pool.
 	var parent_chunk := _find_chunk()

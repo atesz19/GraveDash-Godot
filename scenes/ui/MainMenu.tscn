@@ -1,9 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://bq8mainmenu"]
+[gd_scene load_steps=4 format=3 uid="uid://bq8mainmenu"]
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
 [ext_resource type="Theme" uid="uid://bq8gravetheme" path="res://resources/ui/GraveDashTheme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MenuWorld.tscn" id="3_world"]
 
-[node name="MainMenu" type="Control"]
+[node name="MainMenu" type="Node"]
+script = ExtResource("1_menu")
+
+[node name="MenuWorld" parent="." instance=ExtResource("3_world")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Root" type="Control" parent="UI"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,163 +20,309 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
-script = ExtResource("1_menu")
 
-[node name="Backdrop" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.04, 0.03, 0.05, 1)
-
-[node name="VignetteTop" type="ColorRect" parent="."]
+[node name="VignetteTop" type="ColorRect" parent="UI/Root"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 180.0
+offset_bottom = 160.0
 grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.12, 0.02, 0.06, 0.55)
+color = Color(0.08, 0.02, 0.05, 0.45)
 
-[node name="VignetteBottom" type="ColorRect" parent="."]
+[node name="VignetteBottom" type="ColorRect" parent="UI/Root"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -200.0
+offset_top = -180.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-color = Color(0.02, 0.01, 0.03, 0.75)
+color = Color(0.02, 0.01, 0.03, 0.55)
 
-[node name="FogBand" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -120.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-color = Color(0.18, 0.16, 0.22, 0.35)
-
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Chrome" type="Control" parent="UI/Root"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="MainPanel" type="PanelContainer" parent="Center"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(420, 420)
+[node name="LeftRail" type="VBoxContainer" parent="UI/Root/Chrome"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 36.0
+offset_top = -210.0
+offset_right = 420.0
+offset_bottom = 230.0
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Brand" type="Label" parent="UI/Root/Chrome/LeftRail"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.28, 0.34, 1)
+theme_override_font_sizes/font_size = 64
+text = "GraveDash"
+
+[node name="Tagline" type="Label" parent="UI/Root/Chrome/LeftRail"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.65, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "Run the graveyard. Don't look back."
+
+[node name="Sep" type="HSeparator" parent="UI/Root/Chrome/LeftRail"]
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="Center/MainPanel"]
+[node name="SoulWalletLabel" type="Label" parent="UI/Root/Chrome/LeftRail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.85, 1.0, 1)
+theme_override_font_sizes/font_size = 22
+text = "Souls  0"
+
+[node name="HighScoreLabel" type="Label" parent="UI/Root/Chrome/LeftRail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.72, 0.62, 1)
+theme_override_font_sizes/font_size = 18
+text = "High Score  0"
+
+[node name="Spacer" type="Control" parent="UI/Root/Chrome/LeftRail"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="MainPanel" type="VBoxContainer" parent="UI/Root/Chrome/LeftRail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StartButton" type="Button" parent="UI/Root/Chrome/LeftRail/MainPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 52)
+layout_mode = 2
+text = "Start Game"
+
+[node name="ShopButton" type="Button" parent="UI/Root/Chrome/LeftRail/MainPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 46)
+layout_mode = 2
+text = "Shop"
+
+[node name="SettingsButton" type="Button" parent="UI/Root/Chrome/LeftRail/MainPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 46)
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="UI/Root/Chrome/LeftRail/MainPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 46)
+layout_mode = 2
+text = "Quit"
+
+[node name="SettingsPanel" type="PanelContainer" parent="UI/Root/Chrome"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -160.0
+offset_right = 210.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsVBox" type="VBoxContainer" parent="UI/Root/Chrome/SettingsPanel"]
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="Brand" type="Label" parent="Center/MainPanel/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.22, 0.28, 1)
-theme_override_font_sizes/font_size = 56
-text = "GraveDash"
-horizontal_alignment = 1
-
-[node name="Tagline" type="Label" parent="Center/MainPanel/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.58, 0.55, 1)
-theme_override_font_sizes/font_size = 15
-text = "Run the graveyard. Don't look back."
-horizontal_alignment = 1
-
-[node name="Sep" type="HSeparator" parent="Center/MainPanel/VBox"]
-layout_mode = 2
-
-[node name="HighScoreLabel" type="Label" parent="Center/MainPanel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.72, 0.62, 1)
-theme_override_font_sizes/font_size = 20
-text = "High Score  0"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="Center/MainPanel/VBox"]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-
-[node name="StartButton" type="Button" parent="Center/MainPanel/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 48)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Start Game"
-
-[node name="SettingsButton" type="Button" parent="Center/MainPanel/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 44)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Settings"
-
-[node name="QuitButton" type="Button" parent="Center/MainPanel/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 44)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Quit"
-
-[node name="SettingsPanel" type="PanelContainer" parent="Center"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(420, 320)
-layout_mode = 2
-
-[node name="SettingsVBox" type="VBoxContainer" parent="Center/SettingsPanel"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="SettingsTitle" type="Label" parent="Center/SettingsPanel/SettingsVBox"]
+[node name="SettingsTitle" type="Label" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.35, 0.38, 1)
 theme_override_font_sizes/font_size = 32
 text = "Settings"
 horizontal_alignment = 1
 
-[node name="SettingsHint" type="Label" parent="Center/SettingsPanel/SettingsVBox"]
+[node name="SettingsHint" type="Label" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "Audio preferences are saved on this device."
 horizontal_alignment = 1
 
-[node name="MusicToggle" type="CheckButton" parent="Center/SettingsPanel/SettingsVBox"]
+[node name="MusicToggle" type="CheckButton" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Music: On"
 
-[node name="SfxToggle" type="CheckButton" parent="Center/SettingsPanel/SettingsVBox"]
+[node name="SfxToggle" type="CheckButton" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 text = "SFX: On"
 
-[node name="SettingsSpacer" type="Control" parent="Center/SettingsPanel/SettingsVBox"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-
-[node name="SettingsBackButton" type="Button" parent="Center/SettingsPanel/SettingsVBox"]
+[node name="SettingsBackButton" type="Button" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 44)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Back"
+
+[node name="ShopPanel" type="PanelContainer" parent="UI/Root/Chrome"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -230.0
+offset_right = 280.0
+offset_bottom = 230.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShopVBox" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ShopTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.35, 0.38, 1)
+theme_override_font_sizes/font_size = 32
+text = "Soul Shop"
+horizontal_alignment = 1
+
+[node name="ShopBalanceLabel" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.85, 1.0, 1)
+theme_override_font_sizes/font_size = 20
+text = "Balance  0 souls"
+horizontal_alignment = 1
+
+[node name="ShopHint" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Spend banked souls on upcoming unlocks."
+horizontal_alignment = 1
+
+[node name="ShopSep" type="HSeparator" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+
+[node name="SkinRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SkinInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SkinTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow/SkinInfo"]
+layout_mode = 2
+text = "Ashen Skin"
+
+[node name="SkinDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow/SkinInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Character tint · Coming soon"
+
+[node name="BuySkinButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "50 ✦"
+
+[node name="MagnetRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MagnetInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MagnetTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow/MagnetInfo"]
+layout_mode = 2
+text = "Magnet Duration +"
+
+[node name="MagnetDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow/MagnetInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Power-up upgrade · Coming soon"
+
+[node name="BuyMagnetButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "120 ✦"
+
+[node name="DemoRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DemoInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DemoTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow/DemoInfo"]
+layout_mode = 2
+text = "Lucky Charm"
+
+[node name="DemoDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow/DemoInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.52, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "Demo unlock — spends 25 souls"
+
+[node name="BuyDemoButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "25 ✦"
+
+[node name="ShopStatusLabel" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.6, 0.58, 1)
+theme_override_font_sizes/font_size = 13
+text = ""
+horizontal_alignment = 1
+
+[node name="ShopBackButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="TransitionFade" type="ColorRect" parent="UI/Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.01, 0.03, 0)

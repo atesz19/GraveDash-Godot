@@ -43,14 +43,16 @@ func _on_game_started() -> void:
 
 
 func _show_overlay() -> void:
-	var souls := ScoreManager.score
-	var dist := ScoreManager.get_distance_meters()
-	var best := ScoreManager.highscore
+	var run_score: int = ScoreManager.score
+	var banked: int = ScoreManager.run_souls
+	var wallet: int = ScoreManager.total_souls
+	var dist: int = ScoreManager.get_distance_meters()
+	var best: int = ScoreManager.highscore
 	distance_label.text = "Distance  %d m" % dist
-	score_label.text = "Souls  %d" % souls
-	best_label.text = "High Score  %d" % best
-	if best > 0 and souls >= best:
-		best_label.text = "High Score  %d  ★ NEW" % best
+	score_label.text = "Run Score  %d   ·   Banked Souls  +%d" % [run_score, banked]
+	best_label.text = "High Score  %d   ·   Wallet  %d" % [best, wallet]
+	if best > 0 and run_score >= best:
+		best_label.text = "High Score  %d  ★ NEW   ·   Wallet  %d" % [best, wallet]
 	panel.visible = true
 	restart_button.grab_focus()
 

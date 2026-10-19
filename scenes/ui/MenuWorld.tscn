@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3 uid="uid://bq8menuworld"]
+
+[ext_resource type="Script" path="res://scripts/ui/MenuWorld.gd" id="1_world"]
+[ext_resource type="Environment" uid="uid://bq8envgraveyard" path="res://resources/biomes/graveyard_environment.tres" id="2_env"]
+
+[node name="MenuWorld" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819152, -0.40558, 0.40558, 0, 0.707107, 0.707107, -0.573576, -0.579228, 0.579228, 0, 18, 0)
+light_color = Color(0.52, 0.58, 0.95, 1)
+light_energy = 0.55
+light_specular = 0.35
+shadow_enabled = true
+directional_shadow_max_distance = 80.0
+
+[node name="FillLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 4)
+light_color = Color(0.55, 0.45, 0.7, 1)
+light_energy = 1.4
+omni_range = 18.0
+shadow_enabled = false
+
+[node name="Track" type="Node3D" parent="."]
+
+[node name="WitchSlot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.985, 0.174, 0, -0.174, 0.985, 0, 2.4, 7.5)
+current = true
+fov = 55.0
+far = 200.0
