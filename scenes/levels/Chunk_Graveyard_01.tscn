@@ -1,13 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq8gravedashchunk01"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8gravedashchunk01"]
 
 [ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_chunk"]
+[ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_ground"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave" path="res://scenes/levels/props/DecorGravestone.tscn" id="3_stone"]
+[ext_resource type="PackedScene" uid="uid://bq8decortree" path="res://scenes/levels/props/DecorDeadTree.tscn" id="4_tree"]
+[ext_resource type="PackedScene" uid="uid://bq8decorchapel" path="res://scenes/levels/props/DecorChapel.tscn" id="5_chapel"]
+[ext_resource type="PackedScene" uid="uid://bq8torch" path="res://scenes/levels/props/Torch.tscn" id="6_torch"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 size = Vector3(9, 1, 45)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dirt"]
-albedo_color = Color(0.22, 0.28, 0.18, 1)
-roughness = 0.95
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(9, 1, 45)
@@ -16,10 +17,17 @@ size = Vector3(9, 1, 45)
 size = Vector3(0.08, 0.02, 45)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lane"]
-albedo_color = Color(0.35, 0.4, 0.28, 1)
+albedo_color = Color(0.28, 0.32, 0.22, 1)
 emission_enabled = true
-emission = Color(0.25, 0.3, 0.2, 1)
-emission_energy_multiplier = 0.3
+emission = Color(0.2, 0.28, 0.35, 1)
+emission_energy_multiplier = 0.25
+
+[sub_resource type="BoxMesh" id="BoxMesh_shoulder"]
+size = Vector3(3.5, 0.35, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mud"]
+albedo_color = Color(0.12, 0.14, 0.1, 1)
+roughness = 1.0
 
 [node name="Chunk_Graveyard_01" type="Node3D"]
 script = ExtResource("1_chunk")
@@ -27,7 +35,7 @@ script = ExtResource("1_chunk")
 [node name="Ground" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 mesh = SubResource("BoxMesh_ground")
-surface_material_override/0 = SubResource("StandardMaterial3D_dirt")
+surface_material_override/0 = ExtResource("2_ground")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
 collision_layer = 1
@@ -35,6 +43,16 @@ collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
 shape = SubResource("BoxShape3D_ground")
+
+[node name="ShoulderL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, -0.15, 0)
+mesh = SubResource("BoxMesh_shoulder")
+surface_material_override/0 = SubResource("StandardMaterial3D_mud")
+
+[node name="ShoulderR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, -0.15, 0)
+mesh = SubResource("BoxMesh_shoulder")
+surface_material_override/0 = SubResource("StandardMaterial3D_mud")
 
 [node name="LaneMarkerL" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.01, 0)
@@ -46,13 +64,52 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.01, 0)
 mesh = SubResource("BoxMesh_lane")
 surface_material_override/0 = SubResource("StandardMaterial3D_lane")
 
-[node name="EdgeLeft" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0.4, 0)
-mesh = SubResource("BoxMesh_lane")
+[node name="Props" type="Node3D" parent="."]
 
-[node name="EdgeRight" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 0.4, 0)
-mesh = SubResource("BoxMesh_lane")
+[node name="StoneL1" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, -5.6, 0, 14)
+
+[node name="StoneL2" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.985, 0, -0.174, 0, 1, 0, 0.174, 0, 0.985, -5.9, 0, 2)
+
+[node name="StoneL3" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, -5.4, 0, -12)
+
+[node name="StoneR1" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.966, 0, -0.259, 0, 1, 0, 0.259, 0, 0.966, 5.7, 0, 10)
+
+[node name="StoneR2" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, 5.5, 0, -4)
+
+[node name="StoneR3" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 0, -16)
+
+[node name="TreeL1" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -7.2, 0, 8)
+
+[node name="TreeL2" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(0.9, 0, 0.1, 0, 1, 0, -0.1, 0, 0.9, -7.5, 0, -10)
+
+[node name="TreeR1" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(1, 0, 0, 0, 1.15, 0, 0, 0, 1, 7.4, 0, 0)
+
+[node name="TreeR2" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(0.85, 0, -0.15, 0, 0.95, 0, 0.15, 0, 0.85, 7.6, 0, 16)
+
+[node name="Chapel" parent="Props" instance=ExtResource("5_chapel")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 14, 0, -6)
+
+[node name="TorchL" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4, 0, 8)
+
+[node name="TorchR" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0, -8)
+
+[node name="TorchL2" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4, 0, -14)
+
+[node name="TorchR2" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0, 14)
 
 [node name="Obstacles" type="Node3D" parent="."]
 

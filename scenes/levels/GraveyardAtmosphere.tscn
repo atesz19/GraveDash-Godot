@@ -1,0 +1,72 @@
+[gd_scene load_steps=8 format=3 uid="uid://bq8graveatmo"]
+
+[ext_resource type="Script" path="res://scripts/levels/GraveyardAtmosphere.gd" id="1_atmo"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_leaves"]
+emission_shape = 3
+emission_box_extents = Vector3(10, 2, 28)
+direction = Vector3(0.15, -1, 0.05)
+spread = 18.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.2
+angular_velocity_min = -40.0
+angular_velocity_max = 40.0
+gravity = Vector3(0.2, -1.4, 0)
+scale_min = 0.08
+scale_max = 0.2
+color = Color(0.35, 0.28, 0.12, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_leaf"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.4, 0.32, 0.14, 0.7)
+roughness = 1.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_leaf"]
+material = SubResource("StandardMaterial3D_leaf")
+size = Vector2(0.25, 0.14)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wisps"]
+emission_shape = 3
+emission_box_extents = Vector3(8, 1.5, 22)
+direction = Vector3(0.2, 0.05, 0)
+spread = 30.0
+initial_velocity_min = 0.2
+initial_velocity_max = 0.7
+gravity = Vector3(0, 0.05, 0)
+scale_min = 0.4
+scale_max = 1.2
+color = Color(0.35, 0.32, 0.5, 0.18)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wisp"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.4, 0.38, 0.55, 0.2)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_wisp"]
+material = SubResource("StandardMaterial3D_wisp")
+radius = 0.35
+height = 0.7
+radial_segments = 8
+rings = 4
+
+[node name="GraveyardAtmosphere" type="Node3D"]
+script = ExtResource("1_atmo")
+player_path = NodePath("../Player")
+
+[node name="FallingLeaves" type="GPUParticles3D" parent="."]
+amount = 64
+lifetime = 5.0
+preprocess = 2.0
+visibility_aabb = AABB(-14, -8, -40, 28, 16, 80)
+process_material = SubResource("ParticleProcessMaterial_leaves")
+draw_pass_1 = SubResource("QuadMesh_leaf")
+
+[node name="FogWisps" type="GPUParticles3D" parent="."]
+amount = 28
+lifetime = 7.0
+preprocess = 3.0
+visibility_aabb = AABB(-12, -4, -35, 24, 10, 70)
+process_material = SubResource("ParticleProcessMaterial_wisps")
+draw_pass_1 = SubResource("SphereMesh_wisp")

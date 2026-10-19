@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://bq8decortree"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_trunk"]
+top_radius = 0.12
+bottom_radius = 0.28
+height = 4.5
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bark"]
+albedo_color = Color(0.12, 0.1, 0.09, 1)
+roughness = 0.98
+
+[sub_resource type="BoxMesh" id="BoxMesh_branch"]
+size = Vector3(1.8, 0.12, 0.12)
+
+[node name="DecorDeadTree" type="Node3D"]
+
+[node name="Trunk" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 0)
+mesh = SubResource("CylinderMesh_trunk")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+
+[node name="BranchA" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0.5, 3.4, 0)
+mesh = SubResource("BoxMesh_branch")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+
+[node name="BranchB" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, -0.55, 3.8, 0.1)
+mesh = SubResource("BoxMesh_branch")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")

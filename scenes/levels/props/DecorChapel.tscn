@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://bq8decorchapel"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_nave"]
+size = Vector3(4.5, 3.2, 3.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
+albedo_color = Color(0.22, 0.2, 0.24, 1)
+roughness = 0.92
+
+[sub_resource type="PrismMesh" id="PrismMesh_roof"]
+size = Vector3(5.0, 1.6, 3.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_spire"]
+size = Vector3(0.7, 2.8, 0.7)
+
+[node name="DecorChapel" type="Node3D"]
+
+[node name="Nave" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("BoxMesh_nave")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="Roof" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9, 0)
+mesh = SubResource("PrismMesh_roof")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="Spire" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 4.6, 0)
+mesh = SubResource("BoxMesh_spire")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")

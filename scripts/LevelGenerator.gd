@@ -47,6 +47,8 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	_rng.randomize()
 	_player = get_node_or_null(player_path) as Node3D
+	## Pull chunk scene from the active biome (Graveyard at run start).
+	_sync_chunk_from_biome()
 	_ensure_scenes()
 	_register_pools()
 
@@ -55,6 +57,20 @@ func _ready() -> void:
 	for i in CHUNKS_AHEAD:
 		_spawn_chunk_at(_next_spawn_z)
 		_next_spawn_z -= CHUNK_LENGTH
+
+	if not BiomeManager.biome_changed.is_connected(_on_biome_changed):
+		BiomeManager.biome_changed.connect(_on_biome_changed)
+
+
+func _sync_chunk_from_biome() -> void:
+	var biome_chunk := BiomeManager.get_chunk_scene()
+	if biome_chunk:
+		chunk_scene = biome_chunk
+
+
+func _on_biome_changed(_biome_id: String) -> void:
+	## Future biomes can swap chunk scenes; keep current runway intact for now.
+	_sync_chunk_from_biome()
 
 
 func _process(_delta: float) -> void:
@@ -65,6 +81,8 @@ func _process(_delta: float) -> void:
 
 
 func _ensure_scenes() -> void:
+	if chunk_scene == null:
+		chunk_scene = BiomeManager.get_chunk_scene()
 	if chunk_scene == null:
 		chunk_scene = preload("res://scenes/levels/Chunk_Graveyard_01.tscn")
 	if pit_scene == null:
@@ -84,7 +102,11 @@ func _ensure_scenes() -> void:
 
 
 func _register_pools() -> void:
-	if not ObjectPool.has_pool(POOL_CHUNK):
+	var chunk_pool := BiomeManager.get_chunk_pool_id()
+	## Keep legacy constant in sync with the active biome pool id.
+	if not ObjectPool.has_pool(chunk_pool):
+		ObjectPool.register_pool(chunk_pool, chunk_scene, CHUNKS_AHEAD + 2)
+	if chunk_pool != POOL_CHUNK and not ObjectPool.has_pool(POOL_CHUNK):
 		ObjectPool.register_pool(POOL_CHUNK, chunk_scene, CHUNKS_AHEAD + 2)
 	if not ObjectPool.has_pool(POOL_PIT):
 		ObjectPool.register_pool(POOL_PIT, pit_scene, 8)
@@ -282,8 +304,15 @@ func _acquire_pooled(pool_id: String) -> Node3D:
 	return null
 
 
+func _chunk_pool_id() -> String:
+	return BiomeManager.get_chunk_pool_id()
+
+
 func _acquire_chunk() -> Node3D:
-	var node := ObjectPool.acquire(POOL_CHUNK)
+	var pool_id := _chunk_pool_id()
+	var node := ObjectPool.acquire(pool_id)
+	if node == null and pool_id != POOL_CHUNK:
+		node = ObjectPool.acquire(POOL_CHUNK)
 	if node is Node3D:
 		return node as Node3D
 	if chunk_scene:
@@ -296,7 +325,11 @@ func _release_chunk(chunk: Node3D) -> void:
 		return
 	if chunk.has_method("on_recycled"):
 		chunk.call("on_recycled")
-	ObjectPool.release(POOL_CHUNK, chunk)
+	var pool_id := _chunk_pool_id()
+	if ObjectPool.has_pool(pool_id):
+		ObjectPool.release(pool_id, chunk)
+	else:
+		ObjectPool.release(POOL_CHUNK, chunk)
 
 
 func _recycle_behind() -> void:

@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8matgraveyard"]
+
+[resource]
+albedo_color = Color(0.18, 0.2, 0.14, 1)
+roughness = 0.96
+metallic = 0.0
+uv1_scale = Vector3(4, 8, 1)
+detail_enabled = false
+proximity_fade_enabled = false

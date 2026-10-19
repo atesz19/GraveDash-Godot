@@ -60,8 +60,10 @@ res://
 - Pooled obstacles: open pit, fallen gravestone, side-incoming sweeper
 - Collectibles: Soul orb (1), Big Soul (5), Golden Coffin (25) via ObjectPool
 - **Ghost Form** power-up (~9s): phase through hazards, purple trail + HUD timer
+- **Graveyard biome**: heavy fog, cold blue/purple moonlight, muddy track, roadside stones/trees/chapel, torches, falling leaves
 - Live HUD (Score / Distance m / Best / Ghost) + Game Over overlay with Restart
 - High score persisted through SaveSystem (`user://gravedash_save.cfg`)
+- `BiomeManager` applies the starting Graveyard atmosphere (Environment + moon light)
 
 ## Not yet (later MVP steps)
 

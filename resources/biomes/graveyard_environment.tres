@@ -1,0 +1,35 @@
+[gd_resource type="Environment" format=3 uid="uid://bq8envgraveyard"]
+
+[resource]
+background_mode = 1
+background_color = Color(0.015, 0.018, 0.04, 1)
+sky_rotation = Vector3(0, 0, 0)
+ambient_light_source = 2
+ambient_light_color = Color(0.28, 0.24, 0.48, 1)
+ambient_light_energy = 0.42
+ambient_light_sky_contribution = 0.0
+tonemap_mode = 2
+tonemap_exposure = 0.95
+ssao_enabled = false
+glow_enabled = true
+glow_levels/1 = 0.0
+glow_levels/2 = 0.6
+glow_levels/3 = 0.8
+glow_levels/4 = 0.4
+glow_intensity = 0.55
+glow_strength = 0.9
+glow_bloom = 0.08
+glow_blend_mode = 1
+fog_enabled = true
+fog_light_color = Color(0.2, 0.18, 0.32, 1)
+fog_light_energy = 1.0
+fog_sun_scatter = 0.15
+fog_density = 0.032
+fog_aerial_perspective = 0.45
+fog_sky_affect = 0.9
+fog_height = 0.0
+fog_height_density = 0.0
+adjustment_enabled = true
+adjustment_brightness = 0.92
+adjustment_contrast = 1.08
+adjustment_saturation = 0.85
