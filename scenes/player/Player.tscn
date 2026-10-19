@@ -1,7 +1,7 @@
 [gd_scene load_steps=21 format=3 uid="uid://bq8gravedashplayer"]
 
 [ext_resource type="Script" path="res://scripts/PlayerController.gd" id="1_ctrl"]
-[ext_resource type="PackedScene" path="res://scenes/player/HoodedRunner.tscn" id="2_runner"]
+[ext_resource type="PackedScene" path="res://scenes/player/WitchRunner.tscn" id="2_runner"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
