@@ -27,12 +27,12 @@ window/size/viewport_height=720
 window/size/mode=2
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-## 4 = sensor landscape (Android landscape, allows 180° flip).
+; 4 = sensor landscape (Android landscape, allows 180° flip).
 window/handheld/orientation=4
 
 [input_devices]
 
-## Lets desktop mouse-drag exercise TouchSwipeDetector without a device.
+; Lets desktop mouse-drag exercise TouchSwipeDetector without a device.
 pointing/emulate_touch_from_mouse=true
 
 [input]
