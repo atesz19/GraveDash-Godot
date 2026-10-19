@@ -94,41 +94,53 @@ func _resolve_bones() -> void:
 
 
 func _setup_materials() -> void:
+	## Keep FBX materials. Colors live as VERTEX COLORS on the mesh; the imported
+	## StandardMaterial3D already has vertex_color_use_as_albedo=true. Do NOT replace
+	## with blank material_override — that made the witch a near-black silhouette.
 	_body_materials.clear()
 	_normal_colors.clear()
-	## Stylized witch palette — texture file was external and not shipped.
-	var cloth := StandardMaterial3D.new()
-	cloth.albedo_color = Color(0.12, 0.08, 0.18, 1.0)
-	cloth.roughness = 0.82
-	cloth.metallic = 0.08
-	var accent := StandardMaterial3D.new()
-	accent.albedo_color = Color(0.35, 0.12, 0.45, 1.0)
-	accent.roughness = 0.55
-	accent.emission_enabled = true
-	accent.emission = Color(0.25, 0.05, 0.4)
-	accent.emission_energy_multiplier = 0.35
-	var skin := StandardMaterial3D.new()
-	skin.albedo_color = Color(0.55, 0.42, 0.4, 1.0)
-	skin.roughness = 0.7
-	var hat := StandardMaterial3D.new()
-	hat.albedo_color = Color(0.05, 0.04, 0.07, 1.0)
-	hat.roughness = 0.9
-
+	var seen: Dictionary = {}
 	var meshes: Array[MeshInstance3D] = _collect_meshes(model_root)
-	for i in meshes.size():
-		var mi: MeshInstance3D = meshes[i]
-		var mat: StandardMaterial3D = cloth.duplicate() as StandardMaterial3D
-		var n: String = mi.name.to_lower()
-		## Heuristic splits from mesh part indices / names.
-		if n.contains("15") or n.contains("hat") or n.contains("01") or n.contains("02"):
-			mat = hat.duplicate() as StandardMaterial3D
-		elif n.contains("17") or n.contains("03") or n.contains("04") or n.contains("05"):
-			mat = skin.duplicate() as StandardMaterial3D
-		elif n.contains("09") or n.contains("20") or n.contains("cloak") or n.contains("16"):
-			mat = accent.duplicate() as StandardMaterial3D
-		mi.material_override = mat
-		_body_materials.append(mat)
-		_normal_colors.append(mat.albedo_color)
+	for mi in meshes:
+		mi.visible = true
+		mi.layers = 1
+		## Clear any leftover override from older builds.
+		mi.material_override = null
+		if mi.mesh == null:
+			continue
+		for s in mi.mesh.get_surface_count():
+			var src: Material = mi.get_active_material(s)
+			if src == null:
+				## Ensure vertex colors still render if a surface lost its mat.
+				var fallback := StandardMaterial3D.new()
+				fallback.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+				fallback.vertex_color_use_as_albedo = true
+				fallback.roughness = 0.55
+				mi.set_surface_override_material(s, fallback)
+				_body_materials.append(fallback)
+				_normal_colors.append(fallback.albedo_color)
+				continue
+			## Duplicate once per unique imported resource so tinting is safe.
+			var key: int = src.get_instance_id()
+			var std: StandardMaterial3D
+			if seen.has(key):
+				std = seen[key] as StandardMaterial3D
+				mi.set_surface_override_material(s, std)
+				continue
+			if src is StandardMaterial3D:
+				std = (src as StandardMaterial3D).duplicate() as StandardMaterial3D
+			else:
+				std = StandardMaterial3D.new()
+				std.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+			std.vertex_color_use_as_albedo = true
+			## Keep albedo near white so vertex colors drive the look.
+			if std.albedo_color.r < 0.2 and std.albedo_color.g < 0.2 and std.albedo_color.b < 0.2:
+				std.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+			std.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+			mi.set_surface_override_material(s, std)
+			seen[key] = std
+			_body_materials.append(std)
+			_normal_colors.append(std.albedo_color)
 
 
 func _collect_meshes(n: Node) -> Array[MeshInstance3D]:
@@ -172,9 +184,13 @@ func apply_tint(color: Color, emission: Color = Color.BLACK, emission_energy: fl
 	for i in _body_materials.size():
 		var mat: StandardMaterial3D = _body_materials[i]
 		var base: Color = _normal_colors[i]
-		var tinted: Color = base.lerp(color, 0.7)
+		## Multiply-style tint keeps vertex colors readable under power-up FX.
+		var tinted: Color = Color(base.r * color.r, base.g * color.g, base.b * color.b, alpha)
+		## Soft lerp so ghost/cursed still reads on top of vertex paint.
+		tinted = base.lerp(tinted, 0.85)
 		tinted.a = alpha
 		mat.albedo_color = tinted
+		mat.vertex_color_use_as_albedo = true
 		if alpha < 0.99:
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		else:
@@ -188,6 +204,7 @@ func clear_tint() -> void:
 	for i in _body_materials.size():
 		var mat: StandardMaterial3D = _body_materials[i]
 		mat.albedo_color = _normal_colors[i]
+		mat.vertex_color_use_as_albedo = true
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 		mat.emission_enabled = false
 		mat.emission_energy_multiplier = 1.0
