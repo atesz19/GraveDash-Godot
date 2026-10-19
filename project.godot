@@ -18,6 +18,7 @@ ScoreManager="*res://autoload/ScoreManager.gd"
 ObjectPool="*res://autoload/ObjectPool.gd"
 AudioManager="*res://autoload/AudioManager.gd"
 BiomeManager="*res://autoload/BiomeManager.gd"
+TouchSwipeDetector="*res://scripts/input/TouchSwipeDetector.gd"
 
 [display]
 
@@ -26,7 +27,13 @@ window/size/viewport_height=720
 window/size/mode=2
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+## 4 = sensor landscape (Android landscape, allows 180° flip).
 window/handheld/orientation=4
+
+[input_devices]
+
+## Lets desktop mouse-drag exercise TouchSwipeDetector without a device.
+pointing/emulate_touch_from_mouse=true
 
 [input]
 
@@ -69,6 +76,13 @@ pause={
 
 [rendering]
 
+## Mobile renderer — required path for Android (Vulkan mobile / OpenGL ES).
 renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=1
+
+[android]
+
+## Package identity also mirrored in export_presets.cfg.
+modules=""

@@ -1,13 +1,19 @@
 # Godot 4
 .godot/
 *.translation
+# Local override only — commit export_presets.cfg (Android preset lives in repo).
 export.cfg
-export_presets.cfg
 .mono/
 data_*/
+# Signed/build outputs (build locally; no CI signing in this repo).
 *.apk
 *.aab
 *.ipa
+android/build/
 .DS_Store
 *~
 *.swp
+# Keystores must never be committed.
+*.keystore
+*.jks
+keystore.properties

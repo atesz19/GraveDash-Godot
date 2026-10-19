@@ -2,7 +2,7 @@ extends CharacterBody3D
 ## PlayerController — Subway Surfers–style 3-lane runner for GraveDash.
 ## Forward axis: negative Z (player runs toward -Z). Lanes along X.
 ## Desktop: A/D or arrows = lanes, Space = jump, Ctrl/S = slide.
-## Mobile: swipe_* input actions (wire TouchScreenSwipe later).
+## Mobile: swipe_* via keyboard (desktop) + TouchSwipeDetector autoload (touch).
 
 signal died
 signal powerup_collected(powerup_id: String)
