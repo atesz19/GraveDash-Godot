@@ -53,7 +53,7 @@ const SECOND_CHANCE_HOVER_TIME: float = 1.35
 const SECOND_CHANCE_HOVER_HEIGHT: float = 2.4
 
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var visual: Node3D = get_node_or_null("Visual")
 @onready var spring_arm: SpringArm3D = $SpringArm3D
 @onready var camera: Camera3D = $SpringArm3D/Camera3D
 @onready var run_particles: GPUParticles3D = $RunParticles
@@ -95,10 +95,8 @@ var _powerup_timers: Dictionary = {}
 var _hud_tick_accum: float = 0.0
 
 var _capsule_shape: CapsuleShape3D
-var _capsule_mesh: CapsuleMesh
-var _body_material: StandardMaterial3D
-var _normal_albedo: Color = Color(0.55, 0.72, 0.45, 1.0)
 var _holy_aura_mat: StandardMaterial3D
+var _was_on_floor: bool = true
 
 
 func _ready() -> void:
@@ -106,42 +104,35 @@ func _ready() -> void:
 	GameManager.player = self
 	is_alive = true
 	_capsule_shape = collision_shape.shape as CapsuleShape3D
-	if mesh_instance.mesh is CapsuleMesh:
-		_capsule_mesh = mesh_instance.mesh as CapsuleMesh
 	_setup_materials()
 	_apply_standing_hitbox()
 	_clear_all_powerups(false)
 	global_position.x = LANE_POSITIONS[current_lane]
+	_update_animation_state(true)
 	if not GameManager.is_playing():
 		GameManager.start_game()
 
 
 func _setup_materials() -> void:
-	## Unique material so ghost transparency doesn't mutate a shared resource.
-	var existing := mesh_instance.get_surface_override_material(0)
-	if existing is StandardMaterial3D:
-		_body_material = (existing as StandardMaterial3D).duplicate() as StandardMaterial3D
-	else:
-		_body_material = StandardMaterial3D.new()
-		_body_material.albedo_color = _normal_albedo
-		_body_material.roughness = 0.7
-	_normal_albedo = _body_material.albedo_color
-	mesh_instance.set_surface_override_material(0, _body_material)
 	if holy_aura:
-		var am := holy_aura.get_surface_override_material(0)
+		var am: Material = holy_aura.get_surface_override_material(0)
 		if am is StandardMaterial3D:
 			_holy_aura_mat = (am as StandardMaterial3D).duplicate() as StandardMaterial3D
 			holy_aura.set_surface_override_material(0, _holy_aura_mat)
 
 
 func _physics_process(delta: float) -> void:
-	if not is_alive or not GameManager.is_playing():
+	if not is_alive:
+		return
+	if not GameManager.is_playing():
+		_play_character_anim("idle")
 		return
 
 	if is_escaping:
 		_tick_second_chance_escape(delta)
 		move_and_slide()
 		_report_distance(delta)
+		_update_animation_state(false)
 		return
 
 	_handle_lane_input()
@@ -156,6 +147,7 @@ func _physics_process(delta: float) -> void:
 	_tick_ghost_form(delta)
 	_tick_holy_light(delta)
 	_refresh_powerup_hud(delta)
+	_update_animation_state(false)
 
 
 # --- Input -------------------------------------------------------------------
@@ -170,8 +162,7 @@ func _handle_lane_input() -> void:
 func _handle_jump_input() -> void:
 	if Input.is_action_just_pressed("swipe_up") and is_on_floor() and not is_sliding:
 		velocity.y = JUMP_VELOCITY
-		if is_sliding:
-			_end_slide()
+		_play_character_anim("jump", true)
 
 
 func _handle_slide_input(delta: float) -> void:
@@ -238,6 +229,7 @@ func _start_slide() -> void:
 	is_sliding = true
 	_slide_timer = SLIDE_DURATION
 	_apply_slide_hitbox()
+	_play_character_anim("slide", true)
 	if run_particles:
 		run_particles.emitting = true
 
@@ -246,30 +238,47 @@ func _end_slide() -> void:
 	is_sliding = false
 	_slide_timer = 0.0
 	_apply_standing_hitbox()
+	_update_animation_state(true)
 
 
 func _apply_standing_hitbox() -> void:
 	if _capsule_shape:
 		_capsule_shape.height = STANDING_CAPSULE_HEIGHT
 		_capsule_shape.radius = STANDING_CAPSULE_RADIUS
-	if _capsule_mesh:
-		_capsule_mesh.height = STANDING_CAPSULE_HEIGHT
-		_capsule_mesh.radius = STANDING_CAPSULE_RADIUS
 	collision_shape.position.y = STANDING_SHAPE_Y
-	mesh_instance.position.y = STANDING_SHAPE_Y
-	mesh_instance.rotation_degrees.x = 0.0
 
 
 func _apply_slide_hitbox() -> void:
 	if _capsule_shape:
 		_capsule_shape.height = SLIDE_CAPSULE_HEIGHT
 		_capsule_shape.radius = SLIDE_CAPSULE_RADIUS
-	if _capsule_mesh:
-		_capsule_mesh.height = SLIDE_CAPSULE_HEIGHT
-		_capsule_mesh.radius = SLIDE_CAPSULE_RADIUS
 	collision_shape.position.y = SLIDE_SHAPE_Y
-	mesh_instance.position.y = SLIDE_SHAPE_Y
-	mesh_instance.rotation_degrees.x = 70.0
+
+
+func _update_animation_state(force: bool) -> void:
+	if not is_alive:
+		_play_character_anim("death", force)
+		return
+	if is_sliding:
+		_play_character_anim("slide", force)
+		return
+	if not is_on_floor():
+		_play_character_anim("jump", force)
+		_was_on_floor = false
+		return
+	_was_on_floor = true
+	## Running while the match is live; idle only when speed is effectively stopped.
+	if run_speed > 0.5 and GameManager.is_playing():
+		_play_character_anim("run", force)
+	else:
+		_play_character_anim("idle", force)
+
+
+func _play_character_anim(anim_name: String, force: bool = false) -> void:
+	if visual == null:
+		return
+	if visual.has_method("play"):
+		visual.call("play", anim_name, force)
 
 
 # --- Collisions / death ------------------------------------------------------
@@ -311,6 +320,9 @@ func die() -> void:
 		return
 	is_alive = false
 	velocity = Vector3.ZERO
+	if run_particles:
+		run_particles.emitting = false
+	_play_character_anim("death", true)
 	_clear_all_powerups(false)
 	died.emit()
 	GameManager.trigger_game_over()
@@ -365,12 +377,15 @@ func _apply_ghost_visuals(active: bool) -> void:
 	if ghost_light:
 		ghost_light.visible = active
 		ghost_light.light_energy = 2.2 if active else 0.0
-	if active and _body_material:
-		_body_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_body_material.albedo_color = Color(0.55, 0.35, 0.85, 0.42)
-		_body_material.emission_enabled = true
-		_body_material.emission = Color(0.45, 0.2, 0.75)
-		_body_material.emission_energy_multiplier = 1.8
+	if active:
+		_tint_character(
+			Color(0.55, 0.35, 0.85, 1.0),
+			Color(0.45, 0.2, 0.75),
+			1.8,
+			0.42
+		)
+	elif not has_cursed_speed:
+		_clear_character_tint()
 
 
 # --- Soul Magnet -------------------------------------------------------------
@@ -587,11 +602,15 @@ func _apply_cursed_visuals(active: bool) -> void:
 		cursed_light.light_energy = 2.6 if active else 0.0
 	if cursed_trail:
 		cursed_trail.emitting = active
-	if active and _body_material and not is_ghost:
-		_body_material.emission_enabled = true
-		_body_material.emission = Color(0.95, 0.25, 0.08)
-		_body_material.emission_energy_multiplier = 2.2
-		_body_material.albedo_color = Color(0.85, 0.4, 0.28, 1.0)
+	if active and not is_ghost:
+		_tint_character(
+			Color(0.85, 0.4, 0.28, 1.0),
+			Color(0.95, 0.25, 0.08),
+			2.2,
+			1.0
+		)
+	elif not is_ghost:
+		_clear_character_tint()
 
 
 # --- Shared power-up API -----------------------------------------------------
@@ -674,19 +693,24 @@ func _refresh_collision_mask() -> void:
 		collision_mask = MASK_NORMAL
 
 
+func _tint_character(color: Color, emission: Color, emission_energy: float, alpha: float) -> void:
+	if visual != null and visual.has_method("apply_tint"):
+		visual.call("apply_tint", color, emission, emission_energy, alpha)
+
+
+func _clear_character_tint() -> void:
+	if visual != null and visual.has_method("clear_tint"):
+		visual.call("clear_tint")
+
+
 func _reapply_body_tint() -> void:
-	if _body_material == null:
-		return
 	if is_ghost:
 		_apply_ghost_visuals(true)
 		return
 	if has_cursed_speed:
 		_apply_cursed_visuals(true)
 		return
-	_body_material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
-	_body_material.albedo_color = _normal_albedo
-	_body_material.emission_enabled = false
-	_body_material.emission_energy_multiplier = 1.0
+	_clear_character_tint()
 
 
 func _clear_all_powerups(emit_signals: bool) -> void:
