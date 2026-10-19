@@ -30,6 +30,9 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 	if not GameManager.is_playing():
 		return
+	## Ghost Form: pass through hazards / enemies.
+	if body.has_method("is_ghost_form") and body.call("is_ghost_form"):
+		return
 	if not can_kill_body(body):
 		return
 	player_hit.emit(body)

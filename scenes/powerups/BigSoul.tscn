@@ -29,3 +29,9 @@ shape = SubResource("SphereShape3D_big")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_big")
 surface_material_override/0 = SubResource("StandardMaterial3D_glow")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(0.45, 0.6, 1.0, 1)
+light_energy = 2.0
+omni_range = 3.8
+shadow_enabled = false

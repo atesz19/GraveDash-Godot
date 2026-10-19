@@ -12,6 +12,7 @@ const POOL_SIDE: String = "obstacle_side"
 const POOL_SOUL: String = "collectible_soul"
 const POOL_BIG_SOUL: String = "collectible_big_soul"
 const POOL_COFFIN: String = "collectible_golden_coffin"
+const POOL_GHOST: String = "collectible_ghost_form"
 
 const LANE_COUNT: int = 3
 const Z_MARGIN: float = 6.0
@@ -25,6 +26,7 @@ const BAND_SIZE: float = 4.0
 @export var soul_scene: PackedScene
 @export var big_soul_scene: PackedScene
 @export var coffin_scene: PackedScene
+@export var ghost_form_scene: PackedScene
 @export var player_path: NodePath = ^"../Player"
 
 @export var obstacles_per_chunk_min: int = 1
@@ -32,6 +34,8 @@ const BAND_SIZE: float = 4.0
 @export var souls_per_chunk_min: int = 3
 @export var souls_per_chunk_max: int = 5
 @export var safe_chunk_count: int = 1
+## Chance to place one Ghost Form per chunk (after intro). Keep rare.
+@export var ghost_form_chance: float = 0.12
 
 var _player: Node3D
 var _chunks: Array[Node3D] = []
@@ -75,6 +79,8 @@ func _ensure_scenes() -> void:
 		big_soul_scene = preload("res://scenes/powerups/BigSoul.tscn")
 	if coffin_scene == null:
 		coffin_scene = preload("res://scenes/powerups/GoldenCoffin.tscn")
+	if ghost_form_scene == null:
+		ghost_form_scene = preload("res://scenes/powerups/GhostForm.tscn")
 
 
 func _register_pools() -> void:
@@ -92,6 +98,8 @@ func _register_pools() -> void:
 		ObjectPool.register_pool(POOL_BIG_SOUL, big_soul_scene, 10)
 	if not ObjectPool.has_pool(POOL_COFFIN):
 		ObjectPool.register_pool(POOL_COFFIN, coffin_scene, 4)
+	if not ObjectPool.has_pool(POOL_GHOST):
+		ObjectPool.register_pool(POOL_GHOST, ghost_form_scene, 4)
 
 
 func _spawn_chunk_at(origin_z: float) -> Node3D:
@@ -115,7 +123,8 @@ func _spawn_chunk_at(origin_z: float) -> Node3D:
 	var occupied: Dictionary = {}
 	if index >= safe_chunk_count:
 		occupied = _populate_obstacles(chunk, index)
-	_populate_collectibles(chunk, index, occupied)
+	var soul_cells := _populate_collectibles(chunk, index, occupied)
+	_maybe_spawn_ghost_form(chunk, index, occupied, soul_cells)
 
 	_chunks.append(chunk)
 	return chunk
@@ -156,16 +165,16 @@ func _populate_obstacles(chunk: Node3D, chunk_index: int) -> Dictionary:
 	return occupied
 
 
-func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionary) -> void:
+func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionary) -> Dictionary:
+	var soul_cells: Dictionary = {}
 	if not chunk.has_method("attach_collectible"):
-		return
+		return soul_cells
 
-	## Density: 3–5 souls/chunk (2–3 on the safe intro chunk). Not sparse, not packed.
+	## Density: 3–5 souls/chunk (2–3 on the safe intro chunk).
 	var count := _rng.randi_range(souls_per_chunk_min, souls_per_chunk_max)
 	if chunk_index < safe_chunk_count:
 		count = _rng.randi_range(2, 3)
 
-	var soul_cells: Dictionary = {}  ## "lane|band" → true
 	var placed := 0
 	var attempts := 0
 	while placed < count and attempts < count * 6:
@@ -176,18 +185,7 @@ func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionar
 		var cell := "%d|%d" % [lane, band]
 		if soul_cells.has(cell):
 			continue
-		## Skip cells that already have an obstacle in this lane/band.
-		var obs_mask: int = int(occupied.get(band, 0))
-		if obs_mask & (1 << lane):
-			continue
-		## Also skip neighbouring bands in the same lane (pit/stone footprint).
-		var near_obs := false
-		for db in [-1, 0, 1]:
-			var m: int = int(occupied.get(band + db, 0))
-			if m & (1 << lane):
-				near_obs = true
-				break
-		if near_obs:
+		if not _cell_is_clear(lane, band, occupied, soul_cells):
 			continue
 
 		var kind := _pick_collectible_kind(chunk_index)
@@ -200,6 +198,50 @@ func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionar
 		chunk.call("attach_collectible", col)
 		soul_cells[cell] = true
 		placed += 1
+	return soul_cells
+
+
+## Rare Ghost Form pickup — ~12% per chunk after intro, never stacked on obstacles.
+func _maybe_spawn_ghost_form(
+	chunk: Node3D,
+	chunk_index: int,
+	occupied: Dictionary,
+	soul_cells: Dictionary
+) -> void:
+	if chunk_index < safe_chunk_count + 1:
+		return
+	if not chunk.has_method("attach_collectible"):
+		return
+	if _rng.randf() > ghost_form_chance:
+		return
+
+	for attempt in 8:
+		var lane := _rng.randi_range(0, LANE_COUNT - 1)
+		var z_off := _random_z()
+		var band := _band(z_off)
+		var cell := "%d|%d" % [lane, band]
+		if not _cell_is_clear(lane, band, occupied, soul_cells):
+			continue
+		var col := _acquire_pooled(POOL_GHOST)
+		if col == null:
+			return
+		col.pool_id = POOL_GHOST
+		if col.has_method("configure"):
+			col.call("configure", lane, z_off)
+		chunk.call("attach_collectible", col)
+		soul_cells[cell] = true
+		return
+
+
+func _cell_is_clear(lane: int, band: int, occupied: Dictionary, soul_cells: Dictionary) -> bool:
+	var cell := "%d|%d" % [lane, band]
+	if soul_cells.has(cell):
+		return false
+	for db in [-1, 0, 1]:
+		var m: int = int(occupied.get(band + db, 0))
+		if m & (1 << lane):
+			return false
+	return true
 
 
 func _pick_obstacle_kind(chunk_index: int) -> String:
