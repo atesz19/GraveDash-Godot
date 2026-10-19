@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://bq8soulmagnet"]
+
+[ext_resource type="Script" path="res://scripts/collectibles/SoulMagnet.gd" id="1_magnet"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_m"]
+radius = 0.55
+
+[sub_resource type="TorusMesh" id="TorusMesh_m"]
+inner_radius = 0.18
+outer_radius = 0.42
+rings = 12
+ring_segments = 20
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m"]
+transparency = 1
+albedo_color = Color(0.15, 0.55, 0.85, 0.8)
+emission_enabled = true
+emission = Color(0.2, 0.65, 1.0, 1)
+emission_energy_multiplier = 3.2
+roughness = 0.3
+
+[node name="SoulMagnet" type="Area3D"]
+collision_layer = 8
+collision_mask = 2
+monitoring = true
+monitorable = true
+script = ExtResource("1_magnet")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_m")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("TorusMesh_m")
+surface_material_override/0 = SubResource("StandardMaterial3D_m")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(0.25, 0.7, 1.0, 1)
+light_energy = 2.2
+omni_range = 4.0
+shadow_enabled = false

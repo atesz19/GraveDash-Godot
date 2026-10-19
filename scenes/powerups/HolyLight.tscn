@@ -1,0 +1,53 @@
+[gd_scene load_steps=6 format=3 uid="uid://bq8holylight"]
+
+[ext_resource type="Script" path="res://scripts/collectibles/HolyLight.gd" id="1_holy"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_h"]
+radius = 0.55
+
+[sub_resource type="SphereMesh" id="SphereMesh_h"]
+radius = 0.4
+height = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h"]
+transparency = 1
+albedo_color = Color(1.0, 0.92, 0.55, 0.85)
+emission_enabled = true
+emission = Color(1.0, 0.95, 0.6, 1)
+emission_energy_multiplier = 4.0
+roughness = 0.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+transparency = 1
+albedo_color = Color(1.0, 1.0, 0.9, 0.95)
+emission_enabled = true
+emission = Color(1.0, 1.0, 0.85, 1)
+emission_energy_multiplier = 5.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+radius = 0.18
+height = 0.36
+
+[node name="HolyLight" type="Area3D"]
+collision_layer = 8
+collision_mask = 2
+monitoring = true
+monitorable = true
+script = ExtResource("1_holy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_h")
+surface_material_override/0 = SubResource("StandardMaterial3D_h")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_core")
+surface_material_override/0 = SubResource("StandardMaterial3D_core")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(1.0, 0.95, 0.7, 1)
+light_energy = 3.0
+omni_range = 5.0
+shadow_enabled = false

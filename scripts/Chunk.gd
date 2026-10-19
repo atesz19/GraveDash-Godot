@@ -55,13 +55,25 @@ func _attach_to(node: Node3D, root: Node3D, list: Array[Node]) -> void:
 ## Collectible picked itself up — drop our ref (it already scored / will release).
 func notify_collectible_picked(collectible: Node) -> void:
 	_collectibles.erase(collectible)
-	var pool_id := str(collectible.get("pool_id")) if collectible.get("pool_id") != null else ""
-	if collectible.has_method("on_recycled"):
-		collectible.call("on_recycled")
+	_release_item(collectible)
+
+
+## Holy Light / external clear — recycle an obstacle back into its pool.
+func notify_obstacle_destroyed(obstacle: Node) -> void:
+	_obstacles.erase(obstacle)
+	_release_item(obstacle)
+
+
+func _release_item(item: Node) -> void:
+	if item == null or not is_instance_valid(item):
+		return
+	var pool_id := str(item.get("pool_id")) if item.get("pool_id") != null else ""
+	if item.has_method("on_recycled"):
+		item.call("on_recycled")
 	if pool_id != "" and ObjectPool.has_pool(pool_id):
-		ObjectPool.release(pool_id, collectible)
-	elif is_instance_valid(collectible):
-		collectible.queue_free()
+		ObjectPool.release(pool_id, item)
+	elif is_instance_valid(item):
+		item.queue_free()
 
 
 func on_recycled() -> void:

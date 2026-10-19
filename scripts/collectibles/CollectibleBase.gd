@@ -6,6 +6,9 @@ signal collected(points: int, collectible_id: String)
 
 const LANE_POSITIONS: Array[float] = [-2.5, 0.0, 2.5]
 const FLOAT_Y: float = 1.05
+const MAGNET_RANGE: float = 14.0
+const MAGNET_SPEED: float = 22.0
+const SOUL_IDS: Array[String] = ["soul_orb", "big_soul", "golden_coffin"]
 
 ## Set by LevelGenerator when acquired from the pool.
 var pool_id: String = ""
@@ -32,9 +35,30 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _picked or not visible:
 		return
+	if _try_magnet_pull(delta):
+		return
 	_bob_t += delta
 	position.y = _base_y + sin(_bob_t * 3.0) * 0.12
 	rotate_y(delta * 1.6)
+
+
+func _try_magnet_pull(delta: float) -> bool:
+	if not SOUL_IDS.has(collectible_id):
+		return false
+	var player := GameManager.player as Node3D
+	if player == null or not is_instance_valid(player):
+		return false
+	if not bool(player.get("has_magnet")):
+		return false
+	if not bool(player.get("is_alive")):
+		return false
+	var target := player.global_position + Vector3(0.0, 1.0, 0.0)
+	var dist := global_position.distance_to(target)
+	if dist > MAGNET_RANGE:
+		return false
+	var step := (MAGNET_SPEED + (MAGNET_RANGE - dist) * 1.5) * delta
+	global_position = global_position.move_toward(target, step)
+	return true
 
 
 func _on_body_entered(body: Node3D) -> void:

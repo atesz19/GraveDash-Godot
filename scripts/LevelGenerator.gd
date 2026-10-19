@@ -13,6 +13,10 @@ const POOL_SOUL: String = "collectible_soul"
 const POOL_BIG_SOUL: String = "collectible_big_soul"
 const POOL_COFFIN: String = "collectible_golden_coffin"
 const POOL_GHOST: String = "collectible_ghost_form"
+const POOL_MAGNET: String = "collectible_soul_magnet"
+const POOL_HOLY: String = "collectible_holy_light"
+const POOL_SECOND: String = "collectible_second_chance"
+const POOL_CURSED: String = "collectible_cursed_speed"
 
 const LANE_COUNT: int = 3
 const Z_MARGIN: float = 6.0
@@ -27,6 +31,10 @@ const BAND_SIZE: float = 4.0
 @export var big_soul_scene: PackedScene
 @export var coffin_scene: PackedScene
 @export var ghost_form_scene: PackedScene
+@export var soul_magnet_scene: PackedScene
+@export var holy_light_scene: PackedScene
+@export var second_chance_scene: PackedScene
+@export var cursed_speed_scene: PackedScene
 @export var player_path: NodePath = ^"../Player"
 
 @export var obstacles_per_chunk_min: int = 1
@@ -34,7 +42,9 @@ const BAND_SIZE: float = 4.0
 @export var souls_per_chunk_min: int = 3
 @export var souls_per_chunk_max: int = 5
 @export var safe_chunk_count: int = 1
-## Chance to place one Ghost Form per chunk (after intro). Keep rare.
+## Overall chance to place one ability power-up per chunk (after intro).
+@export var ability_powerup_chance: float = 0.22
+## Legacy: kept for compatibility; abilities use weighted pick below.
 @export var ghost_form_chance: float = 0.12
 
 var _player: Node3D
@@ -99,6 +109,14 @@ func _ensure_scenes() -> void:
 		coffin_scene = preload("res://scenes/powerups/GoldenCoffin.tscn")
 	if ghost_form_scene == null:
 		ghost_form_scene = preload("res://scenes/powerups/GhostForm.tscn")
+	if soul_magnet_scene == null:
+		soul_magnet_scene = preload("res://scenes/powerups/SoulMagnet.tscn")
+	if holy_light_scene == null:
+		holy_light_scene = preload("res://scenes/powerups/HolyLight.tscn")
+	if second_chance_scene == null:
+		second_chance_scene = preload("res://scenes/powerups/SecondChance.tscn")
+	if cursed_speed_scene == null:
+		cursed_speed_scene = preload("res://scenes/powerups/CursedSpeed.tscn")
 
 
 func _register_pools() -> void:
@@ -122,6 +140,14 @@ func _register_pools() -> void:
 		ObjectPool.register_pool(POOL_COFFIN, coffin_scene, 4)
 	if not ObjectPool.has_pool(POOL_GHOST):
 		ObjectPool.register_pool(POOL_GHOST, ghost_form_scene, 4)
+	if not ObjectPool.has_pool(POOL_MAGNET):
+		ObjectPool.register_pool(POOL_MAGNET, soul_magnet_scene, 4)
+	if not ObjectPool.has_pool(POOL_HOLY):
+		ObjectPool.register_pool(POOL_HOLY, holy_light_scene, 4)
+	if not ObjectPool.has_pool(POOL_SECOND):
+		ObjectPool.register_pool(POOL_SECOND, second_chance_scene, 3)
+	if not ObjectPool.has_pool(POOL_CURSED):
+		ObjectPool.register_pool(POOL_CURSED, cursed_speed_scene, 4)
 
 
 func _spawn_chunk_at(origin_z: float) -> Node3D:
@@ -146,7 +172,7 @@ func _spawn_chunk_at(origin_z: float) -> Node3D:
 	if index >= safe_chunk_count:
 		occupied = _populate_obstacles(chunk, index)
 	var soul_cells := _populate_collectibles(chunk, index, occupied)
-	_maybe_spawn_ghost_form(chunk, index, occupied, soul_cells)
+	_maybe_spawn_ability_powerup(chunk, index, occupied, soul_cells)
 
 	_chunks.append(chunk)
 	return chunk
@@ -223,8 +249,9 @@ func _populate_collectibles(chunk: Node3D, chunk_index: int, occupied: Dictionar
 	return soul_cells
 
 
-## Rare Ghost Form pickup — ~12% per chunk after intro, never stacked on obstacles.
-func _maybe_spawn_ghost_form(
+## At most one ability power-up per chunk after intro (~22% chance).
+## Weights: Ghost 28%, Magnet 24%, Holy 20%, Cursed 16%, Second Chance 12%.
+func _maybe_spawn_ability_powerup(
 	chunk: Node3D,
 	chunk_index: int,
 	occupied: Dictionary,
@@ -234,9 +261,10 @@ func _maybe_spawn_ghost_form(
 		return
 	if not chunk.has_method("attach_collectible"):
 		return
-	if _rng.randf() > ghost_form_chance:
+	if _rng.randf() > ability_powerup_chance:
 		return
 
+	var pool_id := _pick_ability_pool()
 	for attempt in 8:
 		var lane := _rng.randi_range(0, LANE_COUNT - 1)
 		var z_off := _random_z()
@@ -244,15 +272,28 @@ func _maybe_spawn_ghost_form(
 		var cell := "%d|%d" % [lane, band]
 		if not _cell_is_clear(lane, band, occupied, soul_cells):
 			continue
-		var col := _acquire_pooled(POOL_GHOST)
+		var col := _acquire_pooled(pool_id)
 		if col == null:
 			return
-		col.pool_id = POOL_GHOST
+		col.pool_id = pool_id
 		if col.has_method("configure"):
 			col.call("configure", lane, z_off)
 		chunk.call("attach_collectible", col)
 		soul_cells[cell] = true
 		return
+
+
+func _pick_ability_pool() -> String:
+	var roll := _rng.randf()
+	if roll < 0.28:
+		return POOL_GHOST
+	if roll < 0.52:
+		return POOL_MAGNET
+	if roll < 0.72:
+		return POOL_HOLY
+	if roll < 0.88:
+		return POOL_CURSED
+	return POOL_SECOND
 
 
 func _cell_is_clear(lane: int, band: int, occupied: Dictionary, soul_cells: Dictionary) -> bool:

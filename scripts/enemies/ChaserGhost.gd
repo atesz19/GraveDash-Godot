@@ -144,7 +144,8 @@ func _chase(delta: float) -> void:
 	if gap <= ALMOST_DISTANCE:
 		almost_close.emit(gap)
 
-	if not ghost_protected and gap <= CATCH_DISTANCE:
+	var escaping := player.get("is_escaping") == true
+	if not ghost_protected and not escaping and gap <= CATCH_DISTANCE:
 		_catch()
 
 
@@ -161,11 +162,27 @@ func _catch() -> void:
 		target_gap = SAFE_GAP
 		global_position.z = player.global_position.z + SAFE_GAP
 		return
+	## Second Chance hover escape — treat like invuln.
+	if player and bool(player.get("is_escaping")):
+		target_gap = SAFE_GAP
+		global_position.z = player.global_position.z + SAFE_GAP
+		return
 	_caught = true
 	caught_player.emit()
 	if player and player.has_method("die"):
-		## die() also no-ops while ghost — double safe.
+		## die() also no-ops while ghost / consumes Second Chance.
 		player.call("die")
 	else:
 		GameManager.trigger_game_over()
 	print("[ChaserGhost] Caught the player (gap closed)")
+
+
+## Holy Light blast — shove far behind and reset close-in pressure.
+func banish_by_holy_light(push_gap: float = 28.0) -> void:
+	if player == null or not is_instance_valid(player):
+		return
+	_caught = false
+	target_gap = maxf(push_gap - 4.0, SAFE_GAP)
+	global_position.z = player.global_position.z + push_gap
+	global_position.x = _target_x()
+	global_position.y = 1.1

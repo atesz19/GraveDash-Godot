@@ -2,7 +2,7 @@
 
 Horror endless runner (Subway Surfers–style) built with **Godot 4.3 / 4.4**, GDScript, 3D, Mobile renderer — targeted at Android landscape @ 60 FPS.
 
-This repo contains the **MVP slice through step 7**: project structure, player + chunks, obstacles, collectibles/HUD, Ghost Form, Graveyard biome, and chasing ghosts.
+This repo contains the **MVP slice through step 8**: structure, player + chunks, obstacles, collectibles/HUD, Ghost Form, Graveyard biome, chasing ghosts, and the full power-up set.
 
 ## Requirements
 
@@ -36,9 +36,9 @@ res://
 │   ├── levels/        Main.tscn, Chunk_Graveyard_01.tscn, atmosphere + props
 │   ├── obstacles/     Pit, Gravestone, SideIncoming
 │   ├── enemies/       ChaserGhost, ChaserSpawner
-│   ├── powerups/      Souls + Ghost Form
+│   ├── powerups/      Souls + Ghost Form, Magnet, Holy Light, Second Chance, Cursed Speed
 │   └── ui/            HUD, GameOverUI
-├── scripts/           Controllers, generators, enemy AI
+├── scripts/           Controllers, generators, enemy AI, collectibles
 ├── assets/            models, textures, audio, particles (placeholders)
 └── resources/biomes/  Graveyard environment + ground materials
 ```
@@ -49,24 +49,24 @@ res://
 |------|------|
 | `GameManager` | Menu / Playing / Paused / GameOver |
 | `ScoreManager` | Score, distance, highscore |
-| `ObjectPool` | Generic scene pooling (chunks, obstacles, chasers) |
+| `ObjectPool` | Generic scene pooling (chunks, obstacles, chasers, pickups) |
 | `AudioManager` | Stub (`play_sfx` no-ops until streams are wired) |
 | `BiomeManager` | Applies Graveyard atmosphere at run start |
 | `SaveSystem` | ConfigFile highscore persistence |
 
 ## What’s in this slice
 
-- 3-lane auto-runner with jump, slide (hitbox shrink), speed ramp 13 → 30
-- SpringArm camera + dust particles on the player
-- Chunk length 45, 5 ahead, rear recycle via `ObjectPool`
-- Pooled obstacles: open pit, fallen gravestone, side-incoming sweeper
-- Collectibles: Soul orb (1), Big Soul (5), Golden Coffin (25) via ObjectPool
-- **Ghost Form** power-up (~9s): phase through hazards + chaser catch, purple trail + HUD timer
-- **Graveyard biome**: heavy fog, cold blue/purple moonlight, muddy track, roadside props, torches, falling leaves
-- **Chaser ghosts** (default pack of 2, range 1–3): stay behind the player, match/slightly exceed run speed, close in if you camp a lane; catch distance 2.2 → Game Over via `Player.die` / `GameManager.trigger_game_over`
-- **Almost Caught** UX: screen-edge darken + vignette + “ALMOST CAUGHT” label when gap &lt; 7; suppressed during Ghost Form
-- Live HUD (Score / Distance m / Best / Ghost) + Game Over overlay with Restart
-- High score persisted through SaveSystem (`user://gravedash_save.cfg`)
+- 3-lane auto-runner with jump, slide, speed ramp 13 → 30
+- Pooled obstacles + soul collectibles + Game Over / Restart
+- **Power-ups** (ObjectPool + LevelGenerator, ~22% ability chance / chunk after intro):
+  - **Ghost Form** (~9s) — phase through hazards; protects from chaser catch
+  - **Soul Magnet** (~11s) — pulls nearby souls toward the player
+  - **Holy Light** (~7s) — radius blast recycles obstacles + banishes chasers
+  - **Second Chance** (1 charge) — one lethal hit → hover escape instead of Game Over
+  - **Cursed Speed** (~6s) — big speed boost, sluggish/overshoot lane changes
+- HUD icons + timers (and Second Chance charge indicator)
+- Chaser ghosts with Almost Caught vignette
+- Graveyard biome atmosphere
 
 ## Not yet (later MVP steps)
 

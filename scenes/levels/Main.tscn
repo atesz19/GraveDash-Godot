@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=20 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="Script" path="res://scripts/levels/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -16,6 +16,10 @@
 [ext_resource type="PackedScene" uid="uid://bq8graveatmo" path="res://scenes/levels/GraveyardAtmosphere.tscn" id="14_atmo"]
 [ext_resource type="Environment" uid="uid://bq8envgraveyard" path="res://resources/biomes/graveyard_environment.tres" id="15_env"]
 [ext_resource type="PackedScene" uid="uid://bq8chaserspawner" path="res://scenes/enemies/ChaserSpawner.tscn" id="16_chasers"]
+[ext_resource type="PackedScene" uid="uid://bq8soulmagnet" path="res://scenes/powerups/SoulMagnet.tscn" id="17_magnet"]
+[ext_resource type="PackedScene" uid="uid://bq8holylight" path="res://scenes/powerups/HolyLight.tscn" id="18_holy"]
+[ext_resource type="PackedScene" uid="uid://bq8secondchance" path="res://scenes/powerups/SecondChance.tscn" id="19_second"]
+[ext_resource type="PackedScene" uid="uid://bq8cursedspeed" path="res://scenes/powerups/CursedSpeed.tscn" id="20_cursed"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -44,6 +48,10 @@ soul_scene = ExtResource("10_soul")
 big_soul_scene = ExtResource("11_big")
 coffin_scene = ExtResource("12_coffin")
 ghost_form_scene = ExtResource("13_ghost")
+soul_magnet_scene = ExtResource("17_magnet")
+holy_light_scene = ExtResource("18_holy")
+second_chance_scene = ExtResource("19_second")
+cursed_speed_scene = ExtResource("20_cursed")
 player_path = NodePath("../Player")
 
 [node name="GraveyardAtmosphere" parent="." instance=ExtResource("14_atmo")]
@@ -63,10 +71,10 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
 offset_top = -72.0
-offset_right = 780.0
+offset_right = 820.0
 offset_bottom = -16.0
 theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 0.85)
 theme_override_font_sizes/font_size = 16
-text = "A/D lanes · Space jump · Ctrl/S slide · Esc pause · Don't let the ghosts catch you"
+text = "A/D lanes · Space jump · Ctrl/S slide · Esc pause · Grab power-ups · Don't let the ghosts catch you"
 
 [node name="GameOverUI" parent="." instance=ExtResource("8_gameover")]

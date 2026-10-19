@@ -12,8 +12,8 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 offset_left = 16.0
 offset_top = 12.0
-offset_right = 340.0
-offset_bottom = 160.0
+offset_right = 360.0
+offset_bottom = 280.0
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 0
 
@@ -39,19 +39,91 @@ theme_override_colors/font_color = Color(0.55, 0.6, 0.48, 1)
 theme_override_font_sizes/font_size = 16
 text = "Best  0"
 
-[node name="GhostRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="PowerupBox" type="VBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="GhostRow" type="HBoxContainer" parent="Margin/VBox/PowerupBox"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="GhostIcon" type="ColorRect" parent="Margin/VBox/GhostRow"]
+[node name="GhostIcon" type="ColorRect" parent="Margin/VBox/PowerupBox/GhostRow"]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.55, 0.2, 0.85, 0.9)
 
-[node name="GhostLabel" type="Label" parent="Margin/VBox/GhostRow"]
+[node name="GhostLabel" type="Label" parent="Margin/VBox/PowerupBox/GhostRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.45, 0.95, 1)
 theme_override_font_sizes/font_size = 18
 text = "GHOST  0.0s"
+
+[node name="MagnetRow" type="HBoxContainer" parent="Margin/VBox/PowerupBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MagnetIcon" type="ColorRect" parent="Margin/VBox/PowerupBox/MagnetRow"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.2, 0.65, 1, 0.9)
+
+[node name="MagnetLabel" type="Label" parent="Margin/VBox/PowerupBox/MagnetRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "MAGNET  0.0s"
+
+[node name="HolyRow" type="HBoxContainer" parent="Margin/VBox/PowerupBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HolyIcon" type="ColorRect" parent="Margin/VBox/PowerupBox/HolyRow"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(1, 0.9, 0.4, 0.95)
+
+[node name="HolyLabel" type="Label" parent="Margin/VBox/PowerupBox/HolyRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.55, 1)
+theme_override_font_sizes/font_size = 18
+text = "HOLY  0.0s"
+
+[node name="CursedRow" type="HBoxContainer" parent="Margin/VBox/PowerupBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CursedIcon" type="ColorRect" parent="Margin/VBox/PowerupBox/CursedRow"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.95, 0.25, 0.1, 0.9)
+
+[node name="CursedLabel" type="Label" parent="Margin/VBox/PowerupBox/CursedRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.25, 1)
+theme_override_font_sizes/font_size = 18
+text = "CURSED  0.0s"
+
+[node name="ChanceRow" type="HBoxContainer" parent="Margin/VBox/PowerupBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChanceIcon" type="ColorRect" parent="Margin/VBox/PowerupBox/ChanceRow"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.25, 0.9, 0.55, 0.95)
+
+[node name="ChanceLabel" type="Label" parent="Margin/VBox/PowerupBox/ChanceRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.65, 1)
+theme_override_font_sizes/font_size = 18
+text = "2nd CHANCE"
