@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=16 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="Script" path="res://scripts/levels/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://bq8ghostform" path="res://scenes/powerups/GhostForm.tscn" id="13_ghost"]
 [ext_resource type="PackedScene" uid="uid://bq8graveatmo" path="res://scenes/levels/GraveyardAtmosphere.tscn" id="14_atmo"]
 [ext_resource type="Environment" uid="uid://bq8envgraveyard" path="res://resources/biomes/graveyard_environment.tres" id="15_env"]
+[ext_resource type="PackedScene" uid="uid://bq8chaserspawner" path="res://scenes/enemies/ChaserSpawner.tscn" id="16_chasers"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -48,6 +49,10 @@ player_path = NodePath("../Player")
 [node name="GraveyardAtmosphere" parent="." instance=ExtResource("14_atmo")]
 player_path = NodePath("../Player")
 
+[node name="ChaserSpawner" parent="." instance=ExtResource("16_chasers")]
+chaser_count = 2
+player_path = NodePath("../Player")
+
 [node name="HUD" parent="." instance=ExtResource("9_hud")]
 
 [node name="HUDHint" type="CanvasLayer" parent="."]
@@ -62,6 +67,6 @@ offset_right = 780.0
 offset_bottom = -16.0
 theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 0.85)
 theme_override_font_sizes/font_size = 16
-text = "A/D lanes · Space jump · Ctrl/S slide · Esc pause · Graveyard awaits"
+text = "A/D lanes · Space jump · Ctrl/S slide · Esc pause · Don't let the ghosts catch you"
 
 [node name="GameOverUI" parent="." instance=ExtResource("8_gameover")]
