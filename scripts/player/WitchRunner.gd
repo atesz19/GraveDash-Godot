@@ -365,23 +365,28 @@ func _quat_axis(axis: Vector3, deg: float) -> Quaternion:
 
 
 func _add_bone_rot(anim: Animation, bone_name: String, keys: Array) -> void:
-	if _skeleton.find_bone(bone_name) < 0:
+	## Godot rotation tracks store absolute local pose (rest ∘ delta), not bare
+	## swing quats. Hip_R rest is mirrored (~180° vs Hip_L); keying IDENTITY or
+	## a small Z swing alone sends Ankle_R skyward (y≈1.6). Always compose.
+	var bi: int = _skeleton.find_bone(bone_name)
+	if bi < 0:
 		return
+	var rest_q: Quaternion = _skeleton.get_bone_rest(bi).basis.get_rotation_quaternion()
 	var idx: int = anim.add_track(Animation.TYPE_ROTATION_3D)
 	anim.track_set_path(idx, NodePath(_bone_path(bone_name)))
 	anim.track_set_interpolation_type(idx, Animation.INTERPOLATION_CUBIC)
 	for key in keys:
 		var t: float = float(key[0])
-		var q: Quaternion
+		var delta_q: Quaternion
 		var payload: Variant = key[1]
 		if payload is Quaternion:
-			q = payload as Quaternion
+			delta_q = payload as Quaternion
 		elif payload is Vector3:
 			var e: Vector3 = payload as Vector3
-			q = _quat_axis(SWING_AXIS, e.x) * _quat_axis(SIDE_AXIS, e.y) * _quat_axis(TWIST_AXIS, e.z)
+			delta_q = _quat_axis(SWING_AXIS, e.x) * _quat_axis(SIDE_AXIS, e.y) * _quat_axis(TWIST_AXIS, e.z)
 		else:
-			q = _quat_axis(SWING_AXIS, float(payload))
-		anim.rotation_track_insert_key(idx, t, q)
+			delta_q = _quat_axis(SWING_AXIS, float(payload))
+		anim.rotation_track_insert_key(idx, t, rest_q * delta_q)
 
 
 func _add_bone_pos(anim: Animation, bone_name: String, keys: Array) -> void:
@@ -437,14 +442,17 @@ func _make_idle() -> Animation:
 	])
 	_add_bone_rot(a, "Elbow_L", [[0.0, 18.0], [1.2, 22.0], [2.4, 18.0]])
 	_add_bone_rot(a, "Elbow_R", [[0.0, 20.0], [1.2, 16.0], [2.4, 20.0]])
+	## Mild weight shift — both feet stay planted (rest∘delta).
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, 4.0], [1.2, 1.0], [2.4, 4.0],
+		[0.0, 3.0], [1.2, 0.0], [2.4, 3.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 2.0], [1.2, 5.0], [2.4, 2.0],
+		[0.0, 1.0], [1.2, 4.0], [2.4, 1.0],
 	])
-	_add_bone_rot(a, "Knee_L", [[0.0, 8.0], [2.4, 8.0]])
-	_add_bone_rot(a, "Knee_R", [[0.0, 10.0], [2.4, 10.0]])
+	_add_bone_rot(a, "Knee_L", [[0.0, 6.0], [2.4, 6.0]])
+	_add_bone_rot(a, "Knee_R", [[0.0, 8.0], [2.4, 8.0]])
+	_add_bone_rot(a, "Ankle_L", [[0.0, -8.0], [2.4, -8.0]])
+	_add_bone_rot(a, "Ankle_R", [[0.0, -6.0], [2.4, -6.0]])
 	var root: Vector3 = _rest_root()
 	_add_bone_pos(a, "Root_M", [
 		[0.0, root],
@@ -458,18 +466,28 @@ func _make_run() -> Animation:
 	var a := Animation.new()
 	a.length = 0.72
 	a.loop_mode = Animation.LOOP_LINEAR
-	## 4-phase cycle: contact → mid → opposite contact → mid (more natural than 2-key ping-pong).
+	## 4-phase cycle after rest∘delta fix:
+	## local Z− = swing forward, Z+ = trail back (same sign both hips).
+	## Opposite-phase hips so one foot plants while the other recovers.
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, -38.0], [0.18, -10.0], [0.36, 40.0], [0.54, 8.0], [0.72, -38.0],
+		[0.0, -34.0], [0.18, -8.0], [0.36, 32.0], [0.54, 6.0], [0.72, -34.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 40.0], [0.18, 8.0], [0.36, -38.0], [0.54, -10.0], [0.72, 40.0],
+		[0.0, 32.0], [0.18, 6.0], [0.36, -34.0], [0.54, -8.0], [0.72, 32.0],
 	])
+	## Plant knee more extended; swing knee flexes through recovery.
 	_add_bone_rot(a, "Knee_L", [
-		[0.0, 58.0], [0.12, 22.0], [0.36, 14.0], [0.5, 48.0], [0.62, 72.0], [0.72, 58.0],
+		[0.0, 28.0], [0.12, 16.0], [0.36, 12.0], [0.5, 42.0], [0.62, 68.0], [0.72, 28.0],
 	])
 	_add_bone_rot(a, "Knee_R", [
-		[0.0, 14.0], [0.12, 48.0], [0.24, 72.0], [0.36, 58.0], [0.5, 22.0], [0.72, 14.0],
+		[0.0, 12.0], [0.12, 42.0], [0.24, 68.0], [0.36, 28.0], [0.5, 16.0], [0.72, 12.0],
+	])
+	## Ankle: Z− toes down for contact; ease on swing.
+	_add_bone_rot(a, "Ankle_L", [
+		[0.0, -18.0], [0.18, -10.0], [0.36, 8.0], [0.54, -4.0], [0.72, -18.0],
+	])
+	_add_bone_rot(a, "Ankle_R", [
+		[0.0, 8.0], [0.18, -4.0], [0.36, -18.0], [0.54, -10.0], [0.72, 8.0],
 	])
 	_add_bone_rot(a, "Shoulder_L", [
 		[0.0, 42.0], [0.18, 12.0], [0.36, -36.0], [0.54, -8.0], [0.72, 42.0],
@@ -506,9 +524,9 @@ func _make_run() -> Animation:
 	var root: Vector3 = _rest_root()
 	_add_bone_pos(a, "Root_M", [
 		[0.0, root],
-		[0.18, root + Vector3(0.0, 0.035, 0.0)],
+		[0.18, root + Vector3(0.0, 0.028, 0.0)],
 		[0.36, root],
-		[0.54, root + Vector3(0.0, 0.035, 0.0)],
+		[0.54, root + Vector3(0.0, 0.028, 0.0)],
 		[0.72, root],
 	])
 	return a
@@ -520,16 +538,22 @@ func _make_jump() -> Animation:
 	a.loop_mode = Animation.LOOP_NONE
 	## Anticipation crouch → extend → air tuck → land bend.
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, 18.0], [0.12, 35.0], [0.28, -8.0], [0.55, 12.0], [0.78, 40.0], [0.95, 16.0],
+		[0.0, 14.0], [0.12, 28.0], [0.28, -6.0], [0.55, 10.0], [0.78, 32.0], [0.95, 12.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 14.0], [0.12, 30.0], [0.28, 5.0], [0.55, 18.0], [0.78, 36.0], [0.95, 12.0],
+		[0.0, 12.0], [0.12, 26.0], [0.28, 4.0], [0.55, 14.0], [0.78, 30.0], [0.95, 10.0],
 	])
 	_add_bone_rot(a, "Knee_L", [
-		[0.0, 35.0], [0.12, 70.0], [0.3, 45.0], [0.55, 55.0], [0.78, 78.0], [0.95, 28.0],
+		[0.0, 32.0], [0.12, 62.0], [0.3, 40.0], [0.55, 48.0], [0.78, 68.0], [0.95, 24.0],
 	])
 	_add_bone_rot(a, "Knee_R", [
-		[0.0, 30.0], [0.12, 65.0], [0.3, 40.0], [0.55, 50.0], [0.78, 72.0], [0.95, 24.0],
+		[0.0, 28.0], [0.12, 58.0], [0.3, 36.0], [0.55, 44.0], [0.78, 64.0], [0.95, 22.0],
+	])
+	_add_bone_rot(a, "Ankle_L", [
+		[0.0, -12.0], [0.12, 10.0], [0.3, -6.0], [0.78, 8.0], [0.95, -14.0],
+	])
+	_add_bone_rot(a, "Ankle_R", [
+		[0.0, -10.0], [0.12, 8.0], [0.3, -4.0], [0.78, 6.0], [0.95, -12.0],
 	])
 	_add_bone_rot(a, "Shoulder_L", [
 		[0.0, 20.0], [0.12, -15.0], [0.3, -60.0], [0.55, -45.0], [0.8, 10.0], [0.95, 15.0],
@@ -582,13 +606,15 @@ func _make_slide() -> Animation:
 		[0.0, 0.0], [0.3, Vector3(10.0, -12.0, 0.0)], [0.85, Vector3(12.0, -14.0, 0.0)],
 	])
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, 0.0], [0.3, -30.0], [0.85, -28.0],
+		[0.0, 0.0], [0.3, -26.0], [0.85, -24.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 0.0], [0.3, 48.0], [0.85, 52.0],
+		[0.0, 0.0], [0.3, 36.0], [0.85, 40.0],
 	])
-	_add_bone_rot(a, "Knee_L", [[0.0, 12.0], [0.3, 35.0], [0.85, 40.0]])
-	_add_bone_rot(a, "Knee_R", [[0.0, 12.0], [0.3, 85.0], [0.85, 90.0]])
+	_add_bone_rot(a, "Knee_L", [[0.0, 12.0], [0.3, 32.0], [0.85, 36.0]])
+	_add_bone_rot(a, "Knee_R", [[0.0, 12.0], [0.3, 70.0], [0.85, 74.0]])
+	_add_bone_rot(a, "Ankle_L", [[0.0, -8.0], [0.3, -16.0], [0.85, -14.0]])
+	_add_bone_rot(a, "Ankle_R", [[0.0, -8.0], [0.3, 12.0], [0.85, 14.0]])
 	_add_bone_rot(a, "Shoulder_L", [
 		[0.0, 10.0], [0.3, 55.0], [0.85, 60.0],
 	])
@@ -615,16 +641,22 @@ func _make_ghost() -> Animation:
 	a.loop_mode = Animation.LOOP_LINEAR
 	## Floaty, longer stride, trailing arms — reads as phase form while moving.
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, -28.0], [0.25, 8.0], [0.5, 32.0], [0.75, -6.0], [1.0, -28.0],
+		[0.0, -26.0], [0.25, 6.0], [0.5, 28.0], [0.75, -4.0], [1.0, -26.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 32.0], [0.25, -6.0], [0.5, -28.0], [0.75, 8.0], [1.0, 32.0],
+		[0.0, 28.0], [0.25, -4.0], [0.5, -26.0], [0.75, 6.0], [1.0, 28.0],
 	])
 	_add_bone_rot(a, "Knee_L", [
-		[0.0, 40.0], [0.5, 18.0], [1.0, 40.0],
+		[0.0, 34.0], [0.5, 16.0], [1.0, 34.0],
 	])
 	_add_bone_rot(a, "Knee_R", [
-		[0.0, 18.0], [0.5, 40.0], [1.0, 18.0],
+		[0.0, 16.0], [0.5, 34.0], [1.0, 16.0],
+	])
+	_add_bone_rot(a, "Ankle_L", [
+		[0.0, -12.0], [0.5, 4.0], [1.0, -12.0],
+	])
+	_add_bone_rot(a, "Ankle_R", [
+		[0.0, 4.0], [0.5, -12.0], [1.0, 4.0],
 	])
 	_add_bone_rot(a, "Shoulder_L", [
 		[0.0, Vector3(-25.0, 10.0, 0.0)],
@@ -661,7 +693,8 @@ func _make_death() -> Animation:
 	var a := Animation.new()
 	a.length = 1.15
 	a.loop_mode = Animation.LOOP_NONE
-	## Stagger → collapse → settle (holds final pose).
+	## Stagger → collapse → settle (holds final pose). Softened Hip_R/Knee_R so
+	## Ankle_R does not punch through the floor after rest∘delta composition.
 	_add_bone_rot(a, "Root_M", [
 		[0.0, 0.0],
 		[0.2, Vector3(12.0, -18.0, 8.0)],
@@ -686,19 +719,22 @@ func _make_death() -> Animation:
 	])
 	_add_bone_rot(a, "Elbow_L", [[0.0, 15.0], [0.5, 55.0], [1.15, 40.0]])
 	_add_bone_rot(a, "Elbow_R", [[0.0, 15.0], [0.5, 45.0], [1.15, 30.0]])
+	## Tuck both legs as root drops so ankles stay near the ground plane.
 	_add_bone_rot(a, "Hip_L", [
-		[0.0, 0.0], [0.5, -40.0], [1.15, -45.0],
+		[0.0, 0.0], [0.5, -18.0], [1.15, -12.0],
 	])
 	_add_bone_rot(a, "Hip_R", [
-		[0.0, 0.0], [0.5, 50.0], [1.15, 60.0],
+		[0.0, 0.0], [0.5, 20.0], [1.15, 14.0],
 	])
-	_add_bone_rot(a, "Knee_L", [[0.0, 8.0], [0.6, 55.0], [1.15, 50.0]])
-	_add_bone_rot(a, "Knee_R", [[0.0, 8.0], [0.6, 75.0], [1.15, 80.0]])
+	_add_bone_rot(a, "Knee_L", [[0.0, 8.0], [0.6, 70.0], [1.15, 78.0]])
+	_add_bone_rot(a, "Knee_R", [[0.0, 8.0], [0.6, 72.0], [1.15, 80.0]])
+	_add_bone_rot(a, "Ankle_L", [[0.0, -6.0], [0.6, 16.0], [1.15, 20.0]])
+	_add_bone_rot(a, "Ankle_R", [[0.0, -6.0], [0.6, 18.0], [1.15, 22.0]])
 	var root: Vector3 = _rest_root()
 	_add_bone_pos(a, "Root_M", [
 		[0.0, root],
-		[0.35, root + Vector3(0.05, -0.15, 0.08)],
-		[0.75, root + Vector3(0.15, -0.45, 0.25)],
-		[1.15, root + Vector3(0.22, -0.72, 0.38)],
+		[0.35, root + Vector3(0.05, -0.12, 0.08)],
+		[0.75, root + Vector3(0.12, -0.38, 0.22)],
+		[1.15, root + Vector3(0.18, -0.58, 0.32)],
 	])
 	return a
