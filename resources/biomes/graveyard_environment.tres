@@ -1,35 +1,59 @@
-[gd_resource type="Environment" format=3 uid="uid://bq8envgraveyard"]
+[gd_resource type="Environment" load_steps=3 format=3 uid="uid://bq8envgraveyard"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_moonlit"]
+sky_top_color = Color(0.018, 0.022, 0.055, 1)
+sky_horizon_color = Color(0.14, 0.09, 0.22, 1)
+sky_curve = 0.07
+sky_energy_multiplier = 0.85
+ground_bottom_color = Color(0.012, 0.014, 0.02, 1)
+ground_horizon_color = Color(0.06, 0.05, 0.1, 1)
+ground_curve = 0.12
+ground_energy_multiplier = 0.55
+sun_angle_max = 3.5
+sun_curve = 0.06
+
+[sub_resource type="Sky" id="Sky_graveyard"]
+sky_material = SubResource("ProceduralSkyMaterial_moonlit")
+radiance_size = 2
 
 [resource]
-background_mode = 1
-background_color = Color(0.015, 0.018, 0.04, 1)
-sky_rotation = Vector3(0, 0, 0)
-ambient_light_source = 2
-ambient_light_color = Color(0.28, 0.24, 0.48, 1)
-ambient_light_energy = 0.42
-ambient_light_sky_contribution = 0.0
+background_mode = 2
+sky = SubResource("Sky_graveyard")
+sky_rotation = Vector3(0, 0.4, 0)
+ambient_light_source = 3
+ambient_light_color = Color(0.32, 0.36, 0.62, 1)
+ambient_light_energy = 0.38
+ambient_light_sky_contribution = 0.55
+reflected_light_source = 2
 tonemap_mode = 2
-tonemap_exposure = 0.95
+tonemap_exposure = 1.05
+tonemap_white = 5.5
 ssao_enabled = false
+ssil_enabled = false
 glow_enabled = true
 glow_levels/1 = 0.0
-glow_levels/2 = 0.6
-glow_levels/3 = 0.8
-glow_levels/4 = 0.4
-glow_intensity = 0.55
-glow_strength = 0.9
-glow_bloom = 0.08
+glow_levels/2 = 0.55
+glow_levels/3 = 0.9
+glow_levels/4 = 0.55
+glow_levels/5 = 0.25
+glow_intensity = 0.72
+glow_strength = 1.05
+glow_bloom = 0.14
 glow_blend_mode = 1
+glow_hdr_threshold = 0.85
+glow_hdr_scale = 1.6
 fog_enabled = true
-fog_light_color = Color(0.2, 0.18, 0.32, 1)
-fog_light_energy = 1.0
-fog_sun_scatter = 0.15
-fog_density = 0.032
-fog_aerial_perspective = 0.45
-fog_sky_affect = 0.9
-fog_height = 0.0
-fog_height_density = 0.0
+fog_mode = 0
+fog_light_color = Color(0.22, 0.2, 0.38, 1)
+fog_light_energy = 1.15
+fog_sun_scatter = 0.28
+fog_density = 0.026
+fog_aerial_perspective = 0.55
+fog_sky_affect = 0.75
+fog_height = 1.2
+fog_height_density = 0.085
+volumetric_fog_enabled = false
 adjustment_enabled = true
-adjustment_brightness = 0.92
-adjustment_contrast = 1.08
-adjustment_saturation = 0.85
+adjustment_brightness = 0.94
+adjustment_contrast = 1.12
+adjustment_saturation = 0.9

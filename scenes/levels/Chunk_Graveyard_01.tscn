@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_chunk"]
 [ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_ground"]
+[ext_resource type="Material" uid="uid://bq8matgyshoulder" path="res://resources/biomes/graveyard_shoulder.tres" id="2b_shoulder"]
 [ext_resource type="PackedScene" uid="uid://bq8decorgrave" path="res://scenes/levels/props/DecorGravestone.tscn" id="3_stone"]
 [ext_resource type="PackedScene" uid="uid://bq8decortree" path="res://scenes/levels/props/DecorDeadTree.tscn" id="4_tree"]
 [ext_resource type="PackedScene" uid="uid://bq8decorchapel" path="res://scenes/levels/props/DecorChapel.tscn" id="5_chapel"]
@@ -14,20 +15,18 @@ size = Vector3(9, 1, 45)
 size = Vector3(9, 1, 45)
 
 [sub_resource type="BoxMesh" id="BoxMesh_lane"]
-size = Vector3(0.08, 0.02, 45)
+size = Vector3(0.06, 0.015, 45)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lane"]
-albedo_color = Color(0.28, 0.32, 0.22, 1)
+albedo_color = Color(0.2, 0.24, 0.16, 1)
+roughness = 0.85
+metallic_specular = 0.2
 emission_enabled = true
-emission = Color(0.2, 0.28, 0.35, 1)
-emission_energy_multiplier = 0.25
+emission = Color(0.18, 0.26, 0.4, 1)
+emission_energy_multiplier = 0.18
 
 [sub_resource type="BoxMesh" id="BoxMesh_shoulder"]
-size = Vector3(3.5, 0.35, 45)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mud"]
-albedo_color = Color(0.12, 0.14, 0.1, 1)
-roughness = 1.0
+size = Vector3(4.2, 0.45, 45)
 
 [node name="Chunk_Graveyard_01" type="Node3D"]
 script = ExtResource("1_chunk")
@@ -45,22 +44,22 @@ collision_mask = 0
 shape = SubResource("BoxShape3D_ground")
 
 [node name="ShoulderL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2, -0.15, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4, -0.12, 0)
 mesh = SubResource("BoxMesh_shoulder")
-surface_material_override/0 = SubResource("StandardMaterial3D_mud")
+surface_material_override/0 = ExtResource("2b_shoulder")
 
 [node name="ShoulderR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, -0.15, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4, -0.12, 0)
 mesh = SubResource("BoxMesh_shoulder")
-surface_material_override/0 = SubResource("StandardMaterial3D_mud")
+surface_material_override/0 = ExtResource("2b_shoulder")
 
 [node name="LaneMarkerL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.01, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.012, 0)
 mesh = SubResource("BoxMesh_lane")
 surface_material_override/0 = SubResource("StandardMaterial3D_lane")
 
 [node name="LaneMarkerR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.01, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.012, 0)
 mesh = SubResource("BoxMesh_lane")
 surface_material_override/0 = SubResource("StandardMaterial3D_lane")
 

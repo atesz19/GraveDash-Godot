@@ -23,10 +23,20 @@ func _ready() -> void:
 	_ensure_environment()
 	_spawn_track()
 	_spawn_witch()
+	_force_backdrop_visible()
 	if camera:
 		camera.current = true
 		_cam_base_pos = camera.position
 	_play_witch("idle")
+
+
+func _force_backdrop_visible() -> void:
+	## Menu is always Graveyard; ensure backdrop shows even if BiomeManager is mid-castle.
+	var backdrop: Node = get_node_or_null("Backdrop")
+	if backdrop:
+		backdrop.visible = true
+		if backdrop.has_method("_set_active"):
+			backdrop.call("_set_active", true)
 
 
 func _process(delta: float) -> void:

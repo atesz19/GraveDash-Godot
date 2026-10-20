@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq8gravebackdrop"]
+
+[ext_resource type="Script" path="res://scripts/levels/GraveyardBackdrop.gd" id="1_backdrop"]
+
+[node name="GraveyardBackdrop" type="Node3D"]
+script = ExtResource("1_backdrop")
+player_path = NodePath("../Player")
+
+[node name="LeftBank" type="Node3D" parent="."]
+
+[node name="RightBank" type="Node3D" parent="."]

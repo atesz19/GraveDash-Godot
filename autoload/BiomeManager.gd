@@ -58,9 +58,9 @@ func _register_builtin_biomes() -> void:
 				"scene": preload("res://scenes/levels/Chunk_Graveyard_01.tscn"),
 			},
 		],
-		"moon_color": Color(0.52, 0.58, 0.95, 1),
-		"moon_energy": 0.48,
-		"moon_specular": 0.35,
+		"moon_color": Color(0.58, 0.64, 1.0, 1),
+		"moon_energy": 0.78,
+		"moon_specular": 0.55,
 		"moon_rotation_degrees": Vector3(-42.0, -35.0, 12.0),
 	}
 	_biomes["haunted_castle"] = {
@@ -248,5 +248,7 @@ func _apply_light_only() -> void:
 	moon_light.light_energy = float(data.get("moon_energy", 0.5))
 	moon_light.light_specular = float(data.get("moon_specular", 0.3))
 	moon_light.shadow_enabled = true
+	moon_light.shadow_blur = 1.4
+	moon_light.light_angular_distance = 1.2
 	var rot: Vector3 = data.get("moon_rotation_degrees", Vector3(-45, -30, 0))
 	moon_light.rotation_degrees = rot

@@ -81,6 +81,20 @@ Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/
 
 `resources/ui/GraveDashTheme.tres` — dark gothic StyleBoxes for panels/buttons across Menu, Settings, HUD, Pause, Game Over.
 
+## Graveyard visuals
+
+Atmospheric Graveyard biome (shared by gameplay + Main Menu):
+
+| Resource | Role |
+|----------|------|
+| `resources/biomes/graveyard_environment.tres` | Procedural moonlit sky, height fog, bloom/tonemap |
+| `resources/biomes/graveyard_ground.tres` | Muddy track — NoiseTexture2D albedo / normal / roughness |
+| `resources/biomes/graveyard_shoulder.tres` | Leaf-litter shoulders (detail map) |
+| `scenes/levels/GraveyardBackdrop.tscn` | Distant hill/tree/grave silhouettes (off playfield) |
+| `scenes/levels/props/Torch.tscn` | Warm flickering torch fill (no omni shadows — mobile) |
+
+Headless: `godot --headless --path . --script res://tools/validate_graveyard_visuals.gd`
+
 ## Score, missions & multiplier
 
 **Formula:** `final score = (distance points + soul points) × multiplier`  
