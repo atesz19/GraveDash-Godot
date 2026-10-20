@@ -1,7 +1,7 @@
 extends Node
-## MainMenu — live 3D graveyard backdrop, shop, soul wallet, start transition.
+## MainMenu — Subway Surfers–style runner chrome over live MenuWorld.
 
-const THEME_PATH := "res://resources/ui/GraveDashTheme.tres"
+const THEME_PATH := "res://resources/ui/MainMenuTheme.tres"
 const SAVE_KEY_LUCKY_CHARM := "shop_lucky_charm"
 const COST_SKIN := 50
 const COST_MAGNET := 120
@@ -9,14 +9,20 @@ const COST_DEMO := 25
 
 @onready var menu_world: Node3D = $MenuWorld
 @onready var chrome: Control = %Chrome
+@onready var home_layer: Control = %HomeLayer
 @onready var main_panel: Control = %MainPanel
 @onready var settings_panel: Control = %SettingsPanel
 @onready var shop_panel: Control = %ShopPanel
 @onready var high_score_label: Label = %HighScoreLabel
 @onready var mult_label: Label = %MultLabel
+@onready var mult_chip: PanelContainer = %MultChip
 @onready var mission_box: VBoxContainer = %MissionBox
 @onready var mission_labels: Array[Label] = [%Mission1, %Mission2, %Mission3]
+@onready var mission_bars: Array[ProgressBar] = [%MissionBar1, %MissionBar2, %MissionBar3]
+@onready var mission_counts: Array[Label] = [%MissionCount1, %MissionCount2, %MissionCount3]
+@onready var mission_cards: Array[Control] = [%MissionCard1, %MissionCard2, %MissionCard3]
 @onready var soul_wallet_label: Label = %SoulWalletLabel
+@onready var brand_label: Label = %Brand
 @onready var start_button: Button = %StartButton
 @onready var shop_button: Button = %ShopButton
 @onready var settings_button: Button = %SettingsButton
@@ -39,6 +45,7 @@ const COST_DEMO := 25
 
 var _starting: bool = false
 var _ui_tween: Tween = null
+var _pulse_tween: Tween = null
 
 
 func _ready() -> void:
@@ -46,6 +53,7 @@ func _ready() -> void:
 	GameManager.state = GameManager.State.MENU
 	if AudioManager:
 		AudioManager.play_menu_music()
+	_apply_title_font()
 	_refresh_highscore()
 	_refresh_multiplier()
 	_refresh_missions()
@@ -78,16 +86,49 @@ func _ready() -> void:
 		if not MissionManager.missions_changed.is_connected(_on_missions_changed):
 			MissionManager.missions_changed.connect(_on_missions_changed)
 	start_button.grab_focus()
+	call_deferred("_start_cta_pulse")
+
+
+func _apply_title_font() -> void:
+	var theme_res: Theme = load(THEME_PATH) as Theme
+	if theme_res == null or brand_label == null:
+		return
+	## Prefer the theme's bold Fredoka variation when available.
+	var title_font: Font = theme_res.get_font("font", "Label")
+	if theme_res.has_font("title", "GraveDash"):
+		title_font = theme_res.get_font("title", "GraveDash")
+	## Fall back: load Fredoka directly as a variation.
+	var fredoka: FontFile = load("res://assets/fonts/Fredoka.ttf") as FontFile
+	if fredoka:
+		var variation := FontVariation.new()
+		variation.base_font = fredoka
+		variation.variation_opentype = {2003265652: 700}
+		brand_label.add_theme_font_override("font", variation)
+
+
+func _start_cta_pulse() -> void:
+	if start_button == null:
+		return
+	await get_tree().process_frame
+	start_button.pivot_offset = start_button.size * 0.5
+	if _pulse_tween != null and _pulse_tween.is_valid():
+		_pulse_tween.kill()
+	_pulse_tween = create_tween().set_loops()
+	_pulse_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_pulse_tween.tween_property(start_button, "scale", Vector2(1.05, 1.05), 0.75)
+	_pulse_tween.tween_property(start_button, "scale", Vector2(1.0, 1.0), 0.75)
 
 
 func _refresh_highscore() -> void:
-	high_score_label.text = "High Score  %d" % ScoreManager.highscore
+	high_score_label.text = "%d" % ScoreManager.highscore
 
 
 func _refresh_multiplier() -> void:
 	var mult: int = MissionManager.get_multiplier() if MissionManager else 1
 	if mult_label:
-		mult_label.text = "Multiplier  ×%d" % mult
+		mult_label.text = "x%d" % mult
+	if mult_chip:
+		mult_chip.modulate = Color(1.0, 1.0, 1.0, 1.0) if mult <= 1 else Color(1.08, 1.05, 0.95, 1.0)
 
 
 func _refresh_missions() -> void:
@@ -96,13 +137,29 @@ func _refresh_missions() -> void:
 	var missions: Array[Dictionary] = MissionManager.get_active_missions()
 	for i in mission_labels.size():
 		var label: Label = mission_labels[i]
-		if label == null:
-			continue
+		var bar: ProgressBar = mission_bars[i] if i < mission_bars.size() else null
+		var count: Label = mission_counts[i] if i < mission_counts.size() else null
+		var card: Control = mission_cards[i] if i < mission_cards.size() else null
 		if i < missions.size():
-			label.visible = true
-			label.text = MissionManager.format_mission_line(missions[i])
+			var m: Dictionary = missions[i]
+			var title: String = str(m.get("title", "Mission"))
+			var progress: int = mini(int(m.get("progress", 0)), int(m.get("target", 1)))
+			var target: int = maxi(int(m.get("target", 1)), 1)
+			if label:
+				label.visible = true
+				label.text = title
+			if count:
+				count.text = "%d/%d" % [progress, target]
+			if bar:
+				bar.max_value = float(target)
+				bar.value = float(progress)
+			if card:
+				card.visible = true
 		else:
-			label.visible = false
+			if label:
+				label.visible = false
+			if card:
+				card.visible = false
 
 
 func _on_multiplier_changed(_value: int) -> void:
@@ -115,17 +172,17 @@ func _on_missions_changed() -> void:
 
 func _refresh_souls() -> void:
 	var total: int = ScoreManager.total_souls
-	soul_wallet_label.text = "Souls  %d" % total
+	soul_wallet_label.text = "%d" % total
 	if shop_balance_label:
 		shop_balance_label.text = "Balance  %d souls" % total
 
 
 func _on_highscore_changed(value: int) -> void:
-	high_score_label.text = "High Score  %d" % value
+	high_score_label.text = "%d" % value
 
 
 func _on_total_souls_changed(value: int) -> void:
-	soul_wallet_label.text = "Souls  %d" % value
+	soul_wallet_label.text = "%d" % value
 	if shop_balance_label:
 		shop_balance_label.text = "Balance  %d souls" % value
 	_refresh_shop_state()
@@ -152,6 +209,8 @@ func _ui_click() -> void:
 
 
 func _show_main() -> void:
+	if home_layer:
+		home_layer.visible = true
 	main_panel.visible = true
 	settings_panel.visible = false
 	shop_panel.visible = false
@@ -163,6 +222,9 @@ func _on_start() -> void:
 	_ui_click()
 	_starting = true
 	_set_menu_interactive(false)
+	if _pulse_tween != null and _pulse_tween.is_valid():
+		_pulse_tween.kill()
+	start_button.scale = Vector2.ONE
 	_play_start_transition()
 
 
@@ -183,7 +245,7 @@ func _play_start_transition() -> void:
 	_ui_tween = create_tween()
 	_ui_tween.set_parallel(true)
 	_ui_tween.tween_property(chrome, "modulate:a", 0.0, 0.55).set_ease(Tween.EASE_IN)
-	_ui_tween.tween_property(chrome, "position:x", -120.0, 0.7).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_ui_tween.tween_property(chrome, "position:y", 80.0, 0.7).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	if vignette_top:
 		_ui_tween.tween_property(vignette_top, "modulate:a", 0.0, 0.5)
 	if vignette_bottom:
@@ -200,6 +262,8 @@ func _finish_start_transition() -> void:
 
 func _on_shop() -> void:
 	_ui_click()
+	if home_layer:
+		home_layer.visible = false
 	main_panel.visible = false
 	settings_panel.visible = false
 	shop_panel.visible = true
@@ -212,12 +276,15 @@ func _on_shop() -> void:
 func _on_shop_back() -> void:
 	_ui_click()
 	shop_panel.visible = false
-	main_panel.visible = true
+	_show_main()
 	shop_button.grab_focus()
+	call_deferred("_start_cta_pulse")
 
 
 func _on_settings() -> void:
 	_ui_click()
+	if home_layer:
+		home_layer.visible = false
 	main_panel.visible = false
 	shop_panel.visible = false
 	settings_panel.visible = true
@@ -228,8 +295,9 @@ func _on_settings() -> void:
 func _on_settings_back() -> void:
 	_ui_click()
 	settings_panel.visible = false
-	main_panel.visible = true
+	_show_main()
 	settings_button.grab_focus()
+	call_deferred("_start_cta_pulse")
 
 
 func _on_music_toggled(pressed: bool) -> void:
@@ -265,13 +333,12 @@ func _refresh_shop_state() -> void:
 		demo_desc.text = "Demo unlock — owned"
 	else:
 		buy_demo_button.disabled = ScoreManager.total_souls < COST_DEMO
-		buy_demo_button.text = "%d ✦" % COST_DEMO
+		buy_demo_button.text = "%d" % COST_DEMO
 		demo_desc.text = "Demo unlock — spends %d souls" % COST_DEMO
-	## Placeholder rows stay visible with costs; buying stubs.
 	buy_skin_button.disabled = false
-	buy_skin_button.text = "%d ✦" % COST_SKIN
+	buy_skin_button.text = "%d" % COST_SKIN
 	buy_magnet_button.disabled = false
-	buy_magnet_button.text = "%d ✦" % COST_MAGNET
+	buy_magnet_button.text = "%d" % COST_MAGNET
 
 
 func _on_buy_skin() -> void:

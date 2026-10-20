@@ -15,7 +15,7 @@ const CHUNK_LENGTH: float = 45.0
 var _witch: Node3D = null
 var _orbit_t: float = 0.0
 var _transitioning: bool = false
-var _cam_base_pos: Vector3 = Vector3(0.0, 2.4, 7.5)
+var _cam_base_pos: Vector3 = Vector3(-0.6, 1.45, 5.0)
 var _dolly_t: float = 0.0
 
 
@@ -51,13 +51,13 @@ func _process(delta: float) -> void:
 		if camera:
 			camera.position = _cam_base_pos.lerp(Vector3(0.0, 1.8, 4.2), ease_t)
 		return
-	## Gentle idle orbit / sway.
-	camera_pivot.rotation.y = sin(_orbit_t * 0.22) * 0.28
-	camera_pivot.rotation.x = -0.12 + sin(_orbit_t * 0.35) * 0.04
+	## Gentle idle orbit / sway — keep Witch framed as the hero.
+	camera_pivot.rotation.y = sin(_orbit_t * 0.22) * 0.18
+	camera_pivot.rotation.x = -0.1 + sin(_orbit_t * 0.35) * 0.03
 	if camera:
 		camera.position = _cam_base_pos + Vector3(
-			sin(_orbit_t * 0.18) * 0.15,
-			sin(_orbit_t * 0.27) * 0.08,
+			sin(_orbit_t * 0.18) * 0.1,
+			sin(_orbit_t * 0.27) * 0.06,
 			0.0
 		)
 

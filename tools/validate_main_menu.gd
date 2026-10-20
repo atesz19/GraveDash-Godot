@@ -40,12 +40,23 @@ func _run() -> void:
 		failed += 1
 	else:
 		print("OK SoulWalletLabel")
+	for must in ["StartButton", "MissionBar1", "MultChip", "HomeLayer", "Brand"]:
+		if root.find_child(must, true, false) == null:
+			push_error("FAIL missing %s" % must)
+			failed += 1
+		else:
+			print("OK ", must)
 	var witch_slot: Node = root.get_node_or_null("MenuWorld/WitchSlot")
 	if witch_slot == null or witch_slot.get_child_count() < 1:
 		push_error("FAIL witch not spawned")
 		failed += 1
 	else:
 		print("OK witch spawned")
+	if root.get_node_or_null("MenuWorld/WitchSpot") == null:
+		push_error("FAIL WitchSpot light")
+		failed += 1
+	else:
+		print("OK WitchSpot")
 	## ScoreManager wallet via autoload node path ( -s has no global identifier ).
 	var sm: Node = get_root().get_node_or_null("ScoreManager")
 	if sm:

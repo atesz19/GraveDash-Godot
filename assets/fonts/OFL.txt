@@ -1,0 +1,3 @@
+Fredoka and Exo 2 are licensed under the SIL Open Font License, Version 1.1.
+https://scripts.sil.org/OFL
+Source: https://github.com/google/fonts

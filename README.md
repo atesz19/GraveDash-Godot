@@ -79,7 +79,12 @@ Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/
 
 ## Shared UI theme
 
-`resources/ui/GraveDashTheme.tres` — dark gothic StyleBoxes for panels/buttons across Menu, Settings, HUD, Pause, Game Over.
+| Theme | Used by |
+|-------|---------|
+| `resources/ui/MainMenuTheme.tres` | Main Menu runner chrome (Fredoka / Exo 2, neon StyleBoxes) |
+| `resources/ui/GraveDashTheme.tres` | HUD, Pause, Game Over (dark gothic panels) |
+
+Main Menu keeps a live `MenuWorld` 3D backdrop; UI is layered chips, mission cards with progress bars, and a pulsing **START RUN** CTA.
 
 ## Witch model textures
 
