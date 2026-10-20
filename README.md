@@ -114,6 +114,24 @@ Autoload: `MissionManager` (`autoload/MissionManager.gd`) — separate from `Sco
 
 Headless check: `godot --headless --path . --script res://tools/validate_missions.gd`
 
+## Audio
+
+Buses: **Master → Music / SFX** (`default_bus_layout.tres`).
+
+| Save key | Meaning |
+|----------|---------|
+| `music_muted` / `sfx_muted` | Mute flags (Settings toggles) |
+| `music_volume` / `sfx_volume` | Linear 0–1 bus levels (Settings sliders) |
+
+Placeholder WAV loops/SFX live under:
+
+```
+assets/audio/music/   menu_loop.wav, gameplay_loop.wav
+assets/audio/sfx/     footstep, jump, slide, soul_pickup, powerup_*, almost_caught, death, ui_click, chaser_approach
+```
+
+Replace those files with final assets (keep filenames) — no code change needed. Headless: `godot --headless --path . --script res://tools/validate_audio.gd`
+
 ## What’s in this slice
 
 - Main Menu: Start, soul wallet, shop stub, high score, multiplier, missions, Settings, Quit

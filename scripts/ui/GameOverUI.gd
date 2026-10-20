@@ -84,10 +84,14 @@ func _refresh_missions() -> void:
 
 
 func _on_restart_pressed() -> void:
+	if AudioManager:
+		AudioManager.play_ui_click()
 	panel.visible = false
 	GameManager.restart_run()
 
 
 func _on_menu_pressed() -> void:
+	if AudioManager:
+		AudioManager.play_ui_click()
 	panel.visible = false
 	GameManager.return_to_menu()

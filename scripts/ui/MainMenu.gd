@@ -23,6 +23,8 @@ const COST_DEMO := 25
 @onready var quit_button: Button = %QuitButton
 @onready var music_toggle: CheckButton = %MusicToggle
 @onready var sfx_toggle: CheckButton = %SfxToggle
+@onready var music_volume_slider: HSlider = %MusicVolumeSlider
+@onready var sfx_volume_slider: HSlider = %SfxVolumeSlider
 @onready var settings_back: Button = %SettingsBackButton
 @onready var shop_balance_label: Label = %ShopBalanceLabel
 @onready var shop_status_label: Label = %ShopStatusLabel
@@ -42,6 +44,8 @@ var _ui_tween: Tween = null
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.state = GameManager.State.MENU
+	if AudioManager:
+		AudioManager.play_menu_music()
 	_refresh_highscore()
 	_refresh_multiplier()
 	_refresh_missions()
@@ -57,6 +61,10 @@ func _ready() -> void:
 	shop_back.pressed.connect(_on_shop_back)
 	music_toggle.toggled.connect(_on_music_toggled)
 	sfx_toggle.toggled.connect(_on_sfx_toggled)
+	if music_volume_slider:
+		music_volume_slider.value_changed.connect(_on_music_volume_changed)
+	if sfx_volume_slider:
+		sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
 	buy_skin_button.pressed.connect(_on_buy_skin)
 	buy_magnet_button.pressed.connect(_on_buy_magnet)
 	buy_demo_button.pressed.connect(_on_buy_demo)
@@ -126,12 +134,21 @@ func _on_total_souls_changed(value: int) -> void:
 func _sync_audio_toggles() -> void:
 	music_toggle.set_pressed_no_signal(AudioManager.is_music_muted())
 	sfx_toggle.set_pressed_no_signal(AudioManager.is_sfx_muted())
+	if music_volume_slider:
+		music_volume_slider.set_value_no_signal(AudioManager.get_music_volume())
+	if sfx_volume_slider:
+		sfx_volume_slider.set_value_no_signal(AudioManager.get_sfx_volume())
 	_update_toggle_text()
 
 
 func _update_toggle_text() -> void:
 	music_toggle.text = "Music: Muted" if music_toggle.button_pressed else "Music: On"
 	sfx_toggle.text = "SFX: Muted" if sfx_toggle.button_pressed else "SFX: On"
+
+
+func _ui_click() -> void:
+	if AudioManager:
+		AudioManager.play_ui_click()
 
 
 func _show_main() -> void:
@@ -143,6 +160,7 @@ func _show_main() -> void:
 func _on_start() -> void:
 	if _starting:
 		return
+	_ui_click()
 	_starting = true
 	_set_menu_interactive(false)
 	_play_start_transition()
@@ -181,6 +199,7 @@ func _finish_start_transition() -> void:
 
 
 func _on_shop() -> void:
+	_ui_click()
 	main_panel.visible = false
 	settings_panel.visible = false
 	shop_panel.visible = true
@@ -191,12 +210,14 @@ func _on_shop() -> void:
 
 
 func _on_shop_back() -> void:
+	_ui_click()
 	shop_panel.visible = false
 	main_panel.visible = true
 	shop_button.grab_focus()
 
 
 func _on_settings() -> void:
+	_ui_click()
 	main_panel.visible = false
 	shop_panel.visible = false
 	settings_panel.visible = true
@@ -205,22 +226,34 @@ func _on_settings() -> void:
 
 
 func _on_settings_back() -> void:
+	_ui_click()
 	settings_panel.visible = false
 	main_panel.visible = true
 	settings_button.grab_focus()
 
 
 func _on_music_toggled(pressed: bool) -> void:
+	_ui_click()
 	AudioManager.set_music_muted(pressed)
 	_update_toggle_text()
 
 
 func _on_sfx_toggled(pressed: bool) -> void:
+	_ui_click()
 	AudioManager.set_sfx_muted(pressed)
 	_update_toggle_text()
 
 
+func _on_music_volume_changed(value: float) -> void:
+	AudioManager.set_music_volume(value)
+
+
+func _on_sfx_volume_changed(value: float) -> void:
+	AudioManager.set_sfx_volume(value)
+
+
 func _on_quit() -> void:
+	_ui_click()
 	get_tree().quit()
 
 
@@ -242,14 +275,17 @@ func _refresh_shop_state() -> void:
 
 
 func _on_buy_skin() -> void:
+	_ui_click()
 	shop_status_label.text = "Ashen Skin — coming soon (%d souls)" % COST_SKIN
 
 
 func _on_buy_magnet() -> void:
+	_ui_click()
 	shop_status_label.text = "Magnet upgrade — coming soon (%d souls)" % COST_MAGNET
 
 
 func _on_buy_demo() -> void:
+	_ui_click()
 	var owned: bool = bool(SaveSystem.get_value(SAVE_KEY_LUCKY_CHARM, false))
 	if owned:
 		shop_status_label.text = "Lucky Charm already owned."

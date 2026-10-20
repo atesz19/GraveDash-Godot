@@ -54,8 +54,12 @@ func _refresh_progress() -> void:
 
 
 func _on_resume() -> void:
+	if AudioManager:
+		AudioManager.play_ui_click()
 	GameManager.resume_game()
 
 
 func _on_menu() -> void:
+	if AudioManager:
+		AudioManager.play_ui_click()
 	GameManager.return_to_menu()

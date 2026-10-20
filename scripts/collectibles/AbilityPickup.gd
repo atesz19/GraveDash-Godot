@@ -21,6 +21,8 @@ func configure(lane: int, z_offset: float) -> void:
 func _pickup(body: Node3D) -> void:
 	_picked = true
 	monitoring = false
+	if AudioManager:
+		AudioManager.play_powerup_pickup()
 	_grant(body)
 	collected.emit(0, collectible_id)
 

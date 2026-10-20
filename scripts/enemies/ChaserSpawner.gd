@@ -124,12 +124,11 @@ func _set_almost(active: bool, intensity: float) -> void:
 		)
 		if active:
 			warning_label.text = "ALMOST CAUGHT"
+	if AudioManager and AudioManager.has_method("set_almost_caught"):
+		AudioManager.set_almost_caught(active, intensity)
 	if active != _almost_active:
 		_almost_active = active
 		almost_caught_changed.emit(active, intensity)
-		if active and AudioManager and AudioManager.has_method("play_sfx"):
-			## Stub-safe — no stream wired yet.
-			AudioManager.play_sfx(null)
 
 
 func release_all() -> void:

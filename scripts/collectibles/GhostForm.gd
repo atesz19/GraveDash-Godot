@@ -20,6 +20,8 @@ func configure(lane: int, z_offset: float) -> void:
 func _pickup(body: Node3D) -> void:
 	_picked = true
 	monitoring = false
+	if AudioManager:
+		AudioManager.play_powerup_pickup()
 	## Activate ghost mode on the player.
 	if body.has_method("apply_ghost_form"):
 		body.call("apply_ghost_form", GHOST_DURATION)

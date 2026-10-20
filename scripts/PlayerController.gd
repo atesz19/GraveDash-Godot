@@ -142,6 +142,7 @@ func _physics_process(delta: float) -> void:
 	_apply_forward_and_gravity(delta)
 	move_and_slide()
 	_report_distance(delta)
+	_tick_footsteps(delta)
 	_check_hazard_collisions()
 	_tick_powerups(delta)
 	_tick_ghost_form(delta)
@@ -163,6 +164,8 @@ func _handle_jump_input() -> void:
 	if Input.is_action_just_pressed("swipe_up") and is_on_floor() and not is_sliding:
 		velocity.y = JUMP_VELOCITY
 		_play_character_anim("jump", true)
+		if AudioManager:
+			AudioManager.play_jump()
 
 
 func _handle_slide_input(delta: float) -> void:
@@ -223,6 +226,15 @@ func _report_distance(delta: float) -> void:
 	ScoreManager.add_distance(run_speed * delta)
 
 
+func _tick_footsteps(delta: float) -> void:
+	if not is_alive or is_sliding or not is_on_floor():
+		return
+	if not GameManager.is_playing():
+		return
+	if AudioManager:
+		AudioManager.play_footstep_tick(run_speed, delta)
+
+
 # --- Slide hitbox ------------------------------------------------------------
 
 func _start_slide() -> void:
@@ -230,6 +242,8 @@ func _start_slide() -> void:
 	_slide_timer = SLIDE_DURATION
 	_apply_slide_hitbox()
 	_play_character_anim("slide", true)
+	if AudioManager:
+		AudioManager.play_slide()
 	if run_particles:
 		run_particles.emitting = true
 
@@ -323,6 +337,10 @@ func die() -> void:
 	if run_particles:
 		run_particles.emitting = false
 	_play_character_anim("death", true)
+	if AudioManager:
+		AudioManager.play_death()
+		AudioManager.reset_footsteps()
+		AudioManager.set_almost_caught(false, 0.0)
 	_clear_all_powerups(false)
 	died.emit()
 	GameManager.trigger_game_over()
@@ -346,6 +364,8 @@ func apply_ghost_form(duration: float = GHOST_DURATION_DEFAULT) -> void:
 	ghost_form_changed.emit(true, ghost_time_remaining)
 	powerup_changed.emit("ghost_form", true, ghost_time_remaining)
 	_report_mission_powerup("ghost_form")
+	if AudioManager:
+		AudioManager.play_powerup_activate("ghost_form")
 	if not was_active:
 		print("[Player] Ghost Form ON (%.1fs)" % ghost_time_remaining)
 
@@ -369,6 +389,8 @@ func _end_ghost_form(emit_signal: bool = true) -> void:
 	if emit_signal:
 		ghost_form_changed.emit(false, 0.0)
 		powerup_changed.emit("ghost_form", false, 0.0)
+		if AudioManager:
+			AudioManager.play_powerup_expire("ghost_form")
 		print("[Player] Ghost Form OFF")
 
 
@@ -399,6 +421,8 @@ func apply_soul_magnet(duration: float = MAGNET_DURATION_DEFAULT) -> void:
 	powerup_collected.emit("soul_magnet")
 	powerup_changed.emit("soul_magnet", true, magnet_time_remaining)
 	_report_mission_powerup("soul_magnet")
+	if AudioManager:
+		AudioManager.play_powerup_activate("soul_magnet")
 	print("[Player] Soul Magnet ON (%.1fs)" % magnet_time_remaining)
 
 
@@ -408,6 +432,8 @@ func _end_soul_magnet() -> void:
 	_powerup_timers.erase("soul_magnet")
 	_apply_magnet_visuals(false)
 	powerup_changed.emit("soul_magnet", false, 0.0)
+	if AudioManager:
+		AudioManager.play_powerup_expire("soul_magnet")
 
 
 func _apply_magnet_visuals(active: bool) -> void:
@@ -427,6 +453,8 @@ func apply_holy_light(duration: float = HOLY_DURATION_DEFAULT) -> void:
 	powerup_collected.emit("holy_light")
 	powerup_changed.emit("holy_light", true, holy_time_remaining)
 	_report_mission_powerup("holy_light")
+	if AudioManager:
+		AudioManager.play_powerup_activate("holy_light")
 	_holy_light_blast()
 	print("[Player] Holy Light ON (%.1fs)" % holy_time_remaining)
 
@@ -451,6 +479,8 @@ func _end_holy_light() -> void:
 	_powerup_timers.erase("holy_light")
 	_apply_holy_visuals(false)
 	powerup_changed.emit("holy_light", false, 0.0)
+	if AudioManager:
+		AudioManager.play_powerup_expire("holy_light")
 
 
 func _apply_holy_visuals(active: bool) -> void:
@@ -527,6 +557,8 @@ func apply_second_chance() -> void:
 	second_chance_changed.emit(true)
 	powerup_changed.emit("second_chance", true, 0.0)
 	_report_mission_powerup("second_chance")
+	if AudioManager:
+		AudioManager.play_powerup_activate("second_chance")
 	print("[Player] Second Chance charged")
 
 
@@ -589,6 +621,8 @@ func apply_cursed_speed(duration: float = CURSED_DURATION_DEFAULT) -> void:
 	powerup_collected.emit("cursed_speed")
 	powerup_changed.emit("cursed_speed", true, cursed_time_remaining)
 	_report_mission_powerup("cursed_speed")
+	if AudioManager:
+		AudioManager.play_powerup_activate("cursed_speed")
 	print("[Player] Cursed Speed ON (%.1fs)" % cursed_time_remaining)
 
 
@@ -599,6 +633,8 @@ func _end_cursed_speed() -> void:
 	_apply_cursed_visuals(false)
 	_reapply_body_tint()
 	powerup_changed.emit("cursed_speed", false, 0.0)
+	if AudioManager:
+		AudioManager.play_powerup_expire("cursed_speed")
 
 
 func _apply_cursed_visuals(active: bool) -> void:

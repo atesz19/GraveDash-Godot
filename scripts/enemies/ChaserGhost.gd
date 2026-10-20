@@ -29,11 +29,29 @@ var target_gap: float = 20.0
 var _lane_stick_timer: float = 0.0
 var _last_player_lane: int = 1
 var _caught: bool = false
+var _approach_audio: AudioStreamPlayer3D = null
 
 
 func _ready() -> void:
 	add_to_group("chaser")
 	add_to_group("enemy")
+	_approach_audio = get_node_or_null("ApproachAudio") as AudioStreamPlayer3D
+	_setup_approach_audio()
+
+
+func _setup_approach_audio() -> void:
+	if _approach_audio == null:
+		_approach_audio = AudioStreamPlayer3D.new()
+		_approach_audio.name = "ApproachAudio"
+		add_child(_approach_audio)
+	_approach_audio.bus = "SFX"
+	_approach_audio.max_distance = 28.0
+	_approach_audio.unit_size = 4.0
+	_approach_audio.volume_db = -80.0
+	if AudioManager and AudioManager.has_method("get_stream"):
+		var stream: AudioStream = AudioManager.get_stream("chaser_approach")
+		if stream:
+			_approach_audio.stream = stream
 
 
 func setup(p: Node3D, start_gap: float, offset: float, jitter: float) -> void:
@@ -59,6 +77,7 @@ func on_spawned() -> void:
 	process_mode = Node.PROCESS_MODE_INHERIT
 	if has_node("Trail"):
 		($Trail as GPUParticles3D).emitting = true
+	_start_approach_loop()
 
 
 func on_recycled() -> void:
@@ -66,6 +85,7 @@ func on_recycled() -> void:
 	player = null
 	visible = false
 	process_mode = Node.PROCESS_MODE_DISABLED
+	_stop_approach_loop()
 	if has_node("Trail"):
 		($Trail as GPUParticles3D).emitting = false
 
@@ -146,6 +166,7 @@ func _chase(delta: float) -> void:
 
 	if gap <= ALMOST_DISTANCE:
 		almost_close.emit(gap)
+	_update_approach_audio(gap)
 
 	var escaping: bool = bool(player.get("is_escaping"))
 	if not ghost_protected and not escaping and gap <= CATCH_DISTANCE:
@@ -189,3 +210,39 @@ func banish_by_holy_light(push_gap: float = 28.0) -> void:
 	global_position.z = player.global_position.z + push_gap
 	global_position.x = _target_x()
 	global_position.y = 1.1
+	_update_approach_audio(get_gap())
+
+
+func _start_approach_loop() -> void:
+	if _approach_audio == null:
+		_setup_approach_audio()
+	if _approach_audio == null:
+		return
+	if _approach_audio.stream == null and AudioManager:
+		_approach_audio.stream = AudioManager.get_stream("chaser_approach")
+	if _approach_audio.stream and not _approach_audio.playing:
+		_approach_audio.volume_db = -40.0
+		_approach_audio.play()
+
+
+func _stop_approach_loop() -> void:
+	if _approach_audio and _approach_audio.playing:
+		_approach_audio.stop()
+	if _approach_audio:
+		_approach_audio.volume_db = -80.0
+
+
+## Closer gap → louder 3D approach hum (catch ~2.2, quiet beyond ~18).
+func _update_approach_audio(gap: float) -> void:
+	if _approach_audio == null:
+		return
+	if AudioManager and AudioManager.is_sfx_muted():
+		_approach_audio.volume_db = -80.0
+		return
+	var intensity: float = 1.0 - clampf((gap - CATCH_DISTANCE) / (18.0 - CATCH_DISTANCE), 0.0, 1.0)
+	_approach_audio.volume_db = lerpf(-32.0, -4.0, intensity)
+	_approach_audio.pitch_scale = lerpf(0.9, 1.15, intensity)
+	if intensity > 0.05 and not _approach_audio.playing and _approach_audio.stream:
+		_approach_audio.play()
+	elif intensity <= 0.05 and _approach_audio.playing:
+		_approach_audio.stop()

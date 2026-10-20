@@ -69,3 +69,10 @@ light_color = Color(0.45, 0.15, 0.7, 1)
 light_energy = 1.3
 omni_range = 4.0
 shadow_enabled = false
+
+[node name="ApproachAudio" type="AudioStreamPlayer3D" parent="."]
+bus = &"SFX"
+max_distance = 28.0
+unit_size = 4.0
+volume_db = -40.0
+

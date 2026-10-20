@@ -176,16 +176,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -210.0
-offset_top = -160.0
-offset_right = 210.0
-offset_bottom = 160.0
+offset_left = -240.0
+offset_top = -240.0
+offset_right = 240.0
+offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="SettingsVBox" type="VBoxContainer" parent="UI/Root/Chrome/SettingsPanel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="SettingsTitle" type="Label" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
@@ -208,11 +208,45 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Music: On"
 
+[node name="MusicVolLabel" type="Label" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.68, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "Music Volume"
+horizontal_alignment = 1
+
+[node name="MusicVolumeSlider" type="HSlider" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 0.75
+
 [node name="SfxToggle" type="CheckButton" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 text = "SFX: On"
+
+[node name="SfxVolLabel" type="Label" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.68, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "SFX Volume"
+horizontal_alignment = 1
+
+[node name="SfxVolumeSlider" type="HSlider" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 0.85
 
 [node name="SettingsBackButton" type="Button" parent="UI/Root/Chrome/SettingsPanel/SettingsVBox"]
 unique_name_in_owner = true
