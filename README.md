@@ -81,6 +81,11 @@ Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/
 
 `resources/ui/GraveDashTheme.tres` — dark gothic StyleBoxes for panels/buttons across Menu, Settings, HUD, Pause, Game Over.
 
+## Witch model textures
+
+FBX ships with an external albedo path `assets/models/Textures_export/M_witch_Base_color.png`.  
+A neutral white PNG is committed there so Godot import does not error; mesh **vertex colors** drive the look (`WitchRunner`). Swap in the authored albedo using the same filename when available.
+
 ## Graveyard visuals
 
 Atmospheric Graveyard biome (shared by gameplay + Main Menu):
