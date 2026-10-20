@@ -109,6 +109,12 @@ func _setup_materials() -> void:
 			std.vertex_color_use_as_albedo = true
 			if std.albedo_color.r < 0.2 and std.albedo_color.g < 0.2 and std.albedo_color.b < 0.2:
 				std.albedo_color = Color(1.0, 1.0, 1.0, 1.0)
+			## FBX points at Textures_export/M_witch_Base_color.png. Prefer vertex
+			## colors: keep a valid white multiply texture if present, drop broken/empty slots.
+			if std.albedo_texture != null:
+				var tex_path: String = str(std.albedo_texture.resource_path)
+				if tex_path == "" or tex_path == "res://":
+					std.albedo_texture = null
 			std.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 			mi.set_surface_override_material(s, std)
 			seen[key] = std
