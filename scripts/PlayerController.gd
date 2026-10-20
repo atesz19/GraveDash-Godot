@@ -97,6 +97,7 @@ var _hud_tick_accum: float = 0.0
 var _capsule_shape: CapsuleShape3D
 var _holy_aura_mat: StandardMaterial3D
 var _was_on_floor: bool = true
+var _just_landed: bool = false
 
 
 func _ready() -> void:
@@ -125,7 +126,7 @@ func _physics_process(delta: float) -> void:
 	if not is_alive:
 		return
 	if not GameManager.is_playing():
-		_play_character_anim("idle")
+		_update_animation_state(false)
 		return
 
 	if is_escaping:
@@ -163,7 +164,8 @@ func _handle_lane_input() -> void:
 func _handle_jump_input() -> void:
 	if Input.is_action_just_pressed("swipe_up") and is_on_floor() and not is_sliding:
 		velocity.y = JUMP_VELOCITY
-		_play_character_anim("jump", true)
+		_was_on_floor = false
+		_drive_anim("jump", true)
 		if AudioManager:
 			AudioManager.play_jump()
 
@@ -241,7 +243,7 @@ func _start_slide() -> void:
 	is_sliding = true
 	_slide_timer = SLIDE_DURATION
 	_apply_slide_hitbox()
-	_play_character_anim("slide", true)
+	_drive_anim("slide", true)
 	if AudioManager:
 		AudioManager.play_slide()
 	if run_particles:
@@ -270,25 +272,48 @@ func _apply_slide_hitbox() -> void:
 
 
 func _update_animation_state(force: bool) -> void:
+	var on_floor_now: bool = is_on_floor()
+	_just_landed = (not _was_on_floor) and on_floor_now and is_alive
+	if not on_floor_now:
+		_was_on_floor = false
+	else:
+		_was_on_floor = true
+	if visual != null and visual.has_method("update_locomotion"):
+		visual.call(
+			"update_locomotion",
+			is_alive,
+			is_sliding,
+			on_floor_now,
+			run_speed,
+			is_ghost,
+			GameManager.is_playing(),
+			_just_landed,
+			force
+		)
+		_just_landed = false
+		return
+	## Fallback for visuals without AnimationTree API.
 	if not is_alive:
-		_play_character_anim("death", force)
+		_drive_anim("death", force)
 		return
 	if is_sliding:
-		_play_character_anim("slide", force)
+		_drive_anim("slide", force)
 		return
-	if not is_on_floor():
-		_play_character_anim("jump", force)
-		_was_on_floor = false
+	if not on_floor_now:
+		_drive_anim("jump", force)
 		return
-	_was_on_floor = true
-	## Running while the match is live; idle only when speed is effectively stopped.
 	if run_speed > 0.5 and GameManager.is_playing():
-		_play_character_anim("run", force)
+		_drive_anim("ghost" if is_ghost else "run", force)
 	else:
-		_play_character_anim("idle", force)
+		_drive_anim("idle", force)
+	_just_landed = false
 
 
 func _play_character_anim(anim_name: String, force: bool = false) -> void:
+	_drive_anim(anim_name, force)
+
+
+func _drive_anim(anim_name: String, force: bool = false) -> void:
 	if visual == null:
 		return
 	if visual.has_method("play"):
@@ -336,7 +361,12 @@ func die() -> void:
 	velocity = Vector3.ZERO
 	if run_particles:
 		run_particles.emitting = false
-	_play_character_anim("death", true)
+	_drive_anim("death", true)
+	if visual != null and visual.has_method("update_locomotion"):
+		visual.call(
+			"update_locomotion",
+			false, false, true, 0.0, false, false, false, true
+		)
 	if AudioManager:
 		AudioManager.play_death()
 		AudioManager.reset_footsteps()
@@ -399,16 +429,19 @@ func _apply_ghost_visuals(active: bool) -> void:
 		ghost_trail.emitting = active
 	if ghost_light:
 		ghost_light.visible = active
-		ghost_light.light_energy = 2.2 if active else 0.0
+		ghost_light.light_energy = 2.8 if active else 0.0
 	if active:
+		## Stronger phase look — pairs with WitchRunner ghost locomotion clip.
 		_tint_character(
-			Color(0.55, 0.35, 0.85, 1.0),
-			Color(0.45, 0.2, 0.75),
-			1.8,
-			0.42
+			Color(0.5, 0.32, 0.9, 1.0),
+			Color(0.55, 0.25, 0.95),
+			2.6,
+			0.34
 		)
+		_update_animation_state(true)
 	elif not has_cursed_speed:
 		_clear_character_tint()
+		_update_animation_state(true)
 
 
 # --- Soul Magnet -------------------------------------------------------------
