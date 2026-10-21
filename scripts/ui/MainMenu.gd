@@ -250,9 +250,12 @@ func _play_start_transition() -> void:
 		_ui_tween.tween_property(vignette_top, "modulate:a", 0.0, 0.5)
 	if vignette_bottom:
 		_ui_tween.tween_property(vignette_bottom, "modulate:a", 0.0, 0.5)
-	## 3) Soft fade to black, then load gameplay.
+	## 3) Brief soft fade (never linger — scene swap clears this node).
 	_ui_tween.set_parallel(false)
-	_ui_tween.tween_property(transition_fade, "color:a", 1.0, 0.45).set_delay(0.55)
+	if transition_fade:
+		transition_fade.color.a = 0.0
+		## Keep the wipe light so gameplay never bootstraps from a black frame.
+		_ui_tween.tween_property(transition_fade, "color:a", 0.55, 0.28).set_delay(0.45)
 	_ui_tween.tween_callback(_finish_start_transition)
 
 

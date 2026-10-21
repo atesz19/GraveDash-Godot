@@ -23,14 +23,16 @@ func _process(_delta: float) -> void:
 	if light == null:
 		return
 	var t: float = Time.get_ticks_msec() * 0.001 + _phase
+	## Narrow flicker band — never dunk local fill so the track goes black.
 	var flicker: float = (
-		0.82
-		+ 0.14 * sin(t * 9.7)
-		+ 0.1 * sin(t * 17.3 + 1.2)
-		+ 0.07 * sin(t * 31.1 + 0.4)
+		0.94
+		+ 0.05 * sin(t * 9.7)
+		+ 0.03 * sin(t * 17.3 + 1.2)
+		+ 0.02 * sin(t * 31.1 + 0.4)
 	)
+	flicker = clampf(flicker, 0.92, 1.08)
 	light.light_energy = _base_energy * flicker
 	if flame:
-		var s: float = 0.88 + 0.18 * flicker
-		flame.scale = Vector3(s * 0.9, s * 1.15, s * 0.9)
-		flame.position.y = 1.7 + 0.04 * sin(t * 13.0)
+		var s: float = 0.94 + 0.08 * flicker
+		flame.scale = Vector3(s * 0.9, s * 1.1, s * 0.9)
+		flame.position.y = 1.7 + 0.03 * sin(t * 13.0)

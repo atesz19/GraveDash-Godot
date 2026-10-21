@@ -67,6 +67,9 @@ func _on_game_started() -> void:
 	if ScoreManager:
 		_best_at_run_start = ScoreManager.highscore
 	panel.visible = false
+	panel.modulate.a = 1.0
+	if dim:
+		dim.modulate.a = 1.0
 	restart_button.scale = Vector2.ONE
 	if new_best_badge:
 		new_best_badge.visible = false

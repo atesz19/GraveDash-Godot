@@ -78,10 +78,11 @@ func _register_builtin_biomes() -> void:
 				"scene": preload("res://scenes/levels/Chunk_Castle_02.tscn"),
 			},
 		],
-		"moon_color": Color(0.45, 0.22, 0.35, 1),
-		"moon_energy": 0.22,
-		"moon_specular": 0.15,
-		"moon_rotation_degrees": Vector3(-55.0, 15.0, -10.0),
+		## Keep castle mood via color, not by dimming the whole frame.
+		"moon_color": Color(0.72, 0.48, 0.7, 1),
+		"moon_energy": 0.72,
+		"moon_specular": 0.4,
+		"moon_rotation_degrees": Vector3(-48.0, 15.0, -10.0),
 	}
 	## Placeholders for later biomes.
 	_biomes["crypt"] = {
@@ -92,9 +93,9 @@ func _register_builtin_biomes() -> void:
 		"chunk_variants": [
 			{"id": "chunk_haunted_castle", "scene": preload("res://scenes/levels/Chunk_Castle_01.tscn")},
 		],
-		"moon_color": Color(0.4, 0.45, 0.55, 1),
-		"moon_energy": 0.35,
-		"moon_specular": 0.2,
+		"moon_color": Color(0.55, 0.58, 0.7, 1),
+		"moon_energy": 0.65,
+		"moon_specular": 0.3,
 		"moon_rotation_degrees": Vector3(-50.0, 20.0, 0.0),
 	}
 	_biomes["fog_woods"] = {
@@ -105,9 +106,9 @@ func _register_builtin_biomes() -> void:
 		"chunk_variants": [
 			{"id": "chunk_graveyard", "scene": preload("res://scenes/levels/Chunk_Graveyard_01.tscn")},
 		],
-		"moon_color": Color(0.45, 0.55, 0.5, 1),
-		"moon_energy": 0.4,
-		"moon_specular": 0.25,
+		"moon_color": Color(0.55, 0.65, 0.6, 1),
+		"moon_energy": 0.65,
+		"moon_specular": 0.3,
 		"moon_rotation_degrees": Vector3(-38.0, 10.0, -8.0),
 	}
 
@@ -245,10 +246,28 @@ func _apply_light_only() -> void:
 	if moon_light == null:
 		return
 	moon_light.light_color = data.get("moon_color", Color.WHITE)
-	moon_light.light_energy = float(data.get("moon_energy", 0.5))
+	## Floor moon energy so no biome definition can black out gameplay.
+	moon_light.light_energy = maxf(float(data.get("moon_energy", 0.5)), 0.55)
 	moon_light.light_specular = float(data.get("moon_specular", 0.3))
 	moon_light.shadow_enabled = true
 	moon_light.shadow_blur = 1.4
 	moon_light.light_angular_distance = 1.2
 	var rot: Vector3 = data.get("moon_rotation_degrees", Vector3(-45, -30, 0))
 	moon_light.rotation_degrees = rot
+	_clamp_play_brightness()
+
+
+## Keep Playing readable: no dense black fog / crushed exposure from runtime edits.
+func _clamp_play_brightness() -> void:
+	if world_environment == null or world_environment.environment == null:
+		return
+	var env := world_environment.environment
+	if env.fog_enabled:
+		env.fog_density = minf(env.fog_density, 0.035)
+		## Never let fog light collapse to near-black (old transition path).
+		if env.fog_light_color.get_luminance() < 0.12:
+			env.fog_light_color = Color(0.24, 0.2, 0.34, 1)
+	if env.adjustment_enabled:
+		env.adjustment_brightness = maxf(env.adjustment_brightness, 0.92)
+	env.tonemap_exposure = maxf(env.tonemap_exposure, 0.95)
+	env.ambient_light_energy = maxf(env.ambient_light_energy, 0.32)
