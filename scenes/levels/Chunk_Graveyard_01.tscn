@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bq8gravedashchunk01"]
+[gd_scene load_steps=16 format=3 uid="uid://bq8gravedashchunk01"]
 
 [ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_chunk"]
 [ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_ground"]
@@ -7,6 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://bq8decortree" path="res://scenes/levels/props/DecorDeadTree.tscn" id="4_tree"]
 [ext_resource type="PackedScene" uid="uid://bq8decorchapel" path="res://scenes/levels/props/DecorChapel.tscn" id="5_chapel"]
 [ext_resource type="PackedScene" uid="uid://bq8torch" path="res://scenes/levels/props/Torch.tscn" id="6_torch"]
+[ext_resource type="PackedScene" uid="uid://bq8decorcross" path="res://scenes/levels/props/DecorFallenCross.tscn" id="7_cross"]
+[ext_resource type="PackedScene" uid="uid://bq8decorfence" path="res://scenes/levels/props/DecorFence.tscn" id="8_fence"]
+[ext_resource type="PackedScene" uid="uid://bq8decorcoffin" path="res://scenes/levels/props/DecorCoffin.tscn" id="9_coffin"]
+[ext_resource type="PackedScene" uid="uid://bq8decorrock" path="res://scenes/levels/props/DecorRock.tscn" id="10_rock"]
+[ext_resource type="PackedScene" uid="uid://bq8decorbush" path="res://scenes/levels/props/DecorBush.tscn" id="11_bush"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 size = Vector3(9, 1, 45)
@@ -66,49 +71,136 @@ surface_material_override/0 = SubResource("StandardMaterial3D_lane")
 [node name="Props" type="Node3D" parent="."]
 
 [node name="StoneL1" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, -5.6, 0, 14)
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, -5.6, 0, 18)
 
 [node name="StoneL2" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(0.985, 0, -0.174, 0, 1, 0, 0.174, 0, 0.985, -5.9, 0, 2)
+transform = Transform3D(0.985, 0, -0.174, 0, 1, 0, 0.174, 0, 0.985, -5.9, 0, 8)
 
 [node name="StoneL3" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, -5.4, 0, -12)
+transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, -5.4, 0, -2)
+
+[node name="StoneL4" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.966, 0, 0.259, 0, 1, 0, -0.259, 0, 0.966, -6.1, 0, -12)
+
+[node name="StoneL5" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, -20)
 
 [node name="StoneR1" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(0.966, 0, -0.259, 0, 1, 0, 0.259, 0, 0.966, 5.7, 0, 10)
+transform = Transform3D(0.966, 0, -0.259, 0, 1, 0, 0.259, 0, 0.966, 5.7, 0, 16)
 
 [node name="StoneR2" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, 5.5, 0, -4)
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, 5.5, 0, 4)
 
 [node name="StoneR3" parent="Props" instance=ExtResource("3_stone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 0, -16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 0, -6)
+
+[node name="StoneR4" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.906, 0, -0.423, 0, 1, 0, 0.423, 0, 0.906, 6.0, 0, -14)
+
+[node name="StoneR5" parent="Props" instance=ExtResource("3_stone")]
+transform = Transform3D(0.985, 0, 0.174, 0, 1, 0, -0.174, 0, 0.985, 5.6, 0, -20)
 
 [node name="TreeL1" parent="Props" instance=ExtResource("4_tree")]
-transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -7.2, 0, 8)
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -7.2, 0, 14)
 
 [node name="TreeL2" parent="Props" instance=ExtResource("4_tree")]
-transform = Transform3D(0.9, 0, 0.1, 0, 1, 0, -0.1, 0, 0.9, -7.5, 0, -10)
+transform = Transform3D(0.9, 0, 0.1, 0, 1, 0, -0.1, 0, 0.9, -7.5, 0, 0)
+
+[node name="TreeL3" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(1.05, 0, -0.12, 0, 1.05, 0, 0.12, 0, 1.05, -7.8, 0, -16)
 
 [node name="TreeR1" parent="Props" instance=ExtResource("4_tree")]
-transform = Transform3D(1, 0, 0, 0, 1.15, 0, 0, 0, 1, 7.4, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1.15, 0, 0, 0, 1, 7.4, 0, 10)
 
 [node name="TreeR2" parent="Props" instance=ExtResource("4_tree")]
-transform = Transform3D(0.85, 0, -0.15, 0, 0.95, 0, 0.15, 0, 0.85, 7.6, 0, 16)
+transform = Transform3D(0.85, 0, -0.15, 0, 0.95, 0, 0.15, 0, 0.85, 7.6, 0, -4)
 
-[node name="Chapel" parent="Props" instance=ExtResource("5_chapel")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 14, 0, -6)
+[node name="TreeR3" parent="Props" instance=ExtResource("4_tree")]
+transform = Transform3D(1.05, 0, 0.1, 0, 1.1, 0, -0.1, 0, 1.05, 7.9, 0, -18)
 
-[node name="TorchL" parent="Props" instance=ExtResource("6_torch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4, 0, 8)
+[node name="ChapelR" parent="Props" instance=ExtResource("5_chapel")]
+transform = Transform3D(0.65, 0, 0.15, 0, 0.7, 0, -0.15, 0, 0.65, 13.5, 0, -8)
 
-[node name="TorchR" parent="Props" instance=ExtResource("6_torch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0, -8)
+[node name="ChapelL" parent="Props" instance=ExtResource("5_chapel")]
+transform = Transform3D(-0.45, 0, -0.35, 0, 0.55, 0, 0.35, 0, -0.45, -14.0, 0, 12)
+
+[node name="TorchL1" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, 16)
 
 [node name="TorchL2" parent="Props" instance=ExtResource("6_torch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, 0)
+
+[node name="TorchL3" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, -16)
+
+[node name="TorchR1" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, 10)
 
 [node name="TorchR2" parent="Props" instance=ExtResource("6_torch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, -6)
+
+[node name="TorchR3" parent="Props" instance=ExtResource("6_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, -18)
+
+[node name="CrossL1" parent="Props" instance=ExtResource("7_cross")]
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, -5.8, 0, 12)
+
+[node name="CrossL2" parent="Props" instance=ExtResource("7_cross")]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, -6.2, 0, -8)
+
+[node name="CrossR1" parent="Props" instance=ExtResource("7_cross")]
+transform = Transform3D(0.966, 0, -0.259, 0, 1, 0, 0.259, 0, 0.966, 5.9, 0, 8)
+
+[node name="CrossR2" parent="Props" instance=ExtResource("7_cross")]
+transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, 6.3, 0, -12)
+
+[node name="FenceL1" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.15, 0, 20)
+
+[node name="FenceL2" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.15, 0, 6)
+
+[node name="FenceL3" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.15, 0, -8)
+
+[node name="FenceR1" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.15, 0, 14)
+
+[node name="FenceR2" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.15, 0, 0)
+
+[node name="FenceR3" parent="Props" instance=ExtResource("8_fence")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.15, 0, -14)
+
+[node name="CoffinL" parent="Props" instance=ExtResource("9_coffin")]
+transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, -6.4, 0, 4)
+
+[node name="CoffinR" parent="Props" instance=ExtResource("9_coffin")]
+transform = Transform3D(0.94, 0, -0.342, 0, 1, 0, 0.342, 0, 0.94, 6.5, 0, -10)
+
+[node name="RockL1" parent="Props" instance=ExtResource("10_rock")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3, 0, 10)
+
+[node name="RockL2" parent="Props" instance=ExtResource("10_rock")]
+transform = Transform3D(0.8, 0, 0.2, 0, 0.9, 0, -0.2, 0, 0.8, -6.8, 0, -6)
+
+[node name="RockR1" parent="Props" instance=ExtResource("10_rock")]
+transform = Transform3D(1.1, 0, 0, 0, 1, 0, 0, 0, 1.1, 5.4, 0, 12)
+
+[node name="RockR2" parent="Props" instance=ExtResource("10_rock")]
+transform = Transform3D(0.85, 0, -0.15, 0, 0.85, 0, 0.15, 0, 0.85, 6.6, 0, -2)
+
+[node name="BushL1" parent="Props" instance=ExtResource("11_bush")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, 2)
+
+[node name="BushL2" parent="Props" instance=ExtResource("11_bush")]
+transform = Transform3D(1.15, 0, 0, 0, 1, 0, 0, 0, 1.15, -6.6, 0, -14)
+
+[node name="BushR1" parent="Props" instance=ExtResource("11_bush")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0, 2)
+
+[node name="BushR2" parent="Props" instance=ExtResource("11_bush")]
+transform = Transform3D(0.9, 0, 0.1, 0, 1, 0, -0.1, 0, 0.9, 6.4, 0, -16)
 
 [node name="Obstacles" type="Node3D" parent="."]
 

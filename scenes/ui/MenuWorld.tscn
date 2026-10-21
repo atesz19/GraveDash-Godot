@@ -51,6 +51,8 @@ shadow_enabled = false
 
 [node name="Track" type="Node3D" parent="."]
 
+[node name="EdgeDecor" type="Node3D" parent="."]
+
 [node name="Backdrop" parent="." instance=ExtResource("3_backdrop")]
 player_path = NodePath("../WitchSlot")
 

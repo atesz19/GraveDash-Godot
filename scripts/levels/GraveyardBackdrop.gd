@@ -132,3 +132,63 @@ func _populate_bank(bank: Node3D, side: float, sil_mat: Material, hill_mat: Mate
 		)
 		grave.rotation_degrees.y = float((i * 23) % 40) - 20.0
 		bank.add_child(grave)
+	## Mid-ground fence posts — closer than hills, still off the 3 lanes.
+	for i in 12:
+		var post: MeshInstance3D = MeshInstance3D.new()
+		var post_mesh: BoxMesh = BoxMesh.new()
+		post_mesh.size = Vector3(0.14, 1.15 + float(i % 2) * 0.2, 0.14)
+		post.mesh = post_mesh
+		post.material_override = sil_mat
+		var pz: float = -50.0 + float(i) * 9.0
+		var px: float = side * (11.5 + float(i % 3) * 0.6)
+		post.position = Vector3(px, post_mesh.size.y * 0.5, pz)
+		bank.add_child(post)
+		if i % 2 == 0:
+			var rail: MeshInstance3D = MeshInstance3D.new()
+			var rail_mesh: BoxMesh = BoxMesh.new()
+			rail_mesh.size = Vector3(0.1, 0.1, 2.4)
+			rail.mesh = rail_mesh
+			rail.material_override = sil_mat
+			rail.position = Vector3(px, 0.75, pz + side * 1.1)
+			bank.add_child(rail)
+	## Fallen crosses in the mid band.
+	for i in 8:
+		var cross_post: MeshInstance3D = MeshInstance3D.new()
+		var cp: BoxMesh = BoxMesh.new()
+		cp.size = Vector3(0.12, 1.4, 0.1)
+		cross_post.mesh = cp
+		cross_post.material_override = sil_mat
+		var cx: float = side * (13.0 + float(i % 4) * 1.4)
+		var cz: float = -45.0 + float(i) * 12.5
+		cross_post.position = Vector3(cx, 0.55, cz)
+		cross_post.rotation_degrees = Vector3(0.0, float(i * 17 % 50) - 25.0, side * 18.0)
+		bank.add_child(cross_post)
+		var cross_beam: MeshInstance3D = MeshInstance3D.new()
+		var cb: BoxMesh = BoxMesh.new()
+		cb.size = Vector3(0.85, 0.12, 0.1)
+		cross_beam.mesh = cb
+		cross_beam.material_override = sil_mat
+		cross_beam.position = Vector3(cx, 0.95, cz)
+		cross_beam.rotation_degrees = cross_post.rotation_degrees
+		bank.add_child(cross_beam)
+	## Distant chapel / ruin blocks.
+	for i in 2:
+		var ruin: MeshInstance3D = MeshInstance3D.new()
+		var block: BoxMesh = BoxMesh.new()
+		block.size = Vector3(3.2 + float(i), 2.4 + float(i) * 0.6, 2.2)
+		ruin.mesh = block
+		ruin.material_override = hill_mat
+		ruin.position = Vector3(
+			side * (24.0 + float(i) * 5.0),
+			block.size.y * 0.45,
+			-30.0 + float(i) * 38.0
+		)
+		ruin.rotation_degrees.y = side * (12.0 + float(i) * 8.0)
+		bank.add_child(ruin)
+		var spire: MeshInstance3D = MeshInstance3D.new()
+		var spire_mesh: BoxMesh = BoxMesh.new()
+		spire_mesh.size = Vector3(0.55, 2.6, 0.55)
+		spire.mesh = spire_mesh
+		spire.material_override = sil_mat
+		spire.position = ruin.position + Vector3(side * 0.8, 1.8, 0.0)
+		bank.add_child(spire)

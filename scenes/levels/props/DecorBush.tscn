@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq8decorbush"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_foliage"]
+radius = 0.65
+height = 0.9
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_leaves"]
+albedo_color = Color(0.1, 0.14, 0.08, 1)
+roughness = 1.0
+
+[node name="DecorBush" type="Node3D"]
+
+[node name="FoliageA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.75, 0, 0, 0, 1.1, 0, 0.35, 0)
+mesh = SubResource("SphereMesh_foliage")
+surface_material_override/0 = SubResource("StandardMaterial3D_leaves")
+
+[node name="FoliageB" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.7, 0, 0.2, 0, 0.55, 0, -0.2, 0, 0.75, 0.35, 0.28, 0.15)
+mesh = SubResource("SphereMesh_foliage")
+surface_material_override/0 = SubResource("StandardMaterial3D_leaves")
