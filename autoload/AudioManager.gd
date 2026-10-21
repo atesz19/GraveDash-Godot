@@ -25,10 +25,8 @@ const SFX_PATHS: Dictionary = {
 	"powerup_pickup": "res://assets/audio/sfx/powerup_pickup.wav",
 	"powerup_activate": "res://assets/audio/sfx/powerup_activate.wav",
 	"powerup_expire": "res://assets/audio/sfx/powerup_expire.wav",
-	"almost_caught": "res://assets/audio/sfx/almost_caught.wav",
 	"death": "res://assets/audio/sfx/death.wav",
 	"ui_click": "res://assets/audio/sfx/ui_click.wav",
-	"chaser_approach": "res://assets/audio/sfx/chaser_approach.wav",
 }
 
 var music_muted: bool = false
@@ -49,9 +47,7 @@ var _current_music_id: String = ""
 var _sfx_pool: Array[AudioStreamPlayer] = []
 var _sfx_pool_i: int = 0
 var _footstep_player: AudioStreamPlayer
-var _almost_player: AudioStreamPlayer
 var _footstep_accum: float = 0.0
-var _almost_active: bool = false
 
 
 func _ready() -> void:
@@ -90,7 +86,6 @@ func _build_players() -> void:
 	_music_b = _make_player("MusicB", BUS_MUSIC)
 	_music_active = _music_a
 	_footstep_player = _make_player("Footsteps", BUS_SFX)
-	_almost_player = _make_player("AlmostCaught", BUS_SFX)
 	for i in SFX_POOL_SIZE:
 		_sfx_pool.append(_make_player("Sfx%d" % i, BUS_SFX))
 
@@ -110,11 +105,6 @@ func _load_streams() -> void:
 	for id in SFX_PATHS.keys():
 		var path: String = str(SFX_PATHS[id])
 		var stream: AudioStream = load(path) as AudioStream
-		if stream is AudioStreamWAV:
-			var wav: AudioStreamWAV = stream as AudioStreamWAV
-			## One-shots stay non-looping; loop streams set below.
-			if id == "almost_caught" or id == "chaser_approach":
-				wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		_streams[id] = stream
 
 
@@ -436,27 +426,3 @@ func reset_footsteps() -> void:
 	_footstep_accum = 0.0
 	if _footstep_player:
 		_footstep_player.stop()
-
-
-## Almost Caught 2D warning — volume scales with intensity (0..1).
-func set_almost_caught(active: bool, intensity: float = 0.0) -> void:
-	if sfx_muted:
-		if _almost_player and _almost_player.playing:
-			_almost_player.stop()
-		_almost_active = false
-		return
-	var stream: AudioStream = get_stream("almost_caught")
-	if stream == null:
-		return
-	if active:
-		var vol: float = lerpf(-18.0, -2.0, clampf(intensity, 0.0, 1.0))
-		if not _almost_player.playing:
-			_almost_player.stream = stream
-			_almost_player.play()
-		_almost_player.volume_db = vol
-		_almost_player.pitch_scale = lerpf(0.95, 1.12, clampf(intensity, 0.0, 1.0))
-		_almost_active = true
-	else:
-		if _almost_player.playing:
-			_almost_player.stop()
-		_almost_active = false

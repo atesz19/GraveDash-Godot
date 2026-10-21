@@ -371,7 +371,6 @@ func die() -> void:
 	if AudioManager:
 		AudioManager.play_death()
 		AudioManager.reset_footsteps()
-		AudioManager.set_almost_caught(false, 0.0)
 	_clear_all_powerups(false)
 	died.emit()
 	GameManager.trigger_game_over()
@@ -540,17 +539,6 @@ func _holy_light_blast() -> void:
 		if origin.distance_to(obs.global_position) > HOLY_RADIUS:
 			continue
 		_recycle_world_node(obs)
-	## Chasers: shove far behind (stay in pack, pressure reset).
-	for node in get_tree().get_nodes_in_group("chaser"):
-		if node == null or not is_instance_valid(node):
-			continue
-		if not (node is Node3D):
-			continue
-		var chaser := node as Node3D
-		if origin.distance_to(chaser.global_position) > HOLY_RADIUS + 4.0:
-			continue
-		if chaser.has_method("banish_by_holy_light"):
-			chaser.call("banish_by_holy_light", 28.0)
 
 
 func _recycle_world_node(node: Node3D) -> void:

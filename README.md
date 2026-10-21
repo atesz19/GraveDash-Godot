@@ -73,7 +73,7 @@ Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/
 
 ### Performance checklist
 
-- **Object pooling** — chunks, obstacles, collectibles, power-ups, and chaser ghosts go through `ObjectPool` (acquire/release); pools clear on restart.
+- **Object pooling** — chunks, obstacles, collectibles, and power-ups go through `ObjectPool` (acquire/release); pools clear on restart.
 - Mobile renderer + ETC2/ASTC — avoid shipping uncompressed desktop textures to device.
 - Keep draw calls modest (simple meshes / shared materials); MSAA 3D is set to 1× for mobile cost.
 
@@ -151,7 +151,7 @@ Placeholder WAV loops/SFX live under:
 
 ```
 assets/audio/music/   menu_loop.wav, gameplay_loop.wav
-assets/audio/sfx/     footstep, jump, slide, soul_pickup, powerup_*, almost_caught, death, ui_click, chaser_approach
+assets/audio/sfx/     footstep, jump, slide, soul_pickup, powerup_*, death, ui_click
 ```
 
 Replace those files with final assets (keep filenames) — no code change needed. Headless: `godot --headless --path . --script res://tools/validate_audio.gd`
@@ -162,7 +162,7 @@ Replace those files with final assets (keep filenames) — no code change needed
 - Game Over: distance, run score, multiplier, missions, high score, Retry, Main Menu, disabled “Watch Ad” stub
 - Pause overlay (Esc): Resume / Main Menu + multiplier & missions
 - HUD: score, multiplier, distance, best, missions, power-up icons/timers
-- Full gameplay: lanes, obstacles, collectibles, power-ups, chasers
+- Full gameplay: lanes, obstacles (low/high/platform), collectibles, power-ups
 - **Biomes:** Graveyard → **Haunted Castle** after ~1200–1500 m
 - **Android:** export preset, landscape, Internet permission, arm64, touch swipes
 

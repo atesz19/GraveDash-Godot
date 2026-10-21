@@ -27,13 +27,25 @@ func _run() -> void:
 	## Streams
 	for id in ["menu", "gameplay", "footstep", "jump", "slide", "soul_pickup",
 			"powerup_pickup", "powerup_activate", "powerup_expire",
-			"almost_caught", "death", "ui_click", "chaser_approach"]:
+			"death", "ui_click"]:
 		var stream: Variant = am.call("get_stream", id)
 		if stream == null:
 			push_error("FAIL stream %s" % id)
 			failed += 1
 		else:
 			print("OK stream ", id)
+	## Chaser / Almost Caught audio must be gone.
+	for gone_id in ["almost_caught", "chaser_approach"]:
+		if am.call("get_stream", gone_id) != null:
+			push_error("FAIL leftover stream %s" % gone_id)
+			failed += 1
+		else:
+			print("OK removed stream ", gone_id)
+	if am.has_method("set_almost_caught"):
+		push_error("FAIL set_almost_caught still present")
+		failed += 1
+	else:
+		print("OK set_almost_caught removed")
 	## Volume / mute
 	am.call("set_music_volume", 0.4)
 	am.call("set_sfx_volume", 0.6)
@@ -60,8 +72,6 @@ func _run() -> void:
 	am.call("play_powerup_activate", "ghost_form")
 	am.call("play_powerup_expire", "ghost_form")
 	am.call("play_death")
-	am.call("set_almost_caught", true, 0.7)
-	am.call("set_almost_caught", false, 0.0)
 	am.call("play_menu_music", 0.1)
 	await process_frame
 	am.call("play_gameplay_music", 0.1)

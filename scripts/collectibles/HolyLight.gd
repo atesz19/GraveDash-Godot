@@ -1,5 +1,5 @@
 extends "res://scripts/collectibles/AbilityPickup.gd"
-## Holy Light — radiant sphere that clears obstacles / blasts chasers (~7s).
+## Holy Light — radiant sphere that clears nearby obstacles (~7s).
 
 const HOLY_DURATION: float = 7.0
 
