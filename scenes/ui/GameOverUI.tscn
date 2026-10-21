@@ -1,21 +1,167 @@
-[gd_scene load_steps=3 format=3 uid="uid://bq8gameoverui"]
+[gd_scene load_steps=10 format=3 uid="uid://bq8gameoverui"]
 
 [ext_resource type="Script" path="res://scripts/ui/GameOverUI.gd" id="1_ui"]
-[ext_resource type="Theme" uid="uid://bq8gravetheme" path="res://resources/ui/GraveDashTheme.tres" id="2_theme"]
+[ext_resource type="Theme" uid="uid://bq8mainmenutheme" path="res://resources/ui/MainMenuTheme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 28.0
+content_margin_top = 24.0
+content_margin_right = 28.0
+content_margin_bottom = 24.0
+bg_color = Color(0.05, 0.07, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.9, 0.75, 0.45)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 18
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.08, 0.1, 0.16, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.9, 1, 0.55)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip_score"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.1, 0.14, 0.1, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.95, 0.55, 0.7)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.2, 0.8, 0.3, 0.25)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip_best"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18, 0.1, 0.04, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.75, 0.25, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(1, 0.55, 0.1, 0.3)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_retry"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.18, 0.78, 0.32, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.85, 1, 0.45, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.2, 0.9, 0.35, 0.5)
+shadow_size = 14
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_retry_hover"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.28, 0.88, 0.4, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 0.55, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.35, 1, 0.45, 0.55)
+shadow_size = 18
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_retry_pressed"]
+content_margin_left = 28.0
+content_margin_top = 16.0
+content_margin_right = 28.0
+content_margin_bottom = 16.0
+bg_color = Color(0.12, 0.62, 0.28, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.7, 0.95, 0.35, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_new_best"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.95, 0.55, 0.1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.9, 0.4, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="GameOverUI" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_ui")
 
 [node name="Root" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 
 [node name="Dim" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,16 +169,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.02, 0.02, 0.03, 0.82)
+color = Color(0.02, 0.03, 0.06, 0.78)
 
 [node name="EdgeTop" type="ColorRect" parent="Root"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 48.0
+offset_bottom = 90.0
 grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.15, 0.02, 0.05, 0.55)
+color = Color(0.04, 0.02, 0.06, 0.55)
 
 [node name="EdgeBottom" type="ColorRect" parent="Root"]
 layout_mode = 1
@@ -40,13 +186,14 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -48.0
+offset_top = -110.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-color = Color(0.08, 0.01, 0.03, 0.6)
+color = Color(0.02, 0.04, 0.06, 0.6)
 
 [node name="Center" type="CenterContainer" parent="Root"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,111 +202,246 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Root/Center"]
-custom_minimum_size = Vector2(440, 520)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
-theme = ExtResource("2_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="Root/Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="Title" type="Label" parent="Root/Center/Panel/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.18, 0.2, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(1, 0.35, 0.38, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.04, 0.95)
+theme_override_colors/font_shadow_color = Color(0.6, 0.05, 0.08, 0.55)
+theme_override_constants/outline_size = 12
+theme_override_constants/shadow_offset_y = 4
+theme_override_font_sizes/font_size = 56
 text = "GAME OVER"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.55, 0.52, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.78, 0.85, 0.92, 0.9)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.08, 0.85)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 15
 text = "The graveyard claims another runner"
 horizontal_alignment = 1
 
-[node name="Sep" type="HSeparator" parent="Root/Center/Panel/VBox"]
+[node name="StatsRow" type="HBoxContainer" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="DistanceLabel" type="Label" parent="Root/Center/Panel/VBox"]
+[node name="DistanceChip" type="PanelContainer" parent="Root/Center/Panel/VBox/StatsRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.76, 0.7, 1)
-theme_override_font_sizes/font_size = 20
-text = "Distance  0 m"
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip")
+
+[node name="DistVBox" type="VBoxContainer" parent="Root/Center/Panel/VBox/StatsRow/DistanceChip"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="DistCaption" type="Label" parent="Root/Center/Panel/VBox/StatsRow/DistanceChip/DistVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "DISTANCE"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="Root/Center/Panel/VBox"]
+[node name="DistanceLabel" type="Label" parent="Root/Center/Panel/VBox/StatsRow/DistanceChip/DistVBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.85, 0.7, 1)
-theme_override_font_sizes/font_size = 22
-text = "Run Score  0"
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "0 m"
 horizontal_alignment = 1
 
-[node name="MultLabel" type="Label" parent="Root/Center/Panel/VBox"]
+[node name="SoulsChip" type="PanelContainer" parent="Root/Center/Panel/VBox/StatsRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.72, 0.35, 1)
-theme_override_font_sizes/font_size = 18
-text = "Multiplier  ×1"
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip")
+
+[node name="SoulsVBox" type="VBoxContainer" parent="Root/Center/Panel/VBox/StatsRow/SoulsChip"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="SoulsCaption" type="Label" parent="Root/Center/Panel/VBox/StatsRow/SoulsChip/SoulsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "SOULS"
 horizontal_alignment = 1
 
-[node name="BestLabel" type="Label" parent="Root/Center/Panel/VBox"]
+[node name="SoulsLabel" type="Label" parent="Root/Center/Panel/VBox/StatsRow/SoulsChip/SoulsVBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.58, 0.48, 1)
-theme_override_font_sizes/font_size = 16
-text = "High Score  0"
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "+0"
+horizontal_alignment = 1
+
+[node name="ScoreChip" type="PanelContainer" parent="Root/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip_score")
+
+[node name="ScoreVBox" type="VBoxContainer" parent="Root/Center/Panel/VBox/ScoreChip"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="ScoreCaptionRow" type="HBoxContainer" parent="Root/Center/Panel/VBox/ScoreChip/ScoreVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="ScoreCaption" type="Label" parent="Root/Center/Panel/VBox/ScoreChip/ScoreVBox/ScoreCaptionRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "RUN SCORE"
+horizontal_alignment = 1
+
+[node name="MultLabel" type="Label" parent="Root/Center/Panel/VBox/ScoreChip/ScoreVBox/ScoreCaptionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "x1"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="Root/Center/Panel/VBox/ScoreChip/ScoreVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 1, 0.92, 1)
+theme_override_font_sizes/font_size = 36
+text = "0"
+horizontal_alignment = 1
+
+[node name="BestChip" type="PanelContainer" parent="Root/Center/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip_best")
+
+[node name="BestVBox" type="VBoxContainer" parent="Root/Center/Panel/VBox/BestChip"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="BestCaptionRow" type="HBoxContainer" parent="Root/Center/Panel/VBox/BestChip/BestVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="BestCaption" type="Label" parent="Root/Center/Panel/VBox/BestChip/BestVBox/BestCaptionRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "HIGH SCORE"
+horizontal_alignment = 1
+
+[node name="NewBestBadge" type="PanelContainer" parent="Root/Center/Panel/VBox/BestChip/BestVBox/BestCaptionRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_new_best")
+
+[node name="NewBestLabel" type="Label" parent="Root/Center/Panel/VBox/BestChip/BestVBox/BestCaptionRow/NewBestBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.05, 0.02, 1)
+theme_override_font_sizes/font_size = 12
+text = "NEW BEST"
+
+[node name="BestLabel" type="Label" parent="Root/Center/Panel/VBox/BestChip/BestVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.75, 1)
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 1
+
+[node name="WalletLabel" type="Label" parent="Root/Center/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.78, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "Soul wallet  0"
 horizontal_alignment = 1
 
 [node name="MissionBox" type="VBoxContainer" parent="Root/Center/Panel/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
 
 [node name="MissionHeader" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.58, 0.52, 1)
+theme_override_colors/font_color = Color(0.65, 1, 0.75, 1)
 theme_override_font_sizes/font_size = 12
-text = "Missions"
+text = "ACTIVE MISSIONS"
 horizontal_alignment = 1
 
 [node name="Mission1" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_colors/font_color = Color(0.82, 0.9, 0.85, 1)
 theme_override_font_sizes/font_size = 13
 text = "Mission 1"
 horizontal_alignment = 1
 
 [node name="Mission2" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_colors/font_color = Color(0.82, 0.9, 0.85, 1)
 theme_override_font_sizes/font_size = 13
 text = "Mission 2"
 horizontal_alignment = 1
 
 [node name="Mission3" type="Label" parent="Root/Center/Panel/VBox/MissionBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.78, 0.68, 1)
+theme_override_colors/font_color = Color(0.82, 0.9, 0.85, 1)
 theme_override_font_sizes/font_size = 13
 text = "Mission 3"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(0, 6)
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="RestartButton" type="Button" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(220, 46)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Retry"
+theme_override_colors/font_color = Color(0.05, 0.15, 0.08, 1)
+theme_override_colors/font_hover_color = Color(0.05, 0.12, 0.06, 1)
+theme_override_colors/font_pressed_color = Color(0.02, 0.1, 0.04, 1)
+theme_override_colors/font_focus_color = Color(0.05, 0.15, 0.08, 1)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("StyleBoxFlat_retry")
+theme_override_styles/hover = SubResource("StyleBoxFlat_retry_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_retry_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_retry_pressed")
+text = "RETRY"
 
 [node name="MenuButton" type="Button" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(220, 42)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Main Menu"
+text = "MAIN MENU"
 
 [node name="AdButton" type="Button" parent="Root/Center/Panel/VBox"]
-custom_minimum_size = Vector2(220, 40)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 44)
 layout_mode = 2
 size_flags_horizontal = 4
 disabled = true
-text = "Watch Ad to Continue"
+text = "WATCH AD TO CONTINUE"
