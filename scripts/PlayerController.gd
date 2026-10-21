@@ -24,7 +24,8 @@ const SPEED_RAMP_PER_SECOND: float = 0.35
 const CURSED_SPEED_MULT: float = 1.48
 
 # --- Jump / gravity ----------------------------------------------------------
-const JUMP_VELOCITY: float = 9.5
+## High enough to clear ObstacleHigh crates and mount ~1.35m platforms.
+const JUMP_VELOCITY: float = 10.5
 const GRAVITY: float = 28.0
 
 # --- Slide / crouch ----------------------------------------------------------

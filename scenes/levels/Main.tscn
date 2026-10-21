@@ -1,12 +1,14 @@
-[gd_scene load_steps=24 format=3 uid="uid://bq8gravedashmain"]
+[gd_scene load_steps=26 format=3 uid="uid://bq8gravedashmain"]
 
 [ext_resource type="Script" path="res://scripts/levels/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashplayer" path="res://scenes/player/Player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/LevelGenerator.gd" id="3_levelgen"]
 [ext_resource type="PackedScene" uid="uid://bq8gravedashchunk01" path="res://scenes/levels/Chunk_Graveyard_01.tscn" id="4_chunk"]
-[ext_resource type="PackedScene" uid="uid://bq8obstaclepit" path="res://scenes/obstacles/ObstaclePit.tscn" id="5_pit"]
 [ext_resource type="PackedScene" uid="uid://bq8obstaclegrave" path="res://scenes/obstacles/ObstacleGravestone.tscn" id="6_grave"]
 [ext_resource type="PackedScene" uid="uid://bq8obstacleside" path="res://scenes/obstacles/ObstacleSideIncoming.tscn" id="7_side"]
+[ext_resource type="PackedScene" uid="uid://bq8obstaclelow" path="res://scenes/obstacles/ObstacleLow.tscn" id="5_low"]
+[ext_resource type="PackedScene" uid="uid://bq8obstaclehigh" path="res://scenes/obstacles/ObstacleHigh.tscn" id="5_high"]
+[ext_resource type="PackedScene" uid="uid://bq8obstacleplat" path="res://scenes/obstacles/ObstaclePlatform.tscn" id="5_plat"]
 [ext_resource type="PackedScene" uid="uid://bq8gameoverui" path="res://scenes/ui/GameOverUI.tscn" id="8_gameover"]
 [ext_resource type="PackedScene" uid="uid://bq8hud" path="res://scenes/ui/HUD.tscn" id="9_hud"]
 [ext_resource type="PackedScene" uid="uid://bq8soulorb" path="res://scenes/powerups/SoulOrb.tscn" id="10_soul"]
@@ -50,9 +52,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 [node name="LevelGenerator" type="Node3D" parent="."]
 script = ExtResource("3_levelgen")
 chunk_scene = ExtResource("4_chunk")
-pit_scene = ExtResource("5_pit")
 gravestone_scene = ExtResource("6_grave")
+low_scene = ExtResource("5_low")
+high_scene = ExtResource("5_high")
 side_scene = ExtResource("7_side")
+platform_scene = ExtResource("5_plat")
 soul_scene = ExtResource("10_soul")
 big_soul_scene = ExtResource("11_big")
 coffin_scene = ExtResource("12_coffin")

@@ -1,16 +1,14 @@
 extends "res://scripts/obstacles/ObstacleBase.gd"
-## Fallen gravestone — low solid hazard. Jump over it or change lanes.
-## Same Y gate as pits so a clean jump clears the Area3D.
+## Minor gravestone — short jump-over hazard / lane block (not the main obstacle type).
 
-const KILL_Y_MAX: float = 1.15
+const KILL_Y_MAX: float = 1.05
 
 
 func can_kill_body(body: Node3D) -> bool:
 	return body.global_position.y < KILL_Y_MAX
 
 
-func configure(lane: int, z_offset: float) -> void:
-	super.configure(lane, z_offset)
+func configure(lane: int, z_offset: float, extras: Dictionary = {}) -> void:
+	super.configure(lane, z_offset, extras)
 	position.y = 0.0
-	## Tilt reads as a fallen stone.
-	rotation_degrees = Vector3(0.0, randf_range(-25.0, 25.0), 55.0)
+	rotation_degrees = Vector3(0.0, randf_range(-20.0, 20.0), 0.0)

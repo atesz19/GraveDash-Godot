@@ -1,6 +1,6 @@
 extends Area3D
 ## ObstacleBase — pooled lethal Area3D. Layer 3 (hazards), detects player layer 2.
-## Subclasses override can_kill_body() for jump-over pits / low stones.
+## Subclasses override can_kill_body() for slide-under / jump-over / etc.
 
 signal player_hit(player: Node)
 
@@ -50,7 +50,7 @@ func _on_body_entered(body: Node3D) -> void:
 	_kill_player(body)
 
 
-## Override in subclasses (e.g. pit requires low Y / not mid-jump).
+## Override in subclasses (e.g. low = must slide, high = must jump).
 func can_kill_body(body: Node3D) -> bool:
 	return true
 
@@ -63,10 +63,13 @@ func _kill_player(body: Node3D) -> void:
 
 
 ## Place this obstacle on a lane at a local Z relative to the chunk.
-func configure(lane: int, z_offset: float) -> void:
+## Optional extras: width, ramp, length (platforms) — ignored by simple hazards.
+func configure(lane: int, z_offset: float, extras: Dictionary = {}) -> void:
 	lane_index = clampi(lane, 0, LANE_POSITIONS.size() - 1)
 	local_z = z_offset
 	position = Vector3(LANE_POSITIONS[lane_index], 0.0, local_z)
+	if extras.is_empty():
+		pass
 
 
 ## Called after parenting into a chunk.

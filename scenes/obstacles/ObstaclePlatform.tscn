@@ -1,0 +1,63 @@
+[gd_scene load_steps=8 format=3 uid="uid://bq8obstacleplat"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ObstaclePlatform.gd" id="1_plat"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(2.4, 0.35, 16.0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(2.4, 0.35, 16.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_plank"]
+albedo_color = Color(0.32, 0.26, 0.2, 1)
+roughness = 0.88
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ramp"]
+size = Vector3(2.2, 0.28, 5.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ramp"]
+size = Vector3(2.2, 0.28, 5.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ramp"]
+albedo_color = Color(0.4, 0.34, 0.26, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_front"]
+size = Vector3(2.3, 1.2, 0.45)
+
+[node name="ObstaclePlatform" type="Node3D"]
+script = ExtResource("1_plat")
+
+[node name="FloorBody" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloorBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.175, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Mesh" type="MeshInstance3D" parent="FloorBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.175, 0)
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_plank")
+
+[node name="RampBody" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RampBody"]
+shape = SubResource("BoxShape3D_ramp")
+
+[node name="Mesh" type="MeshInstance3D" parent="RampBody"]
+mesh = SubResource("BoxMesh_ramp")
+surface_material_override/0 = SubResource("StandardMaterial3D_ramp")
+
+[node name="FrontHazard" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 2
+monitoring = true
+monitorable = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FrontHazard"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 8.15)
+shape = SubResource("BoxShape3D_front")

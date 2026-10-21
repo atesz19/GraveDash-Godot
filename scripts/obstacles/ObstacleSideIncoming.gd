@@ -11,8 +11,8 @@ var _tween: Tween = null
 var _side_sign: int = 1
 
 
-func configure(lane: int, z_offset: float) -> void:
-	super.configure(lane, z_offset)
+func configure(lane: int, z_offset: float, extras: Dictionary = {}) -> void:
+	super.configure(lane, z_offset, extras)
 	_target_x = LANE_POSITIONS[lane_index]
 	## Prefer entering from the nearer outer side.
 	_side_sign = 1 if lane_index <= 1 else -1

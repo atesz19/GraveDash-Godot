@@ -9,9 +9,11 @@ const CHUNKS_AHEAD: int = 5
 const RECYCLE_MARGIN: float = 10.0
 
 const POOL_CHUNK: String = "chunk_graveyard"
-const POOL_PIT: String = "obstacle_pit"
 const POOL_GRAVESTONE: String = "obstacle_gravestone"
+const POOL_LOW: String = "obstacle_low"
+const POOL_HIGH: String = "obstacle_high"
 const POOL_SIDE: String = "obstacle_side"
+const POOL_PLATFORM: String = "obstacle_platform"
 const POOL_SOUL: String = "collectible_soul"
 const POOL_BIG_SOUL: String = "collectible_big_soul"
 const POOL_COFFIN: String = "collectible_golden_coffin"
@@ -25,12 +27,14 @@ const LANE_COUNT: int = 3
 ## Clearance: souls must stay this far in Z from same-lane obstacles.
 const SOUL_CLEARANCE_Z: float = 5.0
 ## Obstacle beats in the same pattern must stay this far apart when sharing conflicting lanes.
-const MIN_BEAT_GAP: float = 8.0
+const MIN_BEAT_GAP: float = 10.0
 
 @export var chunk_scene: PackedScene
-@export var pit_scene: PackedScene
 @export var gravestone_scene: PackedScene
+@export var low_scene: PackedScene
+@export var high_scene: PackedScene
 @export var side_scene: PackedScene
+@export var platform_scene: PackedScene
 @export var soul_scene: PackedScene
 @export var big_soul_scene: PackedScene
 @export var coffin_scene: PackedScene
@@ -40,6 +44,8 @@ const MIN_BEAT_GAP: float = 8.0
 @export var second_chance_scene: PackedScene
 @export var cursed_speed_scene: PackedScene
 @export var player_path: NodePath = ^"../Player"
+## Deprecated export kept so older Main.tscn assignments don't error hard.
+@export var pit_scene: PackedScene
 
 @export var safe_chunk_count: int = 1
 ## Overall chance to place one ability power-up per chunk (after intro).
@@ -100,12 +106,16 @@ func _ensure_scenes() -> void:
 		chunk_scene = BiomeManager.get_chunk_scene()
 	if chunk_scene == null:
 		chunk_scene = preload("res://scenes/levels/Chunk_Graveyard_01.tscn")
-	if pit_scene == null:
-		pit_scene = preload("res://scenes/obstacles/ObstaclePit.tscn")
 	if gravestone_scene == null:
 		gravestone_scene = preload("res://scenes/obstacles/ObstacleGravestone.tscn")
+	if low_scene == null:
+		low_scene = preload("res://scenes/obstacles/ObstacleLow.tscn")
+	if high_scene == null:
+		high_scene = preload("res://scenes/obstacles/ObstacleHigh.tscn")
 	if side_scene == null:
 		side_scene = preload("res://scenes/obstacles/ObstacleSideIncoming.tscn")
+	if platform_scene == null:
+		platform_scene = preload("res://scenes/obstacles/ObstaclePlatform.tscn")
 	if soul_scene == null:
 		soul_scene = preload("res://scenes/powerups/SoulOrb.tscn")
 	if big_soul_scene == null:
@@ -129,12 +139,19 @@ func _register_pools() -> void:
 	if not ObjectPool.has_pool(POOL_CHUNK):
 		var gy: PackedScene = preload("res://scenes/levels/Chunk_Graveyard_01.tscn")
 		ObjectPool.register_pool(POOL_CHUNK, gy, CHUNKS_AHEAD + 2)
-	if not ObjectPool.has_pool(POOL_PIT):
-		ObjectPool.register_pool(POOL_PIT, pit_scene, 8)
+	## Pits removed from fair catalog — clear any stale pool from prior runs.
+	if ObjectPool.has_pool("obstacle_pit"):
+		ObjectPool.clear_pool("obstacle_pit")
 	if not ObjectPool.has_pool(POOL_GRAVESTONE):
-		ObjectPool.register_pool(POOL_GRAVESTONE, gravestone_scene, 10)
+		ObjectPool.register_pool(POOL_GRAVESTONE, gravestone_scene, 8)
+	if not ObjectPool.has_pool(POOL_LOW):
+		ObjectPool.register_pool(POOL_LOW, low_scene, 10)
+	if not ObjectPool.has_pool(POOL_HIGH):
+		ObjectPool.register_pool(POOL_HIGH, high_scene, 12)
 	if not ObjectPool.has_pool(POOL_SIDE):
 		ObjectPool.register_pool(POOL_SIDE, side_scene, 6)
+	if not ObjectPool.has_pool(POOL_PLATFORM):
+		ObjectPool.register_pool(POOL_PLATFORM, platform_scene, 6)
 	## Pattern lines place more orbs per chunk than scatter density.
 	if not ObjectPool.has_pool(POOL_SOUL):
 		ObjectPool.register_pool(POOL_SOUL, soul_scene, 48)
@@ -256,25 +273,35 @@ func _populate_obstacles_from_pattern(chunk: Node3D, pattern: Dictionary) -> Dic
 		if not (item is Dictionary):
 			continue
 		var spec: Dictionary = item as Dictionary
+		var kind: String = str(spec.get("kind", POOL_HIGH))
+		## Pits are banned — skip if any stale pattern still references them.
+		if kind == "obstacle_pit":
+			continue
 		var lane: int = clampi(int(spec.get("lane", 1)), 0, LANE_COUNT - 1)
 		var z_off: float = float(spec.get("z", 0.0))
-		var kind: String = str(spec.get("kind", POOL_GRAVESTONE))
-		if not _can_place_obstacle(lane, z_off, occupied, placed):
-			## Try shifting to a free lane at this Z rather than blocking everything.
-			var alt: int = _find_free_lane_at(z_off, occupied, placed, lane)
+		var width: int = clampi(int(spec.get("width", 1)), 1, 2)
+		if lane + width - 1 > 2:
+			lane = 3 - width
+		var extras: Dictionary = {
+			"width": width,
+			"ramp": bool(spec.get("ramp", false)),
+			"length": float(spec.get("length", 14.0)),
+		}
+		if not _can_place_obstacle(lane, z_off, occupied, placed, width):
+			var alt: int = _find_free_lane_at(z_off, occupied, placed, lane, width)
 			if alt < 0:
 				continue
 			lane = alt
 		var obs: Node3D = _acquire_pooled(kind)
 		if obs == null:
 			continue
-		obs.pool_id = kind
+		obs.set("pool_id", kind)
 		if obs.has_method("configure"):
-			obs.call("configure", lane, z_off)
+			obs.call("configure", lane, z_off, extras)
 		chunk.call("attach_obstacle", obs)
-		_mark_occupied(occupied, lane, z_off)
-		placed.append({"lane": lane, "z": z_off})
-	## Exact placements for soul clearance (lane + Z distance).
+		_mark_occupied_width(occupied, lane, z_off, width)
+		for i in width:
+			placed.append({"lane": lane + i, "z": z_off, "width": width, "kind": kind})
 	occupied["_placements"] = placed
 	return occupied
 
@@ -320,21 +347,26 @@ func _can_place_obstacle(
 	lane: int,
 	z_off: float,
 	occupied: Dictionary,
-	placed: Array[Dictionary]
+	placed: Array[Dictionary],
+	width: int = 1
 ) -> bool:
-	## Reject if this Z-band would become fully blocked (all 3 lanes).
+	width = clampi(width, 1, 2)
+	if lane < 0 or lane + width - 1 >= LANE_COUNT:
+		return false
 	var band: int = _band(z_off)
 	var mask: int = int(occupied.get(band, 0))
-	var bit: int = 1 << lane
-	if mask & bit:
+	var add: int = 0
+	for i in width:
+		var bit: int = 1 << (lane + i)
+		if mask & bit:
+			return false
+		add |= bit
+	if (mask | add) == 7:
 		return false
-	if (mask | bit) == 7:
-		return false
-	## Keep readable gaps between nearby beats on the same lane.
 	for prev in placed:
 		var pz: float = float(prev.get("z", 0.0))
 		var pl: int = int(prev.get("lane", 0))
-		if absf(pz - z_off) < MIN_BEAT_GAP and pl == lane:
+		if absf(pz - z_off) < MIN_BEAT_GAP and pl >= lane and pl < lane + width:
 			return false
 	return true
 
@@ -343,19 +375,28 @@ func _find_free_lane_at(
 	z_off: float,
 	occupied: Dictionary,
 	placed: Array[Dictionary],
-	prefer: int
+	prefer: int,
+	width: int = 1
 ) -> int:
+	width = clampi(width, 1, 2)
 	for attempt in LANE_COUNT:
 		var lane: int = (prefer + attempt) % LANE_COUNT
-		if _can_place_obstacle(lane, z_off, occupied, placed):
+		if lane + width - 1 >= LANE_COUNT:
+			continue
+		if _can_place_obstacle(lane, z_off, occupied, placed, width):
 			return lane
 	return -1
 
 
 func _mark_occupied(occupied: Dictionary, lane: int, z_off: float) -> void:
+	_mark_occupied_width(occupied, lane, z_off, 1)
+
+
+func _mark_occupied_width(occupied: Dictionary, lane: int, z_off: float, width: int) -> void:
 	var band: int = _band(z_off)
 	var mask: int = int(occupied.get(band, 0))
-	mask |= (1 << clampi(lane, 0, LANE_COUNT - 1))
+	for i in clampi(width, 1, 2):
+		mask |= (1 << clampi(lane + i, 0, LANE_COUNT - 1))
 	occupied[band] = mask
 
 
