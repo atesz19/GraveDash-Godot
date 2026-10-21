@@ -8,7 +8,10 @@ const CHUNK_LENGTH: float = 45.0
 ## Extra menu-only edge props (all |x| >= EDGE_MIN_X so lanes stay clear).
 const EDGE_MIN_X: float = 5.2
 const EDGE_PROP_SCENES: Array[String] = [
-	"res://scenes/levels/props/DecorGravestone.tscn",
+	"res://scenes/levels/props/DecorGravestone_01.tscn",
+	"res://scenes/levels/props/DecorGravestone_02.tscn",
+	"res://scenes/levels/props/DecorGravestone_03.tscn",
+	"res://scenes/levels/props/DecorGravestone_04.tscn",
 	"res://scenes/levels/props/DecorFallenCross.tscn",
 	"res://scenes/levels/props/DecorFence.tscn",
 	"res://scenes/levels/props/DecorCoffin.tscn",
@@ -125,25 +128,26 @@ func _spawn_edge_decor() -> void:
 	if packed_props.is_empty():
 		return
 	## Scatter along both shoulders across the 3-chunk stretch (~135m).
+	## kind indices match EDGE_PROP_SCENES (0–3 = gravestone FBX variants).
 	var placements: Array[Dictionary] = [
 		{"side": -1.0, "x": 5.6, "z": 8.0, "yaw": 20.0, "kind": 0},
 		{"side": -1.0, "x": 6.4, "z": -6.0, "yaw": -12.0, "kind": 1},
-		{"side": -1.0, "x": 5.4, "z": -22.0, "yaw": 90.0, "kind": 2},
-		{"side": -1.0, "x": 6.8, "z": -38.0, "yaw": 35.0, "kind": 3},
+		{"side": -1.0, "x": 5.4, "z": -22.0, "yaw": 90.0, "kind": 5},
+		{"side": -1.0, "x": 6.8, "z": -38.0, "yaw": 35.0, "kind": 2},
 		{"side": -1.0, "x": 5.8, "z": -52.0, "yaw": -8.0, "kind": 4},
-		{"side": -1.0, "x": 7.2, "z": -68.0, "yaw": 15.0, "kind": 5},
-		{"side": -1.0, "x": 7.6, "z": -84.0, "yaw": -20.0, "kind": 6},
-		{"side": -1.0, "x": 5.5, "z": -100.0, "yaw": 0.0, "kind": 7},
-		{"side": -1.0, "x": 6.2, "z": -116.0, "yaw": 25.0, "kind": 1},
-		{"side": 1.0, "x": 5.7, "z": 4.0, "yaw": -18.0, "kind": 0},
-		{"side": 1.0, "x": 6.5, "z": -12.0, "yaw": 10.0, "kind": 5},
-		{"side": 1.0, "x": 5.4, "z": -28.0, "yaw": -90.0, "kind": 2},
-		{"side": 1.0, "x": 6.9, "z": -44.0, "yaw": 40.0, "kind": 3},
-		{"side": 1.0, "x": 5.9, "z": -60.0, "yaw": 5.0, "kind": 4},
-		{"side": 1.0, "x": 7.4, "z": -76.0, "yaw": -15.0, "kind": 6},
-		{"side": 1.0, "x": 5.6, "z": -92.0, "yaw": 0.0, "kind": 7},
+		{"side": -1.0, "x": 7.2, "z": -68.0, "yaw": 15.0, "kind": 8},
+		{"side": -1.0, "x": 7.6, "z": -84.0, "yaw": -20.0, "kind": 9},
+		{"side": -1.0, "x": 5.5, "z": -100.0, "yaw": 0.0, "kind": 10},
+		{"side": -1.0, "x": 6.2, "z": -116.0, "yaw": 25.0, "kind": 3},
+		{"side": 1.0, "x": 5.7, "z": 4.0, "yaw": -18.0, "kind": 3},
+		{"side": 1.0, "x": 6.5, "z": -12.0, "yaw": 10.0, "kind": 8},
+		{"side": 1.0, "x": 5.4, "z": -28.0, "yaw": -90.0, "kind": 5},
+		{"side": 1.0, "x": 6.9, "z": -44.0, "yaw": 40.0, "kind": 6},
+		{"side": 1.0, "x": 5.9, "z": -60.0, "yaw": 5.0, "kind": 7},
+		{"side": 1.0, "x": 7.4, "z": -76.0, "yaw": -15.0, "kind": 9},
+		{"side": 1.0, "x": 5.6, "z": -92.0, "yaw": 0.0, "kind": 10},
 		{"side": 1.0, "x": 6.3, "z": -108.0, "yaw": 22.0, "kind": 1},
-		{"side": 1.0, "x": 7.8, "z": -124.0, "yaw": -30.0, "kind": 0},
+		{"side": 1.0, "x": 7.8, "z": -124.0, "yaw": -30.0, "kind": 2},
 	]
 	for p in placements:
 		var kind: int = clampi(int(p["kind"]), 0, packed_props.size() - 1)

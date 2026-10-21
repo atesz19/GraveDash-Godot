@@ -118,20 +118,29 @@ func _populate_bank(bank: Node3D, side: float, sil_mat: Material, hill_mat: Mate
 			canopy.position = Vector3(x + side * 0.4, trunk.height + 0.4, z)
 			canopy.scale = Vector3(1.0, 0.55, 1.2)
 			bank.add_child(canopy)
-	## Grave markers as thin dark slabs.
+	## Mid-band PBR gravestones (01–04 mix) — far enough to clear the 3 lanes.
+	var grave_scenes: Array[String] = [
+		"res://scenes/levels/props/DecorGravestone_01.tscn",
+		"res://scenes/levels/props/DecorGravestone_02.tscn",
+		"res://scenes/levels/props/DecorGravestone_03.tscn",
+		"res://scenes/levels/props/DecorGravestone_04.tscn",
+	]
 	for i in 10:
-		var grave: MeshInstance3D = MeshInstance3D.new()
-		var slab: BoxMesh = BoxMesh.new()
-		slab.size = Vector3(0.55, 1.1 + float(i % 3) * 0.25, 0.18)
-		grave.mesh = slab
-		grave.material_override = sil_mat
-		grave.position = Vector3(
-			side * (16.5 + float(i % 3) * 1.8),
-			slab.size.y * 0.5,
+		var path: String = grave_scenes[i % grave_scenes.size()]
+		var packed: PackedScene = load(path) as PackedScene
+		if packed == null:
+			continue
+		var stone: Node3D = packed.instantiate() as Node3D
+		if stone == null:
+			continue
+		bank.add_child(stone)
+		stone.position = Vector3(
+			side * (14.5 + float(i % 3) * 1.6),
+			0.0,
 			-48.0 + float(i) * 11.0
 		)
-		grave.rotation_degrees.y = float((i * 23) % 40) - 20.0
-		bank.add_child(grave)
+		stone.rotation_degrees.y = float((i * 23) % 40) - 20.0
+		stone.scale = Vector3.ONE * (0.85 + float(i % 3) * 0.08)
 	## Mid-ground fence posts — closer than hills, still off the 3 lanes.
 	for i in 12:
 		var post: MeshInstance3D = MeshInstance3D.new()

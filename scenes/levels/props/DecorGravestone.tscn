@@ -1,23 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bq8decorgrave"]
+[gd_scene load_steps=2 format=3 uid="uid://bq8decorgrave"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_stone"]
-size = Vector3(0.7, 1.2, 0.22)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
-albedo_color = Color(0.32, 0.3, 0.28, 1)
-roughness = 0.95
-
-[sub_resource type="BoxMesh" id="BoxMesh_base"]
-size = Vector3(0.9, 0.18, 0.4)
+[ext_resource type="Script" path="res://scripts/props/DecorGravestone.gd" id="1_script"]
 
 [node name="DecorGravestone" type="Node3D"]
-
-[node name="Stone" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-mesh = SubResource("BoxMesh_stone")
-surface_material_override/0 = SubResource("StandardMaterial3D_stone")
-
-[node name="Base" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09, 0)
-mesh = SubResource("BoxMesh_base")
-surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+script = ExtResource("1_script")

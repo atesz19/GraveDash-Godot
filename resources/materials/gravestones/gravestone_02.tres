@@ -1,0 +1,19 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://bq8matgrave02"]
+
+[ext_resource type="Texture2D" uid="uid://y1evu41dhe7w" path="res://assets/models/gravestones/texture/gravestone_02_BaseColor.png" id="1_albedo"]
+[ext_resource type="Texture2D" uid="uid://by5qhllrurma7" path="res://assets/models/gravestones/texture/gravestone_02_Normal.png" id="2_normal"]
+[ext_resource type="Texture2D" uid="uid://d1dohelqngkqm" path="res://assets/models/gravestones/texture/gravestone_02_Roughness.png" id="3_rough"]
+[ext_resource type="Texture2D" uid="uid://ptp0wowjchkd" path="res://assets/models/gravestones/texture/gravestone_02_Metallic.png" id="4_metal"]
+
+[resource]
+albedo_texture = ExtResource("1_albedo")
+metallic = 1.0
+metallic_texture = ExtResource("4_metal")
+metallic_texture_channel = 4
+roughness = 1.0
+roughness_texture = ExtResource("3_rough")
+roughness_texture_channel = 4
+normal_enabled = true
+normal_scale = 1.0
+normal_texture = ExtResource("2_normal")
+texture_filter = 2
