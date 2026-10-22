@@ -3,7 +3,6 @@ extends Node
 
 const THEME_PATH := "res://resources/ui/MainMenuTheme.tres"
 const SAVE_KEY_LUCKY_CHARM := "shop_lucky_charm"
-const COST_SKIN := 50
 const COST_MAGNET := 120
 const COST_DEMO := 25
 
@@ -35,7 +34,7 @@ const COST_DEMO := 25
 @onready var shop_balance_label: Label = %ShopBalanceLabel
 @onready var shop_status_label: Label = %ShopStatusLabel
 @onready var shop_back: Button = %ShopBackButton
-@onready var buy_skin_button: Button = %BuySkinButton
+@onready var skin_list: VBoxContainer = %SkinList
 @onready var buy_magnet_button: Button = %BuyMagnetButton
 @onready var buy_demo_button: Button = %BuyDemoButton
 @onready var demo_desc: Label = %DemoDesc
@@ -46,6 +45,7 @@ const COST_DEMO := 25
 var _starting: bool = false
 var _ui_tween: Tween = null
 var _pulse_tween: Tween = null
+var _skin_action_buttons: Dictionary = {} ## skin_id -> Button
 
 
 func _ready() -> void:
@@ -60,6 +60,7 @@ func _ready() -> void:
 	_refresh_souls()
 	_sync_audio_toggles()
 	_show_main()
+	_build_skin_shop_rows()
 	_refresh_shop_state()
 	start_button.pressed.connect(_on_start)
 	shop_button.pressed.connect(_on_shop)
@@ -73,13 +74,14 @@ func _ready() -> void:
 		music_volume_slider.value_changed.connect(_on_music_volume_changed)
 	if sfx_volume_slider:
 		sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
-	buy_skin_button.pressed.connect(_on_buy_skin)
 	buy_magnet_button.pressed.connect(_on_buy_magnet)
 	buy_demo_button.pressed.connect(_on_buy_demo)
 	if not ScoreManager.highscore_changed.is_connected(_on_highscore_changed):
 		ScoreManager.highscore_changed.connect(_on_highscore_changed)
 	if not ScoreManager.total_souls_changed.is_connected(_on_total_souls_changed):
 		ScoreManager.total_souls_changed.connect(_on_total_souls_changed)
+	if SkinManager and not SkinManager.skins_changed.is_connected(_on_skins_changed):
+		SkinManager.skins_changed.connect(_on_skins_changed)
 	if MissionManager:
 		if not MissionManager.multiplier_changed.is_connected(_on_multiplier_changed):
 			MissionManager.multiplier_changed.connect(_on_multiplier_changed)
@@ -328,9 +330,48 @@ func _on_quit() -> void:
 	get_tree().quit()
 
 
+func _build_skin_shop_rows() -> void:
+	if skin_list == null or SkinManager == null:
+		return
+	for c in skin_list.get_children():
+		c.queue_free()
+	_skin_action_buttons.clear()
+	for skin in SkinManager.get_catalog():
+		var skin_id: String = str(skin.get("id", ""))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		## Color swatch preview.
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(44, 44)
+		swatch.color = skin.get("preview_color", Color(0.5, 0.5, 0.5, 1))
+		row.add_child(swatch)
+		var info := VBoxContainer.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var title := Label.new()
+		title.text = str(skin.get("name", skin_id))
+		info.add_child(title)
+		var desc := Label.new()
+		desc.text = str(skin.get("description", ""))
+		desc.add_theme_font_size_override("font_size", 13)
+		desc.add_theme_color_override("font_color", Color(0.6, 0.68, 0.75, 1))
+		info.add_child(desc)
+		row.add_child(info)
+		var btn := Button.new()
+		btn.custom_minimum_size = Vector2(130, 44)
+		btn.set_meta("skin_id", skin_id)
+		btn.pressed.connect(_on_skin_action.bind(skin_id))
+		row.add_child(btn)
+		skin_list.add_child(row)
+		_skin_action_buttons[skin_id] = btn
+
+
+func _on_skins_changed() -> void:
+	_refresh_shop_state()
+
+
 func _refresh_shop_state() -> void:
-	var owned: bool = bool(SaveSystem.get_value(SAVE_KEY_LUCKY_CHARM, false))
-	if owned:
+	var owned_charm: bool = bool(SaveSystem.get_value(SAVE_KEY_LUCKY_CHARM, false))
+	if owned_charm:
 		buy_demo_button.disabled = true
 		buy_demo_button.text = "Owned"
 		demo_desc.text = "Demo unlock — owned"
@@ -338,15 +379,52 @@ func _refresh_shop_state() -> void:
 		buy_demo_button.disabled = ScoreManager.total_souls < COST_DEMO
 		buy_demo_button.text = "%d" % COST_DEMO
 		demo_desc.text = "Demo unlock — spends %d souls" % COST_DEMO
-	buy_skin_button.disabled = false
-	buy_skin_button.text = "%d" % COST_SKIN
 	buy_magnet_button.disabled = false
 	buy_magnet_button.text = "%d" % COST_MAGNET
+	if SkinManager == null:
+		return
+	for skin in SkinManager.get_catalog():
+		var skin_id: String = str(skin.get("id", ""))
+		var btn: Button = _skin_action_buttons.get(skin_id) as Button
+		if btn == null:
+			continue
+		var price: int = int(skin.get("price", 0))
+		if SkinManager.is_equipped(skin_id):
+			btn.text = "Equipped"
+			btn.disabled = true
+		elif SkinManager.is_owned(skin_id):
+			btn.text = "Equip"
+			btn.disabled = false
+		elif price <= 0:
+			btn.text = "Free"
+			btn.disabled = false
+		else:
+			btn.text = "%d" % price
+			btn.disabled = ScoreManager.total_souls < price
 
 
-func _on_buy_skin() -> void:
+func _on_skin_action(skin_id: String) -> void:
 	_ui_click()
-	shop_status_label.text = "Ashen Skin — coming soon (%d souls)" % COST_SKIN
+	if SkinManager == null:
+		return
+	if SkinManager.is_owned(skin_id):
+		var err: String = SkinManager.equip_skin(skin_id)
+		if err != "":
+			shop_status_label.text = err
+		else:
+			var skin: Dictionary = SkinManager.get_skin(skin_id)
+			shop_status_label.text = "Equipped %s." % str(skin.get("name", skin_id))
+		_refresh_shop_state()
+		return
+	var err_buy: String = SkinManager.buy_skin(skin_id)
+	if err_buy != "":
+		shop_status_label.text = err_buy
+		return
+	var bought: Dictionary = SkinManager.get_skin(skin_id)
+	shop_status_label.text = "Purchased %s!" % str(bought.get("name", skin_id))
+	## Auto-equip on purchase.
+	SkinManager.equip_skin(skin_id)
+	_refresh_shop_state()
 
 
 func _on_buy_magnet() -> void:

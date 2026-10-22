@@ -610,16 +610,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -240.0
-offset_right = 300.0
-offset_bottom = 240.0
+offset_left = -340.0
+offset_top = -320.0
+offset_right = 340.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ShopVBox" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="ShopTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
@@ -641,35 +641,16 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.72, 0.8, 1)
 theme_override_font_sizes/font_size = 13
-text = "Spend banked souls on upcoming unlocks."
+text = "Buy skeleton skins with banked souls. Witch is free."
 horizontal_alignment = 1
 
 [node name="ShopSep" type="HSeparator" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
 layout_mode = 2
 
-[node name="SkinRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="SkinInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="SkinTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow/SkinInfo"]
-layout_mode = 2
-text = "Ashen Skin"
-
-[node name="SkinDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow/SkinInfo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.68, 0.75, 1)
-theme_override_font_sizes/font_size = 13
-text = "Character tint · Coming soon"
-
-[node name="BuySkinButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/SkinRow"]
+[node name="SkinList" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 44)
 layout_mode = 2
-text = "50"
+theme_override_constants/separation = 8
 
 [node name="MagnetRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
 layout_mode = 2

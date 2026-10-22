@@ -105,6 +105,7 @@ func _ready() -> void:
 	add_to_group("player")
 	GameManager.player = self
 	is_alive = true
+	_apply_equipped_skin()
 	_capsule_shape = collision_shape.shape as CapsuleShape3D
 	_setup_materials()
 	_apply_standing_hitbox()
@@ -113,6 +114,22 @@ func _ready() -> void:
 	_update_animation_state(true)
 	if not GameManager.is_playing():
 		GameManager.start_game()
+
+
+func _apply_equipped_skin() -> void:
+	## Swap Visual for the SkinManager-equipped runner (Witch default).
+	if SkinManager == null:
+		return
+	var runner: Node3D = SkinManager.create_runner()
+	if runner == null:
+		return
+	if visual != null and is_instance_valid(visual):
+		visual.name = "Visual_Old"
+		visual.queue_free()
+	runner.name = "Visual"
+	add_child(runner)
+	move_child(runner, 0)
+	visual = runner
 
 
 func _setup_materials() -> void:

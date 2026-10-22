@@ -1,6 +1,7 @@
 extends Node3D
-## WitchRunner — AnimationTree locomotion (Idle↔Run↔Jump↔Slide↔Ghost↔Death).
+## WitchRunner / CharacterRunner — AnimationTree locomotion for Witch + KayKit skeletons.
 ## API: play(name), update_locomotion(...), apply_tint/clear_tint.
+## Bone tracks use Witch names; `_resolve_bone` remaps to KayKit (root/hips/…) when needed.
 
 signal animation_changed(anim_name: String)
 
@@ -17,6 +18,13 @@ const SIDE_AXIS: Vector3 = Vector3(0.0, 1.0, 0.0)
 
 const REF_RUN_SPEED: float = 13.0
 
+## When true, uniformly scale/seat the FBX to fit the player capsule.
+@export var auto_fit: bool = false
+## Target visual height (matches player capsule ~1.8).
+@export var fit_height: float = 1.75
+## Face −Z run direction (Witch FBX already baked with 180° yaw).
+@export var face_minus_z: bool = false
+
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 @onready var model_root: Node3D = $Model
 
@@ -31,6 +39,8 @@ var _ghost_visual: bool = false
 var _land_blend_t: float = 0.0
 
 var _bone_root_m: int = -1
+## Witch logical name → actual skeleton bone name.
+var _bone_alias: Dictionary = {}
 
 
 func _ready() -> void:
@@ -38,7 +48,10 @@ func _ready() -> void:
 	if _skeleton == null:
 		push_error("WitchRunner: Skeleton3D not found under Model")
 		return
-	_bone_root_m = _skeleton.find_bone("Root_M")
+	_build_bone_alias()
+	_bone_root_m = _skeleton.find_bone(_resolve_bone("Root_M"))
+	if auto_fit:
+		_fit_model_to_capsule()
 	_setup_materials()
 	_ensure_animations()
 	_build_animation_tree()
@@ -46,6 +59,74 @@ func _ready() -> void:
 	if embedded != null and embedded != anim_player:
 		embedded.queue_free()
 	play(ANIM_IDLE, true)
+
+
+func _build_bone_alias() -> void:
+	## Prefer Witch names; fall back to KayKit Skeletons pack.
+	_bone_alias.clear()
+	var pairs: Array = [
+		["Root_M", ["Root_M", "root"]],
+		["Spine1_M", ["Spine1_M", "spine"]],
+		["Spine2_M", ["Spine2_M", "chest", "spine"]],
+		["Chest_M", ["Chest_M", "chest"]],
+		["Neck_M", ["Neck_M", "head"]],
+		["Head_M", ["Head_M", "head"]],
+		["Shoulder_L", ["Shoulder_L", "upperarm.l"]],
+		["Shoulder_R", ["Shoulder_R", "upperarm.r"]],
+		["Elbow_L", ["Elbow_L", "lowerarm.l"]],
+		["Elbow_R", ["Elbow_R", "lowerarm.r"]],
+		["Hip_L", ["Hip_L", "upperleg.l"]],
+		["Hip_R", ["Hip_R", "upperleg.r"]],
+		["Knee_L", ["Knee_L", "lowerleg.l"]],
+		["Knee_R", ["Knee_R", "lowerleg.r"]],
+		["Ankle_L", ["Ankle_L", "foot.l"]],
+		["Ankle_R", ["Ankle_R", "foot.r"]],
+	]
+	for pair in pairs:
+		var logical: String = str(pair[0])
+		var cands: Array = pair[1]
+		for cand in cands:
+			if _skeleton.find_bone(str(cand)) >= 0:
+				_bone_alias[logical] = str(cand)
+				break
+
+
+func _resolve_bone(bone_name: String) -> String:
+	if _bone_alias.has(bone_name):
+		return str(_bone_alias[bone_name])
+	return bone_name
+
+
+func _fit_model_to_capsule() -> void:
+	if model_root == null or fit_height <= 0.0:
+		return
+	if face_minus_z:
+		model_root.rotation_degrees.y = 180.0
+	## Measure mesh AABB in model local space.
+	var meshes: Array[MeshInstance3D] = _collect_meshes(model_root)
+	if meshes.is_empty():
+		return
+	var combined: AABB
+	var first := true
+	for mi in meshes:
+		var aabb: AABB = mi.transform * mi.get_aabb()
+		## Walk up to model_root.
+		var p: Node = mi.get_parent()
+		while p != null and p != model_root and p is Node3D:
+			aabb = (p as Node3D).transform * aabb
+			p = p.get_parent()
+		if first:
+			combined = aabb
+			first = false
+		else:
+			combined = combined.merge(aabb)
+	var h: float = combined.size.y
+	if h < 0.01:
+		return
+	var s: float = fit_height / h
+	model_root.scale = Vector3(s, s, s)
+	## Seat feet on y=0 in runner space.
+	model_root.position.y = -combined.position.y * s
 
 
 func _process(delta: float) -> void:
@@ -368,6 +449,7 @@ func _add_bone_rot(anim: Animation, bone_name: String, keys: Array) -> void:
 	## Godot rotation tracks store absolute local pose (rest ∘ delta), not bare
 	## swing quats. Hip_R rest is mirrored (~180° vs Hip_L); keying IDENTITY or
 	## a small Z swing alone sends Ankle_R skyward (y≈1.6). Always compose.
+	bone_name = _resolve_bone(bone_name)
 	var bi: int = _skeleton.find_bone(bone_name)
 	if bi < 0:
 		return
@@ -390,6 +472,7 @@ func _add_bone_rot(anim: Animation, bone_name: String, keys: Array) -> void:
 
 
 func _add_bone_pos(anim: Animation, bone_name: String, keys: Array) -> void:
+	bone_name = _resolve_bone(bone_name)
 	if _skeleton.find_bone(bone_name) < 0:
 		return
 	var idx: int = anim.add_track(Animation.TYPE_POSITION_3D)

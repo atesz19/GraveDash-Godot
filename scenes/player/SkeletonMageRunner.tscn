@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bq8skelmage"]
+
+[ext_resource type="Script" path="res://scripts/player/WitchRunner.gd" id="1_runner"]
+[ext_resource type="PackedScene" uid="uid://o44u6eu33hwu" path="res://assets/models/skins/Skeleton_Mage.fbx" id="2_fbx"]
+
+[node name="SkeletonMageRunner" type="Node3D"]
+script = ExtResource("1_runner")
+auto_fit = true
+fit_height = 1.75
+face_minus_z = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+playback_default_blend_time = 0.14
+
+[node name="Model" parent="." instance=ExtResource("2_fbx")]

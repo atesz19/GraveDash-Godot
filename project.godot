@@ -19,6 +19,7 @@ MissionManager="*res://autoload/MissionManager.gd"
 ObjectPool="*res://autoload/ObjectPool.gd"
 AudioManager="*res://autoload/AudioManager.gd"
 BiomeManager="*res://autoload/BiomeManager.gd"
+SkinManager="*res://autoload/SkinManager.gd"
 TouchSwipeDetector="*res://scripts/input/TouchSwipeDetector.gd"
 
 [display]

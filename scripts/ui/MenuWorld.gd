@@ -2,7 +2,6 @@ extends Node3D
 ## MenuWorld — live graveyard backdrop for the main menu (orbit camera + idle Witch).
 
 const CHUNK_SCENE := "res://scenes/levels/Chunk_Graveyard_01.tscn"
-const WITCH_SCENE := "res://scenes/player/WitchRunner.tscn"
 const GRAVEYARD_ENV := "res://resources/biomes/graveyard_environment.tres"
 const CHUNK_LENGTH: float = 45.0
 ## Extra menu-only edge props (all |x| >= EDGE_MIN_X so lanes stay clear).
@@ -44,6 +43,13 @@ func _ready() -> void:
 	if camera:
 		camera.current = true
 		_cam_base_pos = camera.position
+	_play_witch("idle")
+	if SkinManager and not SkinManager.equipped_changed.is_connected(_on_skin_equipped):
+		SkinManager.equipped_changed.connect(_on_skin_equipped)
+
+
+func _on_skin_equipped(_skin_id: String) -> void:
+	_spawn_witch()
 	_play_witch("idle")
 
 
@@ -164,10 +170,15 @@ func _spawn_edge_decor() -> void:
 func _spawn_witch() -> void:
 	if witch_slot == null:
 		return
-	var packed: PackedScene = load(WITCH_SCENE) as PackedScene
-	if packed == null:
-		return
-	_witch = packed.instantiate() as Node3D
+	for c in witch_slot.get_children():
+		c.queue_free()
+	_witch = null
+	if SkinManager:
+		_witch = SkinManager.create_runner()
+	if _witch == null:
+		var packed: PackedScene = load("res://scenes/player/WitchRunner.tscn") as PackedScene
+		if packed:
+			_witch = packed.instantiate() as Node3D
 	if _witch == null:
 		return
 	witch_slot.add_child(_witch)
