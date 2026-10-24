@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bq8mainmenu"]
+[gd_scene load_steps=18 format=3 uid="uid://bq8mainmenu"]
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
 [ext_resource type="Theme" uid="uid://bq8mainmenutheme" path="res://resources/ui/MainMenuTheme.tres" id="2_theme"]
@@ -113,23 +113,151 @@ shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_missions_panel"]
-content_margin_left = 14.0
-content_margin_top = 14.0
-content_margin_right = 14.0
-content_margin_bottom = 14.0
-bg_color = Color(0.05, 0.07, 0.12, 0.68)
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.04, 0.07, 0.12, 0.78)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.4, 0.9, 0.7, 0.4)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.4)
+border_color = Color(0.45, 0.95, 0.75, 0.5)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 14
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.08, 0.22, 0.32, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.92, 1, 0.9)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.2, 0.7, 0.95, 0.35)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop_hover"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.12, 0.32, 0.42, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.3, 0.85, 1, 0.45)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.16, 0.14, 0.1, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.78, 0.35, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.9, 0.55, 0.15, 0.3)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_hover"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.24, 0.18, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.88, 0.45, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(1, 0.7, 0.2, 0.4)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_quit"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.18, 0.08, 0.1, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.4, 0.45, 0.75)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.6, 0.1, 0.15, 0.3)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_quit_hover"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.28, 0.1, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.55, 0.55, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.85, 0.2, 0.25, 0.4)
 shadow_size = 12
-shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
+bg_color = Color(0.04, 0.06, 0.1, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_fill"]
+bg_color = Color(0.4, 0.95, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.3, 0.95, 0.45, 0.45)
+shadow_size = 4
 
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_menu")
@@ -221,19 +349,28 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="SoulIcon" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/SoulChip/SoulRow"]
-custom_minimum_size = Vector2(28, 28)
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 18
-text = "SOUL"
+theme_override_colors/font_color = Color(0.45, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.2, 0.3, 0.9)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "◆"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SoulCaption" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/SoulChip/SoulRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 1, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "SOULS"
 vertical_alignment = 1
 
 [node name="SoulWalletLabel" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/SoulChip/SoulRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.92, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "0"
 
 [node name="HighScoreChip" type="PanelContainer" parent="UI/Root/Chrome/HomeLayer/TopBar"]
@@ -246,16 +383,25 @@ theme_override_constants/separation = 8
 
 [node name="HSIcon" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/HighScoreChip/HSRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.25, 0.12, 0.02, 0.9)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "★"
+vertical_alignment = 1
+
+[node name="HSCaption" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/HighScoreChip/HSRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.45, 0.9)
+theme_override_font_sizes/font_size = 12
 text = "BEST"
 vertical_alignment = 1
 
 [node name="HighScoreLabel" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/HighScoreChip/HSRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.75, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.97, 0.8, 1)
+theme_override_font_sizes/font_size = 24
 text = "0"
 
 [node name="MultChip" type="PanelContainer" parent="UI/Root/Chrome/HomeLayer/TopBar"]
@@ -269,16 +415,25 @@ theme_override_constants/separation = 8
 
 [node name="MultIcon" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/MultChip/MultRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.3, 0.1, 0.02, 0.9)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "⚡"
+vertical_alignment = 1
+
+[node name="MultCaption" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/MultChip/MultRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 0.9)
+theme_override_font_sizes/font_size = 12
 text = "BOOST"
 vertical_alignment = 1
 
 [node name="MultLabel" type="Label" parent="UI/Root/Chrome/HomeLayer/TopBar/MultChip/MultRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.55, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.96, 0.6, 1)
+theme_override_font_sizes/font_size = 26
 text = "x1"
 
 [node name="TopSpacer" type="Control" parent="UI/Root/Chrome/HomeLayer/TopBar"]
@@ -301,22 +456,22 @@ alignment = 1
 [node name="Brand" type="Label" parent="UI/Root/Chrome/HomeLayer/TitleBlock"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 1.0, 0.52, 1)
-theme_override_colors/font_shadow_color = Color(0.05, 0.2, 0.08, 0.85)
-theme_override_colors/font_outline_color = Color(0.04, 0.1, 0.06, 0.95)
+theme_override_colors/font_color = Color(0.52, 1.0, 0.62, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.95, 0.4, 0.72)
+theme_override_colors/font_outline_color = Color(0.02, 0.1, 0.05, 0.98)
 theme_override_constants/shadow_offset_x = 0
-theme_override_constants/shadow_offset_y = 4
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 78
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 92
 text = "GraveDash"
 horizontal_alignment = 1
 
 [node name="Tagline" type="Label" parent="UI/Root/Chrome/HomeLayer/TitleBlock"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.95, 1.0, 0.95)
-theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.08, 0.9)
-theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.94, 0.98, 1.0, 0.98)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.08, 0.95)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 20
 text = "Dash the graves. Grab the souls. Never look back."
 horizontal_alignment = 1
 
@@ -338,8 +493,10 @@ theme_override_constants/separation = 10
 
 [node name="MissionsHeader" type="Label" parent="UI/Root/Chrome/HomeLayer/MissionsPanel/MissionsVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 1.0, 0.75, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 1.0, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.08, 0.04, 0.85)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 17
 text = "ACTIVE MISSIONS"
 
 [node name="MissionBox" type="VBoxContainer" parent="UI/Root/Chrome/HomeLayer/MissionsPanel/MissionsVBox"]
@@ -369,9 +526,11 @@ theme_override_constants/separation = 8
 
 [node name="MissionBar1" type="ProgressBar" parent="UI/Root/Chrome/HomeLayer/MissionsPanel/MissionsVBox/MissionBox/MissionCard1/M1VBox/M1Row"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
 max_value = 100.0
 value = 0.0
 show_percentage = false
@@ -407,9 +566,11 @@ theme_override_constants/separation = 8
 
 [node name="MissionBar2" type="ProgressBar" parent="UI/Root/Chrome/HomeLayer/MissionsPanel/MissionsVBox/MissionBox/MissionCard2/M2VBox/M2Row"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
 max_value = 100.0
 show_percentage = false
 
@@ -444,9 +605,11 @@ theme_override_constants/separation = 8
 
 [node name="MissionBar3" type="ProgressBar" parent="UI/Root/Chrome/HomeLayer/MissionsPanel/MissionsVBox/MissionBox/MissionCard3/M3VBox/M3Row"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_bar_fill")
 max_value = 100.0
 show_percentage = false
 
@@ -478,28 +641,42 @@ alignment = 1
 
 [node name="ShopButton" type="Button" parent="UI/Root/Chrome/HomeLayer/MainPanel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 56)
+custom_minimum_size = Vector2(148, 58)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.85, 0.98, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_shop")
+theme_override_styles/hover = SubResource("StyleBoxFlat_shop_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_shop")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_shop")
 text = "SHOP"
 
 [node name="SettingsButton" type="Button" parent="UI/Root/Chrome/HomeLayer/MainPanel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 56)
+custom_minimum_size = Vector2(148, 58)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.92, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 0.98, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_settings")
+theme_override_styles/hover = SubResource("StyleBoxFlat_settings_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_settings")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_settings")
 text = "SETTINGS"
 
 [node name="StartButton" type="Button" parent="UI/Root/Chrome/HomeLayer/MainPanel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 72)
+custom_minimum_size = Vector2(300, 78)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.05, 0.15, 0.08, 1)
-theme_override_colors/font_hover_color = Color(0.05, 0.12, 0.06, 1)
+theme_override_colors/font_color = Color(0.04, 0.14, 0.07, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.12, 0.06, 1)
 theme_override_colors/font_pressed_color = Color(0.02, 0.1, 0.04, 1)
-theme_override_colors/font_focus_color = Color(0.05, 0.15, 0.08, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_focus_color = Color(0.04, 0.14, 0.07, 1)
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_start")
 theme_override_styles/hover = SubResource("StyleBoxFlat_start_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_start_pressed")
@@ -508,9 +685,16 @@ text = "START RUN"
 
 [node name="QuitButton" type="Button" parent="UI/Root/Chrome/HomeLayer/MainPanel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 56)
+custom_minimum_size = Vector2(120, 58)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.78, 0.8, 1)
+theme_override_colors/font_hover_color = Color(1, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_quit")
+theme_override_styles/hover = SubResource("StyleBoxFlat_quit_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_quit")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_quit")
 text = "QUIT"
 
 [node name="SettingsPanel" type="PanelContainer" parent="UI/Root/Chrome"]

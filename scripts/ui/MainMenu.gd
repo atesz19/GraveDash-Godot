@@ -45,6 +45,7 @@ const COST_DEMO := 25
 var _starting: bool = false
 var _ui_tween: Tween = null
 var _pulse_tween: Tween = null
+var _brand_tween: Tween = null
 var _skin_action_buttons: Dictionary = {} ## skin_id -> Button
 
 
@@ -88,7 +89,10 @@ func _ready() -> void:
 		if not MissionManager.missions_changed.is_connected(_on_missions_changed):
 			MissionManager.missions_changed.connect(_on_missions_changed)
 	start_button.grab_focus()
+	_wire_button_hovers()
 	call_deferred("_start_cta_pulse")
+	call_deferred("_start_brand_glow")
+	call_deferred("_play_chrome_intro")
 
 
 func _apply_title_font() -> void:
@@ -117,8 +121,77 @@ func _start_cta_pulse() -> void:
 		_pulse_tween.kill()
 	_pulse_tween = create_tween().set_loops()
 	_pulse_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_pulse_tween.tween_property(start_button, "scale", Vector2(1.05, 1.05), 0.75)
-	_pulse_tween.tween_property(start_button, "scale", Vector2(1.0, 1.0), 0.75)
+	_pulse_tween.tween_property(start_button, "scale", Vector2(1.06, 1.06), 0.7)
+	_pulse_tween.tween_property(start_button, "scale", Vector2(1.0, 1.0), 0.7)
+
+
+func _start_brand_glow() -> void:
+	if brand_label == null:
+		return
+	await get_tree().process_frame
+	brand_label.pivot_offset = brand_label.size * 0.5
+	if _brand_tween != null and _brand_tween.is_valid():
+		_brand_tween.kill()
+	_brand_tween = create_tween().set_loops()
+	_brand_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_brand_tween.tween_property(brand_label, "modulate", Color(1.12, 1.18, 1.08, 1.0), 1.1)
+	_brand_tween.tween_property(brand_label, "modulate", Color(1.0, 1.0, 1.0, 1.0), 1.1)
+
+
+func _play_chrome_intro() -> void:
+	## Soft rise-in for top chips + missions so the menu feels alive.
+	if home_layer == null:
+		return
+	await get_tree().process_frame
+	var top_bar: Control = home_layer.get_node_or_null("TopBar") as Control
+	var missions: Control = home_layer.get_node_or_null("MissionsPanel") as Control
+	var title: Control = home_layer.get_node_or_null("TitleBlock") as Control
+	var intro := create_tween()
+	intro.set_parallel(true)
+	for c in [top_bar, missions, title, main_panel]:
+		if c == null:
+			continue
+		c.modulate.a = 0.0
+		intro.tween_property(c, "modulate:a", 1.0, 0.45).set_ease(Tween.EASE_OUT)
+	if title:
+		title.scale = Vector2(0.94, 0.94)
+		title.pivot_offset = title.size * 0.5
+		intro.tween_property(title, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _wire_button_hovers() -> void:
+	## Secondary buttons get a snappy scale pop; START keeps its pulse loop.
+	for btn in [shop_button, settings_button, quit_button]:
+		if btn == null:
+			continue
+		btn.mouse_entered.connect(_on_nav_hover.bind(btn, true))
+		btn.mouse_exited.connect(_on_nav_hover.bind(btn, false))
+		btn.focus_entered.connect(_on_nav_hover.bind(btn, true))
+		btn.focus_exited.connect(_on_nav_hover.bind(btn, false))
+	if start_button:
+		start_button.mouse_entered.connect(_on_start_hover.bind(true))
+		start_button.mouse_exited.connect(_on_start_hover.bind(false))
+
+
+func _on_nav_hover(btn: Button, entered: bool) -> void:
+	if btn == null or _starting:
+		return
+	btn.pivot_offset = btn.size * 0.5
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(btn, "scale", Vector2(1.08, 1.08) if entered else Vector2.ONE, 0.14)
+
+
+func _on_start_hover(entered: bool) -> void:
+	if start_button == null or _starting:
+		return
+	## Nudge above the idle pulse when hovered.
+	start_button.pivot_offset = start_button.size * 0.5
+	if entered and _pulse_tween != null and _pulse_tween.is_valid():
+		_pulse_tween.kill()
+		start_button.scale = Vector2(1.1, 1.1)
+	elif not entered:
+		call_deferred("_start_cta_pulse")
 
 
 func _refresh_highscore() -> void:
