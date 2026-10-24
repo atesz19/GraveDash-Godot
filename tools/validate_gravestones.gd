@@ -82,17 +82,22 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	await process_frame
-	var edge: Node3D = menu.get_node_or_null("EdgeDecor") as Node3D
 	var grave_count := 0
-	if edge:
-		for c in edge.get_children():
-			if String(c.name).begins_with("DecorGravestone") or _find_mesh(c) != null:
+	var scatter_total := 0
+	var track: Node = menu.get_node_or_null("Track")
+	if track:
+		for ch in track.get_children():
+			var edge: Node3D = ch.get_node_or_null("EdgeScatter") as Node3D
+			if edge == null:
+				continue
+			scatter_total += edge.get_child_count()
+			for c in edge.get_children():
 				if absf((c as Node3D).position.x) < LANE_CLEAR_X:
 					push_error("FAIL edge prop in lane x=%.2f" % (c as Node3D).position.x)
 					failed += 1
-			if String(c.name).begins_with("DecorGravestone"):
-				grave_count += 1
-	print("OK MenuWorld EdgeDecor graves≈", grave_count, " total=", edge.get_child_count() if edge else 0)
+				if String(c.name).begins_with("DecorGravestone"):
+					grave_count += 1
+	print("OK MenuWorld EdgeScatter graves≈", grave_count, " total=", scatter_total)
 
 	var chunk_ps: PackedScene = load("res://scenes/levels/Chunk_Graveyard_01.tscn") as PackedScene
 	var chunk: Node3D = chunk_ps.instantiate() as Node3D

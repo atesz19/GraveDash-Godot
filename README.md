@@ -97,13 +97,22 @@ Atmospheric Graveyard biome (shared by gameplay + Main Menu):
 
 | Resource | Role |
 |----------|------|
-| `resources/biomes/graveyard_environment.tres` | Procedural moonlit sky, height fog, bloom/tonemap |
+| `resources/biomes/graveyard_environment.tres` | Procedural moonlit sky, height fog (`fog_density` ~0.034), bloom/tonemap |
 | `resources/biomes/graveyard_ground.tres` | Muddy track — NoiseTexture2D albedo / normal / roughness |
 | `resources/biomes/graveyard_shoulder.tres` | Leaf-litter shoulders (detail map) |
 | `scenes/levels/GraveyardBackdrop.tscn` | Distant hill/tree/grave silhouettes (off playfield) |
 | `scenes/levels/props/Torch.tscn` | Warm flickering torch fill (no omni shadows — mobile) |
+| `scripts/Chunk.gd` | Deterministic shoulder densify (`EdgeScatter`, `|x| >= 5.2`) shared by menu + run |
 
 Headless: `godot --headless --path . --script res://tools/validate_graveyard_visuals.gd`
+
+## Run balance knobs
+
+| Knob | Where | Current |
+|------|-------|---------|
+| `START_SPEED` / `MAX_SPEED` / `SPEED_RAMP_PER_SECOND` | `scripts/PlayerController.gd` | **10.5** / **25.0** / **0.17** (`CURSED_SPEED_MULT` 1.48 unchanged) |
+| Pattern weights + soul lines | `scripts/levels/ChunkPatterns.gd` | Breath `open_line_*` / `breath_open_wide`; lines typically **5–6** orbs; `BEAT_GAP` 11.0 |
+| Intro souls / soul pool | `scripts/LevelGenerator.gd` | Intro line **6** orbs; `POOL_SOUL` initial size **64**; `SOUL_CLEARANCE_Z` 5.0 |
 
 ## Score, missions & multiplier
 

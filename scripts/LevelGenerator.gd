@@ -154,7 +154,7 @@ func _register_pools() -> void:
 		ObjectPool.register_pool(POOL_PLATFORM, platform_scene, 6)
 	## Pattern lines place more orbs per chunk than scatter density.
 	if not ObjectPool.has_pool(POOL_SOUL):
-		ObjectPool.register_pool(POOL_SOUL, soul_scene, 48)
+		ObjectPool.register_pool(POOL_SOUL, soul_scene, 64)
 	if not ObjectPool.has_pool(POOL_BIG_SOUL):
 		ObjectPool.register_pool(POOL_BIG_SOUL, big_soul_scene, 10)
 	if not ObjectPool.has_pool(POOL_COFFIN):
@@ -221,6 +221,8 @@ func _spawn_chunk_at(origin_z: float) -> Node3D:
 					{"kind": POOL_SOUL, "lane": 1, "z": 7.8},
 					{"kind": POOL_SOUL, "lane": 1, "z": 5.6},
 					{"kind": POOL_SOUL, "lane": 1, "z": 3.4},
+					{"kind": POOL_SOUL, "lane": 1, "z": 1.2},
+					{"kind": POOL_SOUL, "lane": 1, "z": -1.0},
 				],
 			},
 			occupied

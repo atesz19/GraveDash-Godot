@@ -3,7 +3,8 @@ extends SceneTree
 
 
 const LANE_CLEAR_X: float = 4.4
-const MIN_EDGE_PROPS: int = 60
+## ~6–7 EdgeScatter props per chunk × 4 menu chunks (densify moved off MenuWorld).
+const MIN_EDGE_PROPS: int = 16
 const MIN_CHUNKS: int = 4
 
 
@@ -39,20 +40,28 @@ func _run() -> void:
 	else:
 		print("OK track_chunks=", chunks)
 
-	var edge: Node3D = world.get_node_or_null("EdgeDecor") as Node3D
-	var edge_n: int = edge.get_child_count() if edge else 0
+	var edge_n: int = 0
+	if track:
+		for ch in track.get_children():
+			var scatter: Node3D = ch.get_node_or_null("EdgeScatter") as Node3D
+			if scatter == null:
+				continue
+			edge_n += scatter.get_child_count()
+			for child in scatter.get_children():
+				if child is Node3D:
+					var x: float = absf((child as Node3D).position.x)
+					if x < LANE_CLEAR_X:
+						push_error("FAIL edge in lane x=%.2f" % (child as Node3D).position.x)
+						failed += 1
 	if edge_n < MIN_EDGE_PROPS:
-		push_error("FAIL EdgeDecor sparse count=%d" % edge_n)
+		push_error("FAIL EdgeScatter sparse count=%d" % edge_n)
 		failed += 1
 	else:
-		print("OK EdgeDecor count=", edge_n)
-	if edge:
-		for child in edge.get_children():
-			if child is Node3D:
-				var x: float = absf((child as Node3D).position.x)
-				if x < LANE_CLEAR_X:
-					push_error("FAIL edge in lane x=%.2f" % (child as Node3D).position.x)
-					failed += 1
+		print("OK EdgeScatter count=", edge_n)
+	var legacy_edge: Node = world.get_node_or_null("EdgeDecor")
+	if legacy_edge != null and legacy_edge.get_child_count() > 0:
+		push_error("FAIL MenuWorld EdgeDecor still present kids=%d" % legacy_edge.get_child_count())
+		failed += 1
 
 	var witch_slot: Node3D = world.get_node_or_null("WitchSlot") as Node3D
 	if witch_slot == null or witch_slot.get_child_count() < 1:

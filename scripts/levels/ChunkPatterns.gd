@@ -21,81 +21,91 @@ const SOUL_STEP: float = 2.2
 
 static func all_patterns() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	## --- Easy / intro ---
+	## --- Easy / intro / breath ---
 	out.append(_pat(
-		"open_line_center", 14, 0, 2, [],
+		"open_line_center", 20, 0, 2, [],
 		[],
-		_line_souls(1, 12.0, 5, KIND_SOUL)
+		_line_souls(1, 12.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
-		"open_line_left", 10, 0, 3, [],
+		"open_line_left", 16, 0, 3, [],
 		[],
-		_line_souls(0, 10.0, 4, KIND_SOUL)
+		_line_souls(0, 10.0, 5, KIND_SOUL)
+	))
+	out.append(_pat(
+		"open_line_right", 16, 0, 3, [],
+		[],
+		_line_souls(2, 10.0, 5, KIND_SOUL)
+	))
+	out.append(_pat(
+		"breath_open_wide", 12, 2, 8, [],
+		[],
+		_line_souls(1, 12.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
 		"single_high_center_guide_left", 14, 0, 4, [],
 		[_obs(KIND_HIGH, 1, 4.0)],
-		_line_souls(0, 14.0, 5, KIND_SOUL)
+		_line_souls(0, 14.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
 		"single_low_left_guide_right", 13, 0, 5, [],
 		[_obs(KIND_LOW, 0, 4.0)],
-		_line_souls(2, 14.0, 5, KIND_SOUL)
+		_line_souls(2, 14.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
 		"single_grave_right_guide_center", 10, 0, 5, [],
 		[_obs(KIND_GRAVESTONE, 2, 2.0)],
-		_line_souls(1, 12.0, 4, KIND_SOUL)
+		_line_souls(1, 12.0, 5, KIND_SOUL)
 	))
-	## --- Mid: two-lane gates with one open ---
+	## --- Mid: two-lane gates with one open (soul-heavy weights) ---
 	out.append(_pat(
-		"gate_high_open_center", 15, 1, 8, [],
+		"gate_high_open_center", 20, 1, 8, [],
 		[
 			_obs(KIND_HIGH, 0, 6.0),
 			_obs(KIND_HIGH, 2, 6.0),
 		],
-		_line_souls(1, 14.0, 5, KIND_SOUL)
+		_line_souls(1, 14.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
-		"gate_low_open_left", 12, 1, 9, [],
+		"gate_low_open_left", 16, 1, 9, [],
 		[
 			_obs(KIND_LOW, 1, 6.0),
 			_obs(KIND_LOW, 2, 6.0),
 		],
-		_line_souls(0, 14.0, 5, KIND_SOUL)
+		_line_souls(0, 14.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
-		"gate_mix_open_right", 12, 2, 10, [],
+		"gate_mix_open_right", 16, 2, 10, [],
 		[
 			_obs(KIND_HIGH, 0, 6.0),
 			_obs(KIND_LOW, 1, 6.0),
 		],
-		_line_souls(2, 14.0, 5, KIND_SOUL)
+		_line_souls(2, 14.0, 6, KIND_SOUL)
 	))
 	## --- Slide / jump alternating beats ---
 	out.append(_pat(
-		"low_then_high_stagger", 12, 2, 12, [],
+		"low_then_high_stagger", 16, 2, 12, [],
 		[
 			_obs(KIND_LOW, 1, 12.0),
 			_obs(KIND_HIGH, 0, -2.0),
 		],
-		_group_souls(2, 6.0, 3, KIND_SOUL)
+		_group_souls(2, 6.0, 4, KIND_SOUL)
 	))
 	out.append(_pat(
-		"high_then_low_stagger", 12, 2, 12, [],
+		"high_then_low_stagger", 16, 2, 12, [],
 		[
 			_obs(KIND_HIGH, 1, 12.0),
 			_obs(KIND_LOW, 2, -2.0),
 		],
-		_group_souls(0, 6.0, 3, KIND_SOUL)
+		_group_souls(0, 6.0, 4, KIND_SOUL)
 	))
 	out.append(_pat(
-		"stagger_left_high_right_low", 11, 2, 12, [],
+		"stagger_left_high_right_low", 16, 2, 12, [],
 		[
 			_obs(KIND_HIGH, 0, 12.0),
 			_obs(KIND_LOW, 2, -2.0),
 		],
-		_group_souls(1, 6.0, 3, KIND_SOUL)
+		_group_souls(1, 6.0, 4, KIND_SOUL)
 	))
 	## --- Arc guides past single blocks ---
 	out.append(_pat(
@@ -110,32 +120,32 @@ static func all_patterns() -> Array[Dictionary]:
 	))
 	## --- Platforms (1–2 lanes, optional ramp) ---
 	out.append(_pat(
-		"platform_center_ramp", 12, 2, 12, [],
+		"platform_center_ramp", 15, 2, 12, [],
 		[_obs(KIND_PLATFORM, 1, 2.0, {"width": 1, "ramp": true, "length": 14.0})],
-		_line_souls(1, 16.0, 3, KIND_SOUL) + _line_souls(0, -8.0, 3, KIND_SOUL)
+		_line_souls(1, 16.0, 4, KIND_SOUL) + _line_souls(0, -8.0, 4, KIND_SOUL)
 	))
 	out.append(_pat(
-		"platform_left_jump_on", 10, 3, 14, [],
+		"platform_left_jump_on", 14, 3, 14, [],
 		[_obs(KIND_PLATFORM, 0, 0.0, {"width": 1, "ramp": false, "length": 14.0})],
-		_line_souls(2, 12.0, 4, KIND_SOUL)
+		_line_souls(2, 12.0, 5, KIND_SOUL)
 	))
 	out.append(_pat(
-		"platform_two_lane_ramp", 10, 4, 16, [],
+		"platform_two_lane_ramp", 14, 4, 16, [],
 		[_obs(KIND_PLATFORM, 0, 0.0, {"width": 2, "ramp": true, "length": 16.0})],
-		_line_souls(2, 14.0, 4, KIND_SOUL)
+		_line_souls(2, 14.0, 5, KIND_SOUL)
 	))
 	out.append(_pat(
-		"platform_right_two_lane", 9, 4, 16, [],
+		"platform_right_two_lane", 14, 4, 16, [],
 		[_obs(KIND_PLATFORM, 1, 0.0, {"width": 2, "ramp": true, "length": 15.0})],
-		_line_souls(0, 14.0, 4, KIND_SOUL)
+		_line_souls(0, 14.0, 5, KIND_SOUL)
 	))
 	out.append(_pat(
-		"platform_then_low_open", 9, 5, 18, [],
+		"platform_then_low_open", 14, 5, 18, [],
 		[
 			_obs(KIND_PLATFORM, 1, 10.0, {"width": 1, "ramp": true, "length": 12.0}),
 			_obs(KIND_LOW, 0, -10.0),
 		],
-		_line_souls(2, 14.0, 3, KIND_SOUL)
+		_line_souls(2, 14.0, 4, KIND_SOUL)
 	))
 	## --- Side-incoming + open lane ---
 	out.append(_pat(
@@ -145,7 +155,7 @@ static func all_patterns() -> Array[Dictionary]:
 			_obs(KIND_HIGH, 0, -4.0),
 			_obs(KIND_HIGH, 2, -4.0),
 		],
-		_line_souls(1, 14.0, 4, KIND_SOUL)
+		_line_souls(1, 14.0, 5, KIND_SOUL)
 	))
 	out.append(_pat(
 		"side_right_then_open_left", 8, 5, 20, [],
@@ -154,11 +164,11 @@ static func all_patterns() -> Array[Dictionary]:
 			_obs(KIND_LOW, 1, -4.0),
 			_obs(KIND_HIGH, 2, -4.0),
 		],
-		_line_souls(0, 14.0, 4, KIND_SOUL)
+		_line_souls(0, 14.0, 5, KIND_SOUL)
 	))
 	## --- Rewards ---
 	out.append(_pat(
-		"big_soul_open_center", 6, 2, 14, [],
+		"big_soul_open_center", 12, 2, 14, [],
 		[
 			_obs(KIND_HIGH, 0, 4.0),
 			_obs(KIND_HIGH, 2, 4.0),
@@ -166,7 +176,12 @@ static func all_patterns() -> Array[Dictionary]:
 		[_soul(KIND_BIG, 1, 10.0), _soul(KIND_SOUL, 1, 7.8), _soul(KIND_SOUL, 1, 5.6)]
 	))
 	out.append(_pat(
-		"coffin_safe_lane", 3, 4, 20, [],
+		"big_soul_side_line", 8, 1, 12, [],
+		[_obs(KIND_HIGH, 1, 4.0)],
+		[_soul(KIND_BIG, 0, 12.0)] + _line_souls(0, 9.8, 4, KIND_SOUL)
+	))
+	out.append(_pat(
+		"coffin_safe_lane", 7, 4, 20, [],
 		[
 			_obs(KIND_LOW, 1, 6.0),
 			_obs(KIND_HIGH, 2, 6.0),
@@ -174,9 +189,9 @@ static func all_patterns() -> Array[Dictionary]:
 		[_soul(KIND_COFFIN, 0, 12.0)]
 	))
 	out.append(_pat(
-		"group_after_single_high", 10, 1, 8, [],
+		"group_after_single_high", 14, 1, 8, [],
 		[_obs(KIND_HIGH, 1, 10.0)],
-		_group_souls(0, 2.0, 4, KIND_SOUL)
+		_group_souls(0, 2.0, 5, KIND_SOUL)
 	))
 	## --- Harder mixed (still fair) ---
 	out.append(_pat(
@@ -195,7 +210,7 @@ static func all_patterns() -> Array[Dictionary]:
 			_obs(KIND_PLATFORM, 0, 10.0, {"width": 1, "ramp": false, "length": 12.0}),
 			_obs(KIND_HIGH, 2, -8.0),
 		],
-		_line_souls(1, 16.0, 3, KIND_SOUL)
+		_line_souls(1, 16.0, 4, KIND_SOUL)
 	))
 	## --- Castle-flavored ---
 	out.append(_pat(
@@ -204,12 +219,12 @@ static func all_patterns() -> Array[Dictionary]:
 			_obs(KIND_HIGH, 0, 6.0),
 			_obs(KIND_HIGH, 2, 6.0),
 		],
-		_line_souls(1, 14.0, 5, KIND_SOUL)
+		_line_souls(1, 14.0, 6, KIND_SOUL)
 	))
 	out.append(_pat(
 		"castle_platform_ramp", 8, 4, 20, PackedStringArray(["haunted_castle"]),
 		[_obs(KIND_PLATFORM, 1, 0.0, {"width": 1, "ramp": true, "length": 15.0})],
-		_line_souls(0, 14.0, 4, KIND_SOUL)
+		_line_souls(0, 14.0, 5, KIND_SOUL)
 	))
 	out.append(_pat(
 		"castle_arc_into_left", 8, 4, 20, PackedStringArray(["haunted_castle"]),
@@ -248,7 +263,7 @@ static func pick_pattern(
 		return _pat(
 			"fallback_open_line", 1, 0, 99, [],
 			[],
-			_line_souls(1, 10.0, 4, KIND_SOUL)
+			_line_souls(1, 10.0, 5, KIND_SOUL)
 		)
 	var roll: int = rng.randi_range(0, total_w - 1)
 	var acc: int = 0
@@ -376,7 +391,7 @@ static func _append_mirrored(out: Array[Dictionary]) -> void:
 	var base: Array[Dictionary] = out.duplicate()
 	for p in base:
 		var id: String = str(p.get("id", ""))
-		if id.begins_with("open_line") or id.begins_with("gate_") and id.contains("center"):
+		if id.begins_with("open_line") or id.begins_with("breath_") or (id.begins_with("gate_") and id.contains("center")):
 			continue
 		if id.contains("center") and not id.contains("left") and not id.contains("right"):
 			if not id.contains("guide") and not id.contains("arc") and not id.contains("stagger"):

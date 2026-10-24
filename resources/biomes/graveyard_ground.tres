@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bq8texgyrough" path="res://resources/biomes/textures/graveyard_ground_roughness.tres" id="3_rough"]
 
 [resource]
-albedo_color = Color(0.55, 0.62, 0.42, 1)
+albedo_color = Color(0.48, 0.52, 0.36, 1)
 albedo_texture = ExtResource("1_albedo")
 metallic = 0.0
 metallic_specular = 0.35
@@ -15,6 +15,6 @@ roughness_texture_channel = 0
 normal_enabled = true
 normal_scale = 1.15
 normal_texture = ExtResource("2_normal")
-uv1_scale = Vector3(3.5, 7.0, 1)
+uv1_scale = Vector3(2.6, 5.2, 1)
 uv1_offset = Vector3(0, 0, 0)
 texture_filter = 2

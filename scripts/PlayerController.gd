@@ -18,9 +18,9 @@ const LANE_SWITCH_DURATION: float = 0.20
 const CURSED_LANE_DURATION: float = 0.48
 
 # --- Speed ramp --------------------------------------------------------------
-const START_SPEED: float = 13.0
-const MAX_SPEED: float = 30.0
-const SPEED_RAMP_PER_SECOND: float = 0.35
+const START_SPEED: float = 10.5
+const MAX_SPEED: float = 25.0
+const SPEED_RAMP_PER_SECOND: float = 0.17
 const CURSED_SPEED_MULT: float = 1.48
 
 # --- Jump / gravity ----------------------------------------------------------

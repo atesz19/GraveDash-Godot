@@ -53,25 +53,48 @@ func _run() -> void:
 				failed += 1
 	print("OK chunk props outside lanes")
 
+	## Edge densify lives on Chunk.EdgeScatter (shared by menu + gameplay).
+	if chunk.has_method("on_spawned"):
+		chunk.call("on_spawned")
+	await process_frame
+	var scatter: Node3D = chunk.get_node_or_null("EdgeScatter") as Node3D
+	if scatter == null or scatter.get_child_count() < 5:
+		push_error("FAIL EdgeScatter count=%d" % (scatter.get_child_count() if scatter else -1))
+		failed += 1
+	else:
+		print("OK EdgeScatter count=", scatter.get_child_count())
+	for child in scatter.get_children():
+		if child is Node3D:
+			var x2: float = absf((child as Node3D).position.x)
+			if x2 < LANE_CLEAR_X:
+				push_error("FAIL EdgeScatter in lane x=%.2f" % (child as Node3D).position.x)
+				failed += 1
+
 	var menu_ps: PackedScene = load("res://scenes/ui/MenuWorld.tscn") as PackedScene
 	var menu: Node3D = menu_ps.instantiate() as Node3D
 	get_root().add_child(menu)
 	await process_frame
 	await process_frame
 	await process_frame
-	var edge: Node3D = menu.get_node_or_null("EdgeDecor") as Node3D
-	if edge == null or edge.get_child_count() < 10:
-		push_error("FAIL EdgeDecor count=%d" % (edge.get_child_count() if edge else -1))
+	## Menu must NOT keep a separate EdgeDecor (would double-densify vs chunks).
+	var legacy_edge: Node = menu.get_node_or_null("EdgeDecor")
+	if legacy_edge != null and legacy_edge.get_child_count() > 0:
+		push_error("FAIL MenuWorld still has EdgeDecor kids=%d" % legacy_edge.get_child_count())
 		failed += 1
 	else:
-		print("OK EdgeDecor count=", edge.get_child_count())
-	for child in edge.get_children():
-		if child is Node3D:
-			var x2: float = absf((child as Node3D).position.x)
-			if x2 < LANE_CLEAR_X:
-				push_error("FAIL menu edge in lane x=%.2f" % (child as Node3D).position.x)
-				failed += 1
+		print("OK MenuWorld no extra EdgeDecor")
 	var track: Node = menu.get_node_or_null("Track")
+	var scatter_total: int = 0
+	if track:
+		for ch in track.get_children():
+			var es: Node3D = ch.get_node_or_null("EdgeScatter") as Node3D
+			if es:
+				scatter_total += es.get_child_count()
+	if scatter_total < 16:
+		push_error("FAIL menu track EdgeScatter sparse=%d" % scatter_total)
+		failed += 1
+	else:
+		print("OK menu track EdgeScatter total=", scatter_total)
 	print("OK track_chunks=", track.get_child_count() if track else 0)
 	var backdrop: Node = menu.get_node_or_null("Backdrop")
 	if backdrop == null:
