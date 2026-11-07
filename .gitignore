@@ -17,3 +17,4 @@ android/build/
 *.keystore
 *.jks
 keystore.properties
+*.idsig

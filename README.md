@@ -1,17 +1,17 @@
 # GraveDash
 
-Horror endless runner (Subway Surfers–style) built with **Godot 4.3 / 4.4**, GDScript, 3D, Mobile renderer — targeted at Android landscape @ 60 FPS.
+Horror endless runner (Subway Surfers–style) built with **Godot 4.4+** (tested on **4.7.2**), GDScript, 3D, Mobile renderer — targeted at Android landscape @ 60 FPS.
 
 MVP includes menus, gameplay systems, Haunted Castle biome transition, and **Android export project setup** (presets + touch input).
 
 ## Requirements
 
-- [Godot 4.3 or 4.4](https://godotengine.org/download) (Standard build is fine)
+- [Godot 4.4 or newer](https://godotengine.org/download) — tested on 4.7.2 (Standard build is fine)
 - For device builds: **Android Export Templates** matching your Godot version + Android SDK / JDK (install via Editor → Editor Settings → Export → Android, or Godot’s docs)
 
 ## Open & run
 
-1. Launch Godot 4.3/4.4 → **Import** → select this folder’s `project.godot`
+1. Launch Godot 4.4+ → **Import** → select this folder’s `project.godot`
 2. Press **F5** — boots into **Main Menu** (`scenes/ui/MainMenu.tscn`)
 3. **Start Game** loads `scenes/levels/Main.tscn` via GameManager
 
@@ -47,35 +47,65 @@ MainMenu  --Start-->  Main (gameplay)
 | File | `export_presets.cfg` — preset **"Android"** |
 | Package | `com.gravedash.app` |
 | App name | GraveDash |
+| Version | code **1** / name **1.0.0** — bump `version/code` for every Play upload |
 | Orientation | Landscape (`window/handheld/orientation` = sensor landscape) |
-| Architectures | **arm64-v8a only** (preferred; enable armeabi-v7a in the preset only if you must ship a fat APK for very old devices) |
-| Min SDK | **24** |
-| Target SDK | **34** |
-| Permission | **Internet** (future ads / leaderboard) |
-| Output path | `build/android/GraveDash.apk` (created on export) |
+| Architectures | **arm64-v8a only** (enable armeabi-v7a only if you must support very old 32-bit devices) |
+| Min / Target SDK | Template defaults (Godot 4.7.2: **24 / 36**). Overrides are only allowed with Gradle build on. |
+| Permissions | **None** — nothing in the game uses the network yet. Re-enable `permissions/internet` when ads / leaderboards land. |
+| Icons | `assets/icons/icon_192.png` + adaptive `icon_adaptive_fg_432.png` / `icon_adaptive_bg_432.png` (regenerate from `icon.svg` with `tools/gen_textures.gd`) |
+| Excluded | `tools/*`, `build/*` (dev validators never ship) |
+| Output | `build/android/GraveDash.apk` (gitignored) |
 
-Renderer is already **Mobile** with **ETC2/ASTC** import compression (`textures/vram_compression/import_etc2_astc=true`) for Android GPU textures.
+Rendering is **Mobile** with ETC2/ASTC textures, 2× MSAA, `rendering_device/fallback_to_opengl3=true` (devices without Vulkan boot the Compatibility renderer instead of failing), and a 2048 mobile shadow atlas.
 
-### Export APK / AAB from the Godot Editor
+### One-time setup
 
-1. Install **Export Templates** for your exact Godot version (Editor → Manage Export Templates).
-2. Configure Android SDK paths (Editor Settings → Export → Android): SDK, JDK, `adb`, etc.
-3. **Project → Export…** → select **Android**.
-4. Debug builds can use Godot’s debug keystore. For store release, create a release keystore and fill **Keystore** fields in the preset (never commit `*.keystore` / passwords).
-5. Export **APK** (preset default) or enable Gradle build + AAB when you need Play Store App Bundles.
-6. Install via `adb install build/android/GraveDash.apk`.
+1. **Editor → Manage Export Templates** → install templates for your exact Godot version.
+2. Install **JDK 17** and the **Android SDK** (platform-tools, build-tools 35+, a platform ≥ 35). Android Studio's SDK manager is easiest.
+3. **Editor Settings → Export → Android**: set *Java SDK Path* and *Android SDK Path*.
 
-### Known gaps (this environment)
+### Debug build (sideload / testing)
 
-- No Android SDK / Godot binary in the cloud agent VM — **no APK was built here**.
-- No CI signing pipeline in this temporary repo — sign locally.
-- Ads / leaderboards are not wired yet; Internet permission is declared ahead of that work.
+Godot signs debug builds with its debug keystore (auto-created, or set *Editor Settings → Export → Android → Debug Keystore*).
+
+```bash
+godot --headless --path . --export-debug "Android" build/android/GraveDash-debug.apk
+adb install -r build/android/GraveDash-debug.apk
+```
+
+### Release build (store)
+
+1. Create a release keystore **once** and back it up outside the repo — losing it means you can never update the Play listing:
+
+   ```bash
+   keytool -genkeypair -v -keystore ~/keys/gravedash-release.keystore -alias gravedash \
+     -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Give Godot the keystore **without** writing it into the repo — either *Project → Export → Android → Keystore → Release* (stored in `.godot/export_credentials.cfg`, gitignored) or environment variables:
+
+   ```bash
+   export GODOT_ANDROID_KEYSTORE_RELEASE_PATH=~/keys/gravedash-release.keystore
+   export GODOT_ANDROID_KEYSTORE_RELEASE_USER=gravedash
+   export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD='…'
+   godot --headless --path . --export-release "Android" build/android/GraveDash.apk
+   ```
+
+3. **Google Play needs an AAB**: *Project → Install Android Build Template…*, then in the preset set **Use Gradle Build = on** and **Export Format = AAB**, and export to `build/android/GraveDash.aab`. Gradle builds may set Min/Target SDK explicitly.
+
+Never commit `*.keystore`, `*.jks`, passwords or `export_credentials.cfg` (all covered by `.gitignore`).
+
+### Verified
+
+On Godot 4.7.2 headless, `--export-debug` and `--export-release` (throwaway keystore via the env vars above) both produce signed arm64 APKs (~48 MB); `apksigner verify` passes and the manifest reports `minSdk 24`, `targetSdk 36`, no permissions, adaptive icon. Ads / leaderboards and a CI signing pipeline are not set up yet.
 
 ### Performance checklist
 
-- **Object pooling** — chunks, obstacles, collectibles, and power-ups go through `ObjectPool` (acquire/release); pools clear on restart.
-- Mobile renderer + ETC2/ASTC — avoid shipping uncompressed desktop textures to device.
-- Keep draw calls modest (simple meshes / shared materials); MSAA 3D is set to 1× for mobile cost.
+- **Object pooling** — chunks, obstacles, collectibles, and power-ups go through `ObjectPool` (acquire/release); pools clear on restart. Pickups release deferred (never inside a physics callback).
+- **Lights** — the Mobile renderer shades at most 8 omni lights per mesh, so chunks keep ≤ 4 real torch lights; the rest are `cast_light = false` torches / lanterns that only show the additive halo + ground light pool. Torch lights distance-fade past ~50 m. No omni/spot shadows in gameplay.
+- **Shadows** — only the moon casts (orthogonal, 50 m). Decor never casts shadows.
+- **Culling** — `Chunk.gd` sets `visibility_range_end` on decor by size (clutter 70 m, medium 95 m, large 115 m graveyard / 130 m castle); fog hides the cut.
+- **Geometry** — pickup sphere/capsule meshes use low segment counts (SoulOrb 18.9k → 1.7k tris). Measured on the VM: ~650–750 draw calls and ~60k–120k triangles per gameplay frame (was ~1,300 draw calls / ~660k triangles).
 
 ## Shared UI theme
 
@@ -91,20 +121,31 @@ Main Menu keeps a live `MenuWorld` 3D backdrop; UI is layered chips, mission car
 FBX ships with an external albedo path `assets/models/Textures_export/M_witch_Base_color.png`.  
 A neutral white PNG is committed there so Godot import does not error; mesh **vertex colors** drive the look (`WitchRunner`). Swap in the authored albedo using the same filename when available.
 
-## Graveyard visuals
+## Biome visuals
 
-Atmospheric Graveyard biome (shared by gameplay + Main Menu):
+Both biomes share `scripts/Chunk.gd`. Each chunk has baked `Props` plus an `EdgeScatter` that is built once per pooled instance and **re-rolled on every spawn** (visibility, jitter, yaw, scale, field placement), so recycled chunks never look identical. Variants never repeat back-to-back (`BiomeManager.pick_chunk_pool_id`).
+
+| Biome | Chunk variants | Look |
+|-------|----------------|------|
+| Graveyard | `Chunk_Graveyard_01` (classic rows), `_02` (cemetery gate, mausoleums, iron fences), `_03` (dead woods, fallen logs) | Moonlit sky with a fog-free moon + halo, church silhouette, open field past the shoulders with scattered graves / obelisks / trees, ground-mist billboards, soul-glimmer fireflies |
+| Haunted Castle | `Chunk_Castle_01` (vaulted corridor), `_02` (open courtyard, battlements, arches), `_03` (great-hall colonnade) | Brick walls + flagstone floor (generated textures), red carpet runner, pillars, moonlit gothic windows, banners, wall torches, braziers, candelabras, suits of armor, chandeliers above the jump apex |
 
 | Resource | Role |
 |----------|------|
-| `resources/biomes/graveyard_environment.tres` | Procedural moonlit sky, height fog (`fog_density` ~0.034), bloom/tonemap |
-| `resources/biomes/graveyard_ground.tres` | Muddy track — NoiseTexture2D albedo / normal / roughness |
-| `resources/biomes/graveyard_shoulder.tres` | Leaf-litter shoulders (detail map) |
-| `scenes/levels/GraveyardBackdrop.tscn` | Distant hill/tree/grave silhouettes (off playfield) |
-| `scenes/levels/props/Torch.tscn` | Warm flickering torch fill (no omni shadows — mobile) |
-| `scripts/Chunk.gd` | Deterministic shoulder densify (`EdgeScatter`, `|x| >= 5.2`) shared by menu + run |
+| `resources/biomes/graveyard_environment.tres` / `haunted_castle_environment.tres` | Sky / fog / glow / tonemap per biome |
+| `resources/biomes/graveyard_{ground,shoulder,field}.tres` | Track, shoulder and open-field ground |
+| `resources/biomes/haunted_castle_{ground,wall}.tres` | Flagstone floor, brick walls (triplanar) |
+| `resources/materials/props/*.tres` | Shared prop materials (stone, iron, wood, cloth, gold, flame, window) |
+| `resources/fx/*.tres` | Additive glow materials: torch halos, ground light pools, window glow, mist, glimmers |
+| `scenes/levels/props/` | Decor props; everything stays at `|x| >= 5.2` (lanes are at -2.5 / 0 / 2.5) |
 
-Headless: `godot --headless --path . --script res://tools/validate_graveyard_visuals.gd`
+Regenerate castle textures, the glow sprite and launcher icons: `godot --headless --path . --script res://tools/gen_textures.gd`
+
+```bash
+godot --headless --path . --script res://tools/validate_graveyard_visuals.gd
+godot --headless --path . --script res://tools/smoke_run.gd   # 1.9 km run through the castle switch; checks pools don't leak
+godot --path . --script res://tools/capture_gameplay.gd -- /tmp/captures   # screenshots (needs a display)
+```
 
 ## Run balance knobs
 
@@ -186,7 +227,7 @@ Replace those files with final assets (keep filenames) — no code change needed
 - HUD: score, multiplier, distance, best, missions, power-up icons/timers
 - Full gameplay: lanes, obstacles (low/high/platform), collectibles, power-ups
 - **Biomes:** Graveyard → **Haunted Castle** after ~1200–1500 m
-- **Android:** export preset, landscape, Internet permission, arm64, touch swipes
+- **Android:** export preset (no permissions, arm64, adaptive icon), landscape, touch swipes, verified debug + release APK export
 
 ## License
 

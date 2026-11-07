@@ -9,3 +9,7 @@ func _ready() -> void:
 	BiomeManager.bind_world(world_environment, moon_light)
 	## Opening section is always Graveyard (fog, cold moonlight, muddy track).
 	BiomeManager.start_run_biome()
+	## Keyboard hints are meaningless on touch devices.
+	var hint := get_node_or_null("HUDHint") as CanvasLayer
+	if hint and OS.has_feature("mobile"):
+		hint.visible = false

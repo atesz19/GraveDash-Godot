@@ -31,11 +31,9 @@ func _run() -> void:
 	var player := main.get_node("Player") as CharacterBody3D
 	for _i in 4:
 		await process_frame
-	player.collision_mask = GHOST_MASK
-	player.set("is_ghost", true)
-	await create_timer(4.0).timeout
+	await _run_for(player, 4.0)
 	_save(out_dir.path_join("gameplay-graveyard.png"))
-	await create_timer(3.0).timeout
+	await _run_for(player, 3.0)
 	_save(out_dir.path_join("gameplay-graveyard-2.png"))
 
 	biomes.call("apply_transition_biome", "haunted_castle")
@@ -44,11 +42,20 @@ func _run() -> void:
 	var gen: Node = main.get_node("LevelGenerator")
 	gen.call("reset_generator")
 	player.global_position = Vector3(player.global_position.x, player.global_position.y, 18.0)
-	player.collision_mask = GHOST_MASK
-	player.set("is_ghost", true)
-	await create_timer(2.5).timeout
+	await _run_for(player, 2.5)
 	_save(out_dir.path_join("gameplay-castle.png"))
+	await _run_for(player, 3.0)
+	_save(out_dir.path_join("gameplay-castle-2.png"))
 	quit(0)
+
+
+## Obstacles are Areas that test the player directly, so phase via the ghost flag every frame.
+func _run_for(player: CharacterBody3D, seconds: float) -> void:
+	var end_ms := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end_ms:
+		player.collision_mask = GHOST_MASK
+		player.set("is_ghost", true)
+		await process_frame
 
 
 func _save(path: String) -> void:
