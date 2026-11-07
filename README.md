@@ -136,6 +136,8 @@ Distance converts 1:1 into raw points; soul collectibles add to raw via `ScoreMa
 | `score_multiplier` | Long-term score multiplier (1–30) |
 | `missions_completed` | Lifetime mission completions (drives multiplier) |
 | `active_missions` | JSON array of the 3 active mission slots |
+| `upgrade_levels` | Dictionary of Soul Shop upgrade id → level (0–5) |
+| `skins_owned` / `skin_equipped` | Owned skin ids / equipped skin |
 
 Autoload: `MissionManager` (`autoload/MissionManager.gd`) — separate from `ScoreManager`.
 
@@ -146,6 +148,17 @@ Autoload: `MissionManager` (`autoload/MissionManager.gd`) — separate from `Sco
 - **Pause / Game Over** — multiplier + mission progress
 
 Headless check: `godot --headless --path . --script res://tools/validate_missions.gd`
+
+## Soul economy & shop
+
+All prices and values live in `scripts/economy/EconomyConfig.gd`: pickup values, per-mission
+soul rewards, multiplier soul bonus (+5% of collected souls per step above x1, max +100%),
+the 8 leveled upgrades (5 levels each) and skin prices.
+
+- **Run payout** = collected souls + mission rewards + multiplier bonus, banked once on Game Over.
+- **Soul Shop** (main menu) has **Skins** and **Upgrades** tabs. `UpgradeManager` autoload owns levels.
+- Balance model and targets: `godot --headless --path . --script res://tools/validate_economy.gd`
+  (typical 2.5 min run ≈ 390 souls; cheap level 125–225; maxing one upgrade ≈ 26 runs; Mage ≈ 31 runs).
 
 ## Audio
 
