@@ -32,10 +32,14 @@ roughness = 0.1
 [sub_resource type="SphereMesh" id="Mesh_head"]
 radius = 0.22
 height = 0.44
+radial_segments = 16
+rings = 8
 
 [sub_resource type="CapsuleMesh" id="Mesh_body"]
 radius = 0.18
 height = 0.55
+radial_segments = 12
+rings = 4
 
 [sub_resource type="PrismMesh" id="Mesh_skirt"]
 size = Vector3(0.42, 0.28, 0.22)
@@ -46,10 +50,14 @@ size = Vector3(0.08, 0.32, 0.08)
 [sub_resource type="SphereMesh" id="Mesh_eye"]
 radius = 0.045
 height = 0.09
+radial_segments = 16
+rings = 8
 
 [sub_resource type="CapsuleMesh" id="Mesh_wisp"]
 radius = 0.04
 height = 0.4
+radial_segments = 12
+rings = 4
 
 [sub_resource type="StandardMaterial3D" id="Mat_wisp"]
 transparency = 1

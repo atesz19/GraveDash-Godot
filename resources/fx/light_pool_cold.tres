@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://bq8fxlightpoolcold"]
+
+[ext_resource type="Texture2D" path="res://assets/textures/fx/glow_radial.png" id="1_glow"]
+
+[resource]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+specular_mode = 2
+disable_receive_shadows = true
+albedo_color = Color(0.45, 0.6, 1, 0.15)
+albedo_texture = ExtResource("1_glow")

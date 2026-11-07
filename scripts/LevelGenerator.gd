@@ -187,7 +187,7 @@ func _register_chunk_pools_for_biome() -> void:
 		if vid == "" or scene == null:
 			continue
 		if not ObjectPool.has_pool(vid):
-			ObjectPool.register_pool(vid, scene, CHUNKS_AHEAD + 2)
+			ObjectPool.register_pool(vid, scene, ceili(float(CHUNKS_AHEAD + 2) / variants.size()) + 1)
 
 
 func _spawn_chunk_at(origin_z: float) -> Node3D:

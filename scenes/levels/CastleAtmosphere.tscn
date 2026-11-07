@@ -1,35 +1,45 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq8castleatmo"]
+[gd_scene load_steps=7 format=3 uid="uid://bq8castleatmo"]
 
 [ext_resource type="Script" path="res://scripts/levels/CastleAtmosphere.gd" id="1_atmo"]
+[ext_resource type="Texture2D" path="res://assets/textures/fx/glow_radial.png" id="2_glow"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dust"]
 emission_shape = 3
-emission_box_extents = Vector3(4, 2.5, 20)
+emission_box_extents = Vector3(5, 2.5, 22)
 direction = Vector3(0.05, -0.2, 0)
 spread = 40.0
 initial_velocity_min = 0.05
 initial_velocity_max = 0.35
 gravity = Vector3(0, -0.15, 0)
-scale_min = 0.04
-scale_max = 0.12
-color = Color(0.55, 0.45, 0.4, 0.35)
+scale_min = 0.6
+scale_max = 1.4
+color = Color(1, 0.72, 0.45, 0.55)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dust"]
 transparency = 1
+blend_mode = 1
+shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_color = Color(0.5, 0.42, 0.38, 0.4)
+albedo_color = Color(1, 0.8, 0.6, 0.8)
+albedo_texture = ExtResource("2_glow")
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_dust"]
 material = SubResource("StandardMaterial3D_dust")
-size = Vector2(0.1, 0.1)
+size = Vector2(0.09, 0.09)
 
 [node name="CastleAtmosphere" type="Node3D"]
 script = ExtResource("1_atmo")
 
 [node name="DustMotes" type="GPUParticles3D" parent="."]
 emitting = false
-amount = 48
-lifetime = 3.5
+cast_shadow = 0
+amount = 60
+lifetime = 4.5
+visibility_aabb = AABB(-8, -4, -26, 16, 8, 52)
 process_material = SubResource("ParticleProcessMaterial_dust")
 draw_pass_1 = SubResource("QuadMesh_dust")
 

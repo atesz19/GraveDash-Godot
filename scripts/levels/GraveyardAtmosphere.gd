@@ -7,6 +7,7 @@ extends Node3D
 
 @onready var leaves: GPUParticles3D = $FallingLeaves
 @onready var wisps: GPUParticles3D = $FogWisps
+@onready var glimmers: GPUParticles3D = get_node_or_null("SoulGlimmers") as GPUParticles3D
 
 var _player: Node3D
 
@@ -38,6 +39,8 @@ func _set_active(active: bool) -> void:
 		leaves.emitting = active
 	if wisps:
 		wisps.emitting = active
+	if glimmers:
+		glimmers.emitting = active
 
 
 func _process(_delta: float) -> void:

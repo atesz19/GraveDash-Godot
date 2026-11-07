@@ -6,19 +6,48 @@ const CHUNK_WIDTH: float = 9.0
 const GROUND_THICKNESS: float = 1.0
 ## Shoulder densify — keep clear of the 3 play lanes (|x| >= EDGE_MIN_X).
 const EDGE_MIN_X: float = 5.2
-const EDGE_PROP_SCENES: Array[String] = [
-	"res://scenes/levels/props/DecorGravestone_01.tscn",
-	"res://scenes/levels/props/DecorGravestone_02.tscn",
-	"res://scenes/levels/props/DecorGravestone_03.tscn",
-	"res://scenes/levels/props/DecorGravestone_04.tscn",
-	"res://scenes/levels/props/DecorFallenCross.tscn",
-	"res://scenes/levels/props/DecorFence.tscn",
-	"res://scenes/levels/props/DecorCoffin.tscn",
-	"res://scenes/levels/props/DecorRock.tscn",
-	"res://scenes/levels/props/DecorBush.tscn",
-	"res://scenes/levels/props/DecorDeadTree.tscn",
-	"res://scenes/levels/props/Torch.tscn",
+const PROPS := "res://scenes/levels/props/"
+## [scene, weight] per edge set. Near slots sit on the shoulder gaps between baked Props;
+## field props fill the open ground beyond the shoulders (graveyard only).
+const EDGE_SETS: Dictionary = {
+	"graveyard_near": [
+		["DecorGravestone_01.tscn", 3.0], ["DecorGravestone_02.tscn", 3.0],
+		["DecorGravestone_03.tscn", 3.0], ["DecorGravestone_04.tscn", 3.0],
+		["DecorFallenCross.tscn", 2.0], ["DecorFence.tscn", 1.5], ["DecorCoffin.tscn", 1.0],
+		["DecorRock.tscn", 2.0], ["DecorBush.tscn", 2.0], ["DecorLantern.tscn", 1.5],
+	],
+	"graveyard_field": [
+		["DecorGravestone_01.tscn", 3.0], ["DecorGravestone_02.tscn", 3.0],
+		["DecorGravestone_03.tscn", 3.0], ["DecorGravestone_04.tscn", 3.0],
+		["DecorFallenCross.tscn", 2.0], ["DecorObelisk.tscn", 1.2], ["DecorDeadTree.tscn", 2.5],
+		["DecorRock.tscn", 1.5], ["DecorBush.tscn", 2.0], ["DecorFallenLog.tscn", 1.0],
+		["DecorLantern.tscn", 0.8],
+	],
+	"castle_near": [
+		["DecorCandelabra.tscn", 3.0], ["DecorArmor.tscn", 2.5], ["DecorCoffin.tscn", 1.0],
+		["DecorRock.tscn", 1.0], ["DecorBrazier.tscn", 1.0],
+	],
+}
+## Near-shoulder slots in Z gaps between baked Props (x is |x|; side ±1).
+const NEAR_SLOTS: Array[Vector3] = [
+	Vector3(-1.0, 5.45, 21.5), Vector3(1.0, 5.55, 13.5), Vector3(-1.0, 5.7, 5.5),
+	Vector3(1.0, 5.4, -3.5), Vector3(-1.0, 6.1, -9.5), Vector3(1.0, 5.65, -15.5),
+	Vector3(-1.0, 5.35, -21.0),
 ]
+const FIELD_MIN_X: float = 9.6
+const FIELD_MAX_X: float = 19.0
+const FIELD_SPACING: float = 2.6
+
+## "graveyard" | "castle" | "" (no scatter). Chooses the EDGE_SETS used for this chunk.
+@export var edge_set: String = "graveyard"
+## Ground height the scatter stands on (shoulder / field top, castle floor).
+@export var edge_ground_y: float = 0.105
+## Near-shoulder slots in castle chunks hug the walls: z positions, side alternates.
+@export var castle_slot_z: PackedFloat32Array = PackedFloat32Array([18.0, 11.5, 3.5, -3.5, -11.5, -18.0])
+@export var castle_slot_x: float = 5.3
+@export var field_count: int = 12
+## Fog swallows decor long before this; culling frees draw calls on far chunks.
+@export var decor_visibility_end: float = 115.0
 
 @onready var ground: MeshInstance3D = $Ground
 @onready var ground_body: StaticBody3D = $Ground/StaticBody3D
@@ -31,6 +60,10 @@ var pool_id: String = ""
 var _obstacles: Array[Node] = []
 var _collectibles: Array[Node] = []
 var _edge_scatter_done: bool = false
+var _near_nodes: Array[Node3D] = []
+var _field_nodes: Array[Node3D] = []
+var _baked_big: Array[Vector2] = []
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -49,6 +82,7 @@ func on_spawned() -> void:
 	visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	_ensure_edge_scatter()
+	_reshuffle_edge_scatter()
 
 
 func attach_obstacle(obstacle: Node3D) -> void:
@@ -73,15 +107,20 @@ func _attach_to(node: Node3D, root: Node3D, list: Array[Node]) -> void:
 
 
 ## Collectible picked itself up — drop our ref (it already scored / will release).
+## Called from body_entered: physics state can't change until the callback returns.
 func notify_collectible_picked(collectible: Node) -> void:
 	_collectibles.erase(collectible)
-	_release_item(collectible)
+	if collectible is Node3D:
+		(collectible as Node3D).visible = false
+	_release_item.call_deferred(collectible)
 
 
 ## Holy Light / external clear — recycle an obstacle back into its pool.
 func notify_obstacle_destroyed(obstacle: Node) -> void:
 	_obstacles.erase(obstacle)
-	_release_item(obstacle)
+	if obstacle is Node3D:
+		(obstacle as Node3D).visible = false
+	_release_item.call_deferred(obstacle)
 
 
 func _release_item(item: Node) -> void:
@@ -125,55 +164,127 @@ func _release_list(list: Array[Node]) -> void:
 
 
 func _ensure_edge_scatter() -> void:
-	## Once per chunk instance — densify shoulders so gameplay matches menu density.
+	## Built once per pooled instance; on_spawned only re-rolls placement (no allocations).
 	if _edge_scatter_done:
 		return
-	if get_node_or_null("EdgeScatter") != null:
-		_edge_scatter_done = true
-		return
-	var packed_props: Array[PackedScene] = []
-	for path in EDGE_PROP_SCENES:
-		var ps: PackedScene = load(path) as PackedScene
-		if ps:
-			packed_props.append(ps)
-	if packed_props.is_empty():
+	_edge_scatter_done = true
+	_rng.randomize()
+	var props := get_node_or_null("Props") as Node3D
+	if props:
+		_apply_decor_flags(props)
+		for child in props.get_children():
+			var n3 := child as Node3D
+			if n3 and absf(n3.position.x) > FIELD_MIN_X - 1.5:
+				_baked_big.append(Vector2(n3.position.x, n3.position.z))
+	if edge_set == "" or get_node_or_null("EdgeScatter") != null:
 		return
 	var root := Node3D.new()
 	root.name = "EdgeScatter"
 	add_child(root)
-	## Seed from chunk Z so recycled placements stay stable per world slot.
-	var seed_z: int = int(round(global_position.z / CHUNK_LENGTH))
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(seed_z * 7919 + 104729)
-	## ~7 shoulder props in Z gaps between baked Props (|x| >= 5.2).
-	var slots: Array[Dictionary] = [
-		{"side": -1.0, "x": 5.45, "z": 21.5, "kind": 5},
-		{"side": 1.0, "x": 5.55, "z": 13.5, "kind": 0},
-		{"side": -1.0, "x": 5.7, "z": 5.5, "kind": 7},
-		{"side": 1.0, "x": 5.4, "z": -3.5, "kind": 8},
-		{"side": -1.0, "x": 6.1, "z": -9.5, "kind": 4},
-		{"side": 1.0, "x": 5.65, "z": -15.5, "kind": 2},
-		{"side": -1.0, "x": 5.35, "z": -21.0, "kind": 10},
-	]
-	## Prefer graves / fence / rock / bush / torch over large trees for fill.
-	var kind_cycle: Array[int] = [0, 1, 2, 3, 5, 7, 8, 4, 6, 10]
-	for i in slots.size():
-		var slot: Dictionary = slots[i]
-		## Skip ~1 slot per chunk for variety (still 6–7 props typical).
-		if i == (absi(seed_z) % slots.size()) and slots.size() > 6:
-			continue
-		var kind: int = kind_cycle[(absi(seed_z) + i * 3) % kind_cycle.size()]
-		kind = clampi(kind, 0, packed_props.size() - 1)
-		var node: Node3D = packed_props[kind].instantiate() as Node3D
-		if node == null:
-			continue
-		root.add_child(node)
-		var side: float = float(slot["side"])
-		var x: float = maxf(EDGE_MIN_X, float(slot["x"]) + rng.randf_range(-0.15, 0.2))
-		var z: float = float(slot["z"]) + rng.randf_range(-0.4, 0.4)
-		node.position = Vector3(side * x, 0.0, z)
-		var yaw: float = side * (90.0 if kind == 5 else float((absi(seed_z) * 17 + i * 29) % 50) - 25.0)
-		node.rotation_degrees.y = yaw
-		if kind == 10:
-			node.scale = Vector3.ONE * 1.05
-	_edge_scatter_done = true
+	if edge_set == "castle":
+		for i in castle_slot_z.size():
+			_near_nodes.append(_make_slot(root, "castle_near"))
+	else:
+		for i in NEAR_SLOTS.size():
+			_near_nodes.append(_make_slot(root, "graveyard_near"))
+		for i in field_count:
+			_field_nodes.append(_make_slot(root, "graveyard_field"))
+	_apply_decor_flags(root)
+
+
+func _make_slot(root: Node3D, set_id: String) -> Node3D:
+	## Wrapper keeps scale/yaw off the prop so GravestoneVisual seats in wrapper space.
+	var slot := Node3D.new()
+	root.add_child(slot)
+	slot.position.y = edge_ground_y
+	var path: String = _pick_weighted(EDGE_SETS.get(set_id, []) as Array)
+	var packed := load(PROPS + path) as PackedScene
+	if packed:
+		var prop := packed.instantiate() as Node3D
+		if prop:
+			slot.add_child(prop)
+			slot.set_meta("kind", path)
+	return slot
+
+
+func _pick_weighted(entries: Array) -> String:
+	var total := 0.0
+	for e in entries:
+		total += float(e[1])
+	var roll := _rng.randf() * total
+	for e in entries:
+		roll -= float(e[1])
+		if roll <= 0.0:
+			return str(e[0])
+	return str(entries[0][0]) if not entries.is_empty() else ""
+
+
+func _reshuffle_edge_scatter() -> void:
+	if _near_nodes.is_empty() and _field_nodes.is_empty():
+		return
+	_rng.randomize()
+	if edge_set == "castle":
+		var flip: float = -1.0 if _rng.randf() < 0.5 else 1.0
+		for i in _near_nodes.size():
+			var slot := _near_nodes[i]
+			var side: float = flip * (1.0 if i % 2 == 0 else -1.0)
+			slot.visible = _rng.randf() < 0.8
+			slot.position = Vector3(side * castle_slot_x, edge_ground_y, castle_slot_z[i] + _rng.randf_range(-0.8, 0.8))
+			## Props face +X; turn them toward the track on the right wall.
+			slot.rotation_degrees.y = 180.0 if side > 0.0 else 0.0
+		return
+	for i in _near_nodes.size():
+		var slot := _near_nodes[i]
+		var spec: Vector3 = NEAR_SLOTS[i]
+		var kind: String = str(slot.get_meta("kind", ""))
+		slot.visible = _rng.randf() < 0.85
+		var x: float = maxf(EDGE_MIN_X + 0.15, spec.y + _rng.randf_range(-0.12, 0.25))
+		slot.position = Vector3(spec.x * x, edge_ground_y, spec.z + _rng.randf_range(-0.5, 0.5))
+		if kind == "DecorFence.tscn":
+			slot.rotation_degrees.y = spec.x * 90.0
+		elif kind == "DecorLantern.tscn":
+			## Lantern arm (+X) leans over the track.
+			slot.rotation_degrees.y = 180.0 if spec.x > 0.0 else 0.0
+		else:
+			slot.rotation_degrees.y = spec.x * _rng.randf_range(-28.0, 28.0)
+		slot.scale = Vector3.ONE * _rng.randf_range(0.92, 1.12)
+	var placed: Array[Vector2] = []
+	for slot in _field_nodes:
+		var pos := Vector2.ZERO
+		for attempt in 8:
+			var side: float = -1.0 if _rng.randf() < 0.5 else 1.0
+			pos = Vector2(side * _rng.randf_range(FIELD_MIN_X, FIELD_MAX_X), _rng.randf_range(-21.5, 21.5))
+			if _field_spot_free(pos, placed):
+				break
+		placed.append(pos)
+		slot.position = Vector3(pos.x, edge_ground_y, pos.y)
+		slot.rotation_degrees.y = _rng.randf_range(-180.0, 180.0)
+		slot.scale = Vector3.ONE * _rng.randf_range(0.85, 1.3)
+
+
+func _field_spot_free(pos: Vector2, placed: Array[Vector2]) -> bool:
+	for p in placed:
+		if p.distance_to(pos) < FIELD_SPACING:
+			return false
+	for p in _baked_big:
+		if p.distance_to(pos) < 4.0:
+			return false
+	return true
+
+
+func _apply_decor_flags(n: Node) -> void:
+	## Decor never casts moon shadows (mobile shadow pass cost) and culls past the fog.
+	if n is GeometryInstance3D:
+		var gi := n as GeometryInstance3D
+		gi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var reach: float = decor_visibility_end
+		if gi is MeshInstance3D and (gi as MeshInstance3D).mesh != null:
+			## Small clutter disappears into fog much sooner than walls / trees.
+			var extent: float = (gi as MeshInstance3D).get_aabb().get_longest_axis_size()
+			if extent < 1.2:
+				reach = minf(reach, 70.0)
+			elif extent < 3.0:
+				reach = minf(reach, 95.0)
+		gi.visibility_range_end = reach
+	for c in n.get_children():
+		_apply_decor_flags(c)

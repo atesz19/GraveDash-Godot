@@ -48,6 +48,8 @@ size = Vector3(0.48, 0.12, 0.1)
 [sub_resource type="SphereMesh" id="Mesh_core"]
 radius = 0.1
 height = 0.2
+radial_segments = 16
+rings = 8
 
 [sub_resource type="TorusMesh" id="Mesh_halo"]
 inner_radius = 0.28

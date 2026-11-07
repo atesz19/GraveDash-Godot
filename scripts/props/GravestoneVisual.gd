@@ -7,12 +7,21 @@ extends Node3D
 @export var visual_scale: float = 1.0
 
 
+const SINK: float = 0.02
+
+var _seat_y: float = 0.0
+
+
 func _ready() -> void:
 	if visual_scale != 1.0:
 		scale = Vector3.ONE * visual_scale
 	_apply_material(self)
 	if ground_align:
-		call_deferred("_align_to_ground")
+		## Deferred: spawners often set position right after add_child.
+		(func() -> void:
+			_seat_y = position.y
+			_align_to_ground()
+		).call_deferred()
 
 
 func _apply_material(n: Node) -> void:
@@ -26,23 +35,22 @@ func _apply_material(n: Node) -> void:
 
 
 func _align_to_ground() -> void:
+	if not is_inside_tree():
+		return
 	var meshes: Array[MeshInstance3D] = []
 	_collect_meshes(self, meshes)
 	if meshes.is_empty():
 		return
-	var combined: AABB
-	var first := true
+	var parent_3d := get_parent() as Node3D
+	var to_parent: Transform3D = parent_3d.global_transform.affine_inverse() if parent_3d else Transform3D.IDENTITY
+	var bottom_y: float = INF
 	for mi in meshes:
-		var local_aabb: AABB = mi.get_aabb()
-		var xf := mi.global_transform * local_aabb
-		if first:
-			combined = xf
-			first = false
-		else:
-			combined = combined.merge(xf)
-	## Lift so the lowest vertex sits on y=0 in parent space.
-	var bottom_y: float = combined.position.y
-	global_position.y -= bottom_y
+		var aabb: AABB = (to_parent * mi.global_transform) * mi.get_aabb()
+		bottom_y = minf(bottom_y, aabb.position.y)
+	## The authored local Y is the ground height (shoulder top, field, floor); bury the base slightly.
+	position.y += _seat_y - bottom_y - SINK
+	for mi in meshes:
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 func _collect_meshes(n: Node, out: Array[MeshInstance3D]) -> void:

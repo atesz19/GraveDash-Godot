@@ -1,63 +1,152 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq8chandelier"]
+[gd_scene load_steps=12 format=3 uid="uid://bq8chandelier"]
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_chain"]
+[ext_resource type="Material" uid="uid://bq8matiron" path="res://resources/materials/props/iron.tres" id="1_iron"]
+[ext_resource type="Material" uid="uid://bq8matgoldtrim" path="res://resources/materials/props/gold_trim.tres" id="2_gold_trim"]
+[ext_resource type="Material" uid="uid://bq8matcandlewax" path="res://resources/materials/props/candle_wax.tres" id="3_candle_wax"]
+[ext_resource type="Material" uid="uid://bq8matcandleflame" path="res://resources/materials/props/candle_flame.tres" id="4_candle_flame"]
+[ext_resource type="Material" uid="uid://bq8fxhalowarm" path="res://resources/fx/halo_warm.tres" id="5_halo_warm"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1"]
 top_radius = 0.03
 bottom_radius = 0.03
-height = 2.2
-radial_segments = 6
+height = 2
+radial_segments = 5
+rings = 1
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_metal"]
-albedo_color = Color(0.25, 0.22, 0.2, 1)
-metallic = 0.7
-roughness = 0.45
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_ring"]
-top_radius = 0.55
-bottom_radius = 0.55
-height = 0.12
+[sub_resource type="CylinderMesh" id="CylinderMesh_2"]
+top_radius = 0.7
+bottom_radius = 0.6
+height = 0.1
 radial_segments = 12
+rings = 1
 
-[sub_resource type="SphereMesh" id="SphereMesh_candle"]
-radius = 0.08
-height = 0.16
+[sub_resource type="SphereMesh" id="SphereMesh_3"]
+radius = 0.16
+height = 0.3
+radial_segments = 8
+rings = 4
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
-albedo_color = Color(1, 0.7, 0.35, 1)
-emission_enabled = true
-emission = Color(1, 0.55, 0.2, 1)
-emission_energy_multiplier = 3.5
+[sub_resource type="CylinderMesh" id="CylinderMesh_4"]
+top_radius = 0.035
+bottom_radius = 0.035
+height = 0.2
+radial_segments = 6
+rings = 1
+
+[sub_resource type="SphereMesh" id="SphereMesh_5"]
+radius = 0.045
+height = 0.11
+radial_segments = 6
+rings = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_6"]
+size = Vector2(2.6, 2.6)
 
 [node name="DecorChandelier" type="Node3D"]
 
 [node name="Chain" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1, 0)
-mesh = SubResource("CylinderMesh_chain")
-surface_material_override/0 = SubResource("StandardMaterial3D_metal")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_1")
+surface_material_override/0 = ExtResource("1_iron")
 
 [node name="Ring" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.2, 0)
-mesh = SubResource("CylinderMesh_ring")
-surface_material_override/0 = SubResource("StandardMaterial3D_metal")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_2")
+surface_material_override/0 = ExtResource("1_iron")
 
-[node name="CandleA" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -2.05, 0)
-mesh = SubResource("SphereMesh_candle")
-surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+[node name="Hub" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.05, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_3")
+surface_material_override/0 = ExtResource("2_gold_trim")
 
-[node name="CandleB" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -2.05, 0)
-mesh = SubResource("SphereMesh_candle")
-surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+[node name="Candle0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.62, -1.85, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
 
-[node name="CandleC" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.05, 0.4)
-mesh = SubResource("SphereMesh_candle")
-surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+[node name="Flame0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.62, -1.7, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Candle1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31, -1.85, 0.5369)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
+
+[node name="Flame1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31, -1.7, 0.5369)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Candle2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31, -1.85, 0.5369)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
+
+[node name="Flame2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31, -1.7, 0.5369)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Candle3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.62, -1.85, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
+
+[node name="Flame3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.62, -1.7, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Candle4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31, -1.85, -0.5369)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
+
+[node name="Flame4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31, -1.7, -0.5369)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Candle5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31, -1.85, -0.5369)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("3_candle_wax")
+
+[node name="Flame5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31, -1.7, -0.5369)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_5")
+surface_material_override/0 = ExtResource("4_candle_flame")
+
+[node name="Halo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.75, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_6")
+surface_material_override/0 = ExtResource("5_halo_warm")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.0, 0)
-light_color = Color(1, 0.6, 0.3, 1)
-light_energy = 1.8
-omni_range = 9.0
-omni_attenuation = 1.2
-shadow_enabled = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.9, 0)
+light_color = Color(1, 0.62, 0.3, 1)
+light_energy = 2
+light_specular = 0.4
+omni_range = 10
+omni_attenuation = 1.1
+distance_fade_enabled = true
+distance_fade_begin = 50
+distance_fade_length = 14

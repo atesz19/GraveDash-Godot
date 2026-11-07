@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8matgoldtrim"]
+
+[resource]
+albedo_color = Color(0.62, 0.45, 0.16, 1)
+metallic = 0.85
+roughness = 0.38

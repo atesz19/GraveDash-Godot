@@ -1,31 +1,34 @@
-[gd_scene load_steps=5 format=3 uid="uid://bq8decorcastlewall"]
+[gd_scene load_steps=7 format=3 uid="uid://bq8decorcastlewall"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_wall"]
-size = Vector3(0.55, 5.5, 14.0)
+[ext_resource type="Material" uid="uid://bq8matcastlewall" path="res://resources/biomes/haunted_castle_wall.tres" id="1_haunted_cast"]
+[ext_resource type="Material" uid="uid://bq8matgoldtrim" path="res://resources/materials/props/gold_trim.tres" id="2_gold_trim"]
+[ext_resource type="Material" uid="uid://bq8matstonedark" path="res://resources/materials/props/stone_dark.tres" id="3_stone_dark"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
-albedo_color = Color(0.16, 0.14, 0.18, 1)
-roughness = 0.92
-metallic = 0.08
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+size = Vector3(0.55, 7, 15)
 
-[sub_resource type="BoxMesh" id="BoxMesh_trim"]
-size = Vector3(0.65, 0.25, 14.0)
+[sub_resource type="BoxMesh" id="BoxMesh_2"]
+size = Vector3(0.64, 0.14, 15)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_trim"]
-albedo_color = Color(0.28, 0.18, 0.16, 1)
-roughness = 0.7
-emission_enabled = true
-emission = Color(0.35, 0.08, 0.1, 1)
-emission_energy_multiplier = 0.35
+[sub_resource type="BoxMesh" id="BoxMesh_3"]
+size = Vector3(0.7, 0.4, 15)
 
 [node name="DecorCastleWall" type="Node3D"]
 
 [node name="Wall" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
-mesh = SubResource("BoxMesh_wall")
-surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1")
+surface_material_override/0 = ExtResource("1_haunted_cast")
 
 [node name="Trim" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, 0)
-mesh = SubResource("BoxMesh_trim")
-surface_material_override/0 = SubResource("StandardMaterial3D_trim")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.4, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_2")
+surface_material_override/0 = ExtResource("2_gold_trim")
+
+[node name="Skirting" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("3_stone_dark")

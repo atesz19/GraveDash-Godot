@@ -1,0 +1,218 @@
+[gd_scene load_steps=20 format=3 uid="uid://bq8gravedashchunk03"]
+
+[ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_Chunk"]
+[ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_graveyard_gr"]
+[ext_resource type="Material" uid="uid://bq8matgyshoulder" path="res://resources/biomes/graveyard_shoulder.tres" id="3_graveyard_sh"]
+[ext_resource type="Material" uid="uid://bq8matgyfield" path="res://resources/biomes/graveyard_field.tres" id="4_graveyard_fi"]
+[ext_resource type="PackedScene" uid="uid://bq8decortree" path="res://scenes/levels/props/DecorDeadTree.tscn" id="5_DecorDeadTre"]
+[ext_resource type="PackedScene" uid="uid://bq8decorfallenlog" path="res://scenes/levels/props/DecorFallenLog.tscn" id="6_DecorFallenL"]
+[ext_resource type="PackedScene" uid="uid://bq8decorrock" path="res://scenes/levels/props/DecorRock.tscn" id="7_DecorRock"]
+[ext_resource type="PackedScene" uid="uid://bq8decorbush" path="res://scenes/levels/props/DecorBush.tscn" id="8_DecorBush"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave02" path="res://scenes/levels/props/DecorGravestone_02.tscn" id="9_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave03" path="res://scenes/levels/props/DecorGravestone_03.tscn" id="10_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave01" path="res://scenes/levels/props/DecorGravestone_01.tscn" id="11_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8torch" path="res://scenes/levels/props/Torch.tscn" id="12_Torch"]
+[ext_resource type="PackedScene" uid="uid://bq8decorlantern" path="res://scenes/levels/props/DecorLantern.tscn" id="13_DecorLantern"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3"]
+size = Vector3(4.2, 0.45, 45)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4"]
+size = Vector2(40, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5"]
+albedo_color = Color(0.2, 0.24, 0.16, 1)
+roughness = 0.85
+metallic_specular = 0.2
+emission_enabled = true
+emission = Color(0.18, 0.26, 0.4, 1)
+emission_energy_multiplier = 0.22
+
+[sub_resource type="BoxMesh" id="BoxMesh_6"]
+size = Vector3(0.06, 0.015, 45)
+
+[node name="Chunk_Graveyard_03" type="Node3D"]
+script = ExtResource("1_Chunk")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1")
+surface_material_override/0 = ExtResource("2_graveyard_gr")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_2")
+
+[node name="ShoulderL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4, -0.12, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("3_graveyard_sh")
+
+[node name="ShoulderR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4, -0.12, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("3_graveyard_sh")
+
+[node name="FieldL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.5, 0.105, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_4")
+surface_material_override/0 = ExtResource("4_graveyard_fi")
+
+[node name="FieldR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.5, 0.105, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_4")
+surface_material_override/0 = ExtResource("4_graveyard_fi")
+
+[node name="LaneMarkerL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = SubResource("StandardMaterial3D_5")
+
+[node name="LaneMarkerR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = SubResource("StandardMaterial3D_5")
+
+[node name="Props" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, 0)
+
+[node name="Tree0" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -7.3, 0, 18)
+
+[node name="Tree1" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.682, 0, 0.7314, 0, 1.08, 0, -0.7314, 0, 0.682, -7.8, 0, 9)
+
+[node name="Tree2" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.0802, 0, 1.1472, 0, 1.334, 0, -1.1472, 0, -0.0802, -7.2, 0, -1)
+
+[node name="Tree3" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.816, 0, 0.6608, 0, 1.05, 0, -0.6608, 0, -0.816, -7.9, 0, -12)
+
+[node name="Tree4" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.9408, 0, -0.1322, 0, 1.026, 0, 0.1322, 0, -0.9408, -7.4, 0, -19.5)
+
+[node name="Tree5" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.5736, 0, -0.8192, 0, 1.16, 0, 0.8192, 0, -0.5736, 7.5, 0, 19)
+
+[node name="Tree6" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.2495, 0, -1.1738, 0, 1.2, 0, 1.1738, 0, 0.2495, 7.2, 0, 7)
+
+[node name="Tree7" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.8143, 0, -0.4893, 0, 1.026, 0, 0.4893, 0, 0.8143, 7.9, 0, -3)
+
+[node name="Tree8" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(1.0574, 0, 0.3032, 0, 1.276, 0, -0.3032, 0, 1.0574, 7.4, 0, -10.5)
+
+[node name="Tree9" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.5221, 0, 1.0247, 0, 1.15, 0, -1.0247, 0, 0.5221, 7.7, 0, -20)
+
+[node name="Tree10" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.4788, 0, 1.3156, 0, 1.512, 0, -1.3156, 0, -0.4788, -10.5, 0, 14)
+
+[node name="Tree11" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-1.1506, 0, 0.4884, 0, 1.45, 0, -0.4884, 0, -1.1506, -12.5, 0, 2)
+
+[node name="Tree12" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-1.3703, 0, -0.6101, 0, 1.5, 0, 0.6101, 0, -1.3703, -11, 0, -16)
+
+[node name="Tree13" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(-0.4395, 0, -1.2765, 0, 1.458, 0, 1.2765, 0, -0.4395, 11, 0, 12)
+
+[node name="Tree14" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.7042, 0, -1.3244, 0, 1.74, 0, 1.3244, 0, 0.7042, 12.8, 0, -6)
+
+[node name="Tree15" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(1.2557, 0, -0.3365, 0, 1.3, 0, 0.3365, 0, 1.2557, 10.6, 0, -18)
+
+[node name="Tree16" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(1.3569, 0, 0.8479, 0, 1.728, 0, -0.8479, 0, 1.3569, -15.5, 0, 8)
+
+[node name="Tree17" parent="Props" instance=ExtResource("5_DecorDeadTre")]
+transform = Transform3D(0.2958, 0, 1.5215, 0, 1.798, 0, -1.5215, 0, 0.2958, 15, 0, 3)
+
+[node name="LogL" parent="Props" instance=ExtResource("6_DecorFallenL")]
+transform = Transform3D(0.9903, 0, 0.1392, 0, 1, 0, -0.1392, 0, 0.9903, -6.6, 0, 3)
+
+[node name="LogR" parent="Props" instance=ExtResource("6_DecorFallenL")]
+transform = Transform3D(0.9781, 0, -0.2079, 0, 1, 0, 0.2079, 0, 0.9781, 6.7, 0, -15.5)
+
+[node name="LogFarL" parent="Props" instance=ExtResource("6_DecorFallenL")]
+transform = Transform3D(0.766, 0, 0.6428, 0, 1, 0, -0.6428, 0, 0.766, -10, 0, -7)
+
+[node name="LogFarR" parent="Props" instance=ExtResource("6_DecorFallenL")]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 11.5, 0, 0)
+
+[node name="RockL1" parent="Props" instance=ExtResource("7_DecorRock")]
+transform = Transform3D(-1.1591, 0, -0.3106, 0, 1.2, 0, 0.3106, 0, -1.1591, -5.6, 0, 15)
+
+[node name="RockL2" parent="Props" instance=ExtResource("7_DecorRock")]
+transform = Transform3D(-0.8693, 0, 0.2329, 0, 0.9, 0, -0.2329, 0, -0.8693, -6, 0, -15)
+
+[node name="RockR1" parent="Props" instance=ExtResource("7_DecorRock")]
+transform = Transform3D(0.9744, 0, 0.225, 0, 1, 0, -0.225, 0, 0.9744, 5.7, 0, 1)
+
+[node name="RockR2" parent="Props" instance=ExtResource("7_DecorRock")]
+transform = Transform3D(-0.0218, 0, -1.2498, 0, 1.25, 0, 1.2498, 0, -0.0218, 6.1, 0, -7)
+
+[node name="BushL1" parent="Props" instance=ExtResource("8_DecorBush")]
+transform = Transform3D(1.0121, 0, -0.6448, 0, 1.2, 0, 0.6448, 0, 1.0121, -6.3, 0, -6.5)
+
+[node name="BushL2" parent="Props" instance=ExtResource("8_DecorBush")]
+transform = Transform3D(0.5373, 0, 0.8434, 0, 1, 0, -0.8434, 0, 0.5373, -5.7, 0, 11.5)
+
+[node name="BushR1" parent="Props" instance=ExtResource("8_DecorBush")]
+transform = Transform3D(0.1501, 0, 1.1402, 0, 1.15, 0, -1.1402, 0, 0.1501, 6.2, 0, 16.5)
+
+[node name="BushR2" parent="Props" instance=ExtResource("8_DecorBush")]
+transform = Transform3D(0.4617, 0, -0.887, 0, 1, 0, 0.887, 0, 0.4617, 5.8, 0, -12.5)
+
+[node name="BushR3" parent="Props" instance=ExtResource("8_DecorBush")]
+transform = Transform3D(0.8356, 0, 0.9959, 0, 1.3, 0, -0.9959, 0, 0.8356, 6.6, 0, 10)
+
+[node name="StoneL1" parent="Props" instance=ExtResource("9_DecorGravest")]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, -5.5, 0, 8)
+
+[node name="StoneR1" parent="Props" instance=ExtResource("10_DecorGravest")]
+transform = Transform3D(0.9063, 0, -0.4226, 0, 1, 0, 0.4226, 0, 0.9063, 5.6, 0, 4.5)
+
+[node name="StoneR2" parent="Props" instance=ExtResource("11_DecorGravest")]
+transform = Transform3D(0.9781, 0, 0.2079, 0, 1, 0, -0.2079, 0, 0.9781, 5.8, 0, -18)
+
+[node name="TorchL1" parent="Props" instance=ExtResource("12_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, 13)
+
+[node name="TorchR1" parent="Props" instance=ExtResource("12_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, 1.5)
+
+[node name="TorchL2" parent="Props" instance=ExtResource("12_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, -11)
+
+[node name="TorchR2" parent="Props" instance=ExtResource("12_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, -19.5)
+cast_light = false
+
+[node name="LanternL" parent="Props" instance=ExtResource("13_DecorLantern")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7, 0, -2)
+
+[node name="LanternR" parent="Props" instance=ExtResource("13_DecorLantern")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4.7, 0, 13.5)
+
+[node name="Obstacles" type="Node3D" parent="."]
+
+[node name="Collectibles" type="Node3D" parent="."]

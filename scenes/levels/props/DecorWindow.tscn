@@ -1,0 +1,99 @@
+[gd_scene load_steps=15 format=3 uid="uid://bq8decorwindow"]
+
+[ext_resource type="Material" uid="uid://bq8matstonedark" path="res://resources/materials/props/stone_dark.tres" id="1_stone_dark"]
+[ext_resource type="Material" uid="uid://bq8matwindowmoon" path="res://resources/materials/props/window_moon.tres" id="2_window_moon"]
+[ext_resource type="Material" uid="uid://bq8matiron" path="res://resources/materials/props/iron.tres" id="3_iron"]
+[ext_resource type="Material" uid="uid://bq8fxhalocold" path="res://resources/fx/halo_cold.tres" id="4_halo_cold"]
+[ext_resource type="Material" uid="uid://bq8fxlightpoolcold" path="res://resources/fx/light_pool_cold.tres" id="5_light_pool_c"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+size = Vector3(0.2, 2.5, 1.5)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2"]
+top_radius = 0.75
+bottom_radius = 0.75
+height = 0.2
+radial_segments = 12
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_3"]
+size = Vector3(0.1, 2.2, 1.1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_4"]
+top_radius = 0.55
+bottom_radius = 0.55
+height = 0.1
+radial_segments = 12
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_5"]
+size = Vector3(0.05, 2.9, 0.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6"]
+size = Vector3(0.05, 0.06, 1.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7"]
+size = Vector3(0.36, 0.12, 1.6)
+
+[sub_resource type="QuadMesh" id="QuadMesh_8"]
+size = Vector2(3, 3.6)
+
+[sub_resource type="QuadMesh" id="QuadMesh_9"]
+size = Vector2(2.6, 2.2)
+orientation = 1
+
+[node name="DecorWindow" type="Node3D"]
+
+[node name="Frame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1")
+surface_material_override/0 = ExtResource("1_stone_dark")
+
+[node name="Arch" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 4.35, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_2")
+surface_material_override/0 = ExtResource("1_stone_dark")
+
+[node name="Glass" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 3.15, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("2_window_moon")
+
+[node name="GlassTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.06, 4.25, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_4")
+surface_material_override/0 = ExtResource("2_window_moon")
+
+[node name="MullionV" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 3.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_5")
+surface_material_override/0 = ExtResource("3_iron")
+
+[node name="MullionH" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13, 3.4, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = ExtResource("3_iron")
+
+[node name="Sill" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 1.95, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_7")
+surface_material_override/0 = ExtResource("1_stone_dark")
+
+[node name="Halo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 3.4, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_8")
+surface_material_override/0 = ExtResource("4_halo_cold")
+
+[node name="Pool" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.03, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_9")
+surface_material_override/0 = ExtResource("5_light_pool_c")

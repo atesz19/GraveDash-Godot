@@ -90,7 +90,7 @@ func _on_body_entered(body: Node3D) -> void:
 
 func _pickup(_body: Node3D) -> void:
 	_picked = true
-	monitoring = false
+	set_deferred("monitoring", false)
 	var value: int = get_soul_value()
 	ScoreManager.add_score(value)
 	if SOUL_IDS.has(collectible_id) and value > 0:
@@ -103,8 +103,11 @@ func _pickup(_body: Node3D) -> void:
 	if parent_chunk and parent_chunk.has_method("notify_collectible_picked"):
 		parent_chunk.call("notify_collectible_picked", self)
 	elif pool_id != "" and ObjectPool.has_pool(pool_id):
-		on_recycled()
-		ObjectPool.release(pool_id, self)
+		visible = false
+		(func() -> void:
+			on_recycled()
+			ObjectPool.release(pool_id, self)
+		).call_deferred()
 
 
 ## Souls/points granted on pickup; subclasses resolve upgrade-driven values here.

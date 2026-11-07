@@ -1,0 +1,228 @@
+[gd_scene load_steps=25 format=3 uid="uid://bq8gravedashchunk02"]
+
+[ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_Chunk"]
+[ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_graveyard_gr"]
+[ext_resource type="Material" uid="uid://bq8matgyshoulder" path="res://resources/biomes/graveyard_shoulder.tres" id="3_graveyard_sh"]
+[ext_resource type="Material" uid="uid://bq8matgyfield" path="res://resources/biomes/graveyard_field.tres" id="4_graveyard_fi"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgatearch" path="res://scenes/levels/props/DecorGateArch.tscn" id="5_DecorGateArc"]
+[ext_resource type="PackedScene" uid="uid://bq8decormausoleum" path="res://scenes/levels/props/DecorMausoleum.tscn" id="6_DecorMausole"]
+[ext_resource type="PackedScene" uid="uid://bq8decorobelisk" path="res://scenes/levels/props/DecorObelisk.tscn" id="7_DecorObelisk"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave01" path="res://scenes/levels/props/DecorGravestone_01.tscn" id="8_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave02" path="res://scenes/levels/props/DecorGravestone_02.tscn" id="9_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave03" path="res://scenes/levels/props/DecorGravestone_03.tscn" id="10_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorgrave04" path="res://scenes/levels/props/DecorGravestone_04.tscn" id="11_DecorGravest"]
+[ext_resource type="PackedScene" uid="uid://bq8decorironfence" path="res://scenes/levels/props/DecorIronFence.tscn" id="12_DecorIronFen"]
+[ext_resource type="PackedScene" uid="uid://bq8torch" path="res://scenes/levels/props/Torch.tscn" id="13_Torch"]
+[ext_resource type="PackedScene" uid="uid://bq8decorlantern" path="res://scenes/levels/props/DecorLantern.tscn" id="14_DecorLantern"]
+[ext_resource type="PackedScene" uid="uid://bq8decortree" path="res://scenes/levels/props/DecorDeadTree.tscn" id="15_DecorDeadTre"]
+[ext_resource type="PackedScene" uid="uid://bq8decorcross" path="res://scenes/levels/props/DecorFallenCross.tscn" id="16_DecorFallenC"]
+[ext_resource type="PackedScene" uid="uid://bq8decorcoffin" path="res://scenes/levels/props/DecorCoffin.tscn" id="17_DecorCoffin"]
+[ext_resource type="PackedScene" uid="uid://bq8decorbush" path="res://scenes/levels/props/DecorBush.tscn" id="18_DecorBush"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
+size = Vector3(9, 1, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3"]
+size = Vector3(4.2, 0.45, 45)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4"]
+size = Vector2(40, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5"]
+albedo_color = Color(0.2, 0.24, 0.16, 1)
+roughness = 0.85
+metallic_specular = 0.2
+emission_enabled = true
+emission = Color(0.18, 0.26, 0.4, 1)
+emission_energy_multiplier = 0.22
+
+[sub_resource type="BoxMesh" id="BoxMesh_6"]
+size = Vector3(0.06, 0.015, 45)
+
+[node name="Chunk_Graveyard_02" type="Node3D"]
+script = ExtResource("1_Chunk")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1")
+surface_material_override/0 = ExtResource("2_graveyard_gr")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_2")
+
+[node name="ShoulderL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4, -0.12, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("3_graveyard_sh")
+
+[node name="ShoulderR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4, -0.12, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_3")
+surface_material_override/0 = ExtResource("3_graveyard_sh")
+
+[node name="FieldL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.5, 0.105, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_4")
+surface_material_override/0 = ExtResource("4_graveyard_fi")
+
+[node name="FieldR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.5, 0.105, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_4")
+surface_material_override/0 = ExtResource("4_graveyard_fi")
+
+[node name="LaneMarkerL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = SubResource("StandardMaterial3D_5")
+
+[node name="LaneMarkerR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = SubResource("StandardMaterial3D_5")
+
+[node name="Props" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, 0)
+
+[node name="GateArch" parent="Props" instance=ExtResource("5_DecorGateArc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 18.5)
+
+[node name="MausoleumL" parent="Props" instance=ExtResource("6_DecorMausole")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 0, 4)
+
+[node name="MausoleumR" parent="Props" instance=ExtResource("6_DecorMausole")]
+transform = Transform3D(-1.1, 0, 0, 0, 1.1, 0, 0, 0, -1.1, 12, 0, -13)
+
+[node name="ObeliskL" parent="Props" instance=ExtResource("7_DecorObelisk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -12)
+
+[node name="ObeliskR" parent="Props" instance=ExtResource("7_DecorObelisk")]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 10.5, 0, 9)
+
+[node name="RowStone0" parent="Props" instance=ExtResource("8_DecorGravest")]
+transform = Transform3D(0.1736, 0, 0.9848, 0, 1, 0, -0.9848, 0, 0.1736, -10.2, 0, 15)
+
+[node name="RowStone1" parent="Props" instance=ExtResource("9_DecorGravest")]
+transform = Transform3D(-0.0523, 0, 0.9986, 0, 1, 0, -0.9986, 0, -0.0523, -11.6, 0, 15.5)
+
+[node name="RowStone2" parent="Props" instance=ExtResource("10_DecorGravest")]
+transform = Transform3D(0.0698, 0, 0.9976, 0, 1, 0, -0.9976, 0, 0.0698, -13, 0, 14.6)
+
+[node name="RowStone3" parent="Props" instance=ExtResource("11_DecorGravest")]
+transform = Transform3D(-0.1564, 0, 0.9877, 0, 1, 0, -0.9877, 0, -0.1564, -10.4, 0, 11)
+
+[node name="RowStone4" parent="Props" instance=ExtResource("8_DecorGravest")]
+transform = Transform3D(-0.0349, 0, 0.9994, 0, 1, 0, -0.9994, 0, -0.0349, -11.9, 0, 10.6)
+
+[node name="RowStone5" parent="Props" instance=ExtResource("9_DecorGravest")]
+transform = Transform3D(0.0872, 0, 0.9962, 0, 1, 0, -0.9962, 0, 0.0872, -13.3, 0, 11.3)
+
+[node name="RowStone6" parent="Props" instance=ExtResource("10_DecorGravest")]
+transform = Transform3D(0.1392, 0, -0.9903, 0, 1, 0, 0.9903, 0, 0.1392, 10.2, 0, 1)
+
+[node name="RowStone7" parent="Props" instance=ExtResource("11_DecorGravest")]
+transform = Transform3D(0.0175, 0, -0.9998, 0, 1, 0, 0.9998, 0, 0.0175, 11.6, 0, 0.4)
+
+[node name="RowStone8" parent="Props" instance=ExtResource("8_DecorGravest")]
+transform = Transform3D(-0.1045, 0, -0.9945, 0, 1, 0, 0.9945, 0, -0.1045, 13, 0, 1.2)
+
+[node name="RowStone9" parent="Props" instance=ExtResource("9_DecorGravest")]
+transform = Transform3D(0.1219, 0, -0.9925, 0, 1, 0, 0.9925, 0, 0.1219, 10.4, 0, -3)
+
+[node name="RowStone10" parent="Props" instance=ExtResource("10_DecorGravest")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 11.8, 0, -3.5)
+
+[node name="FenceL1" parent="Props" instance=ExtResource("12_DecorIronFen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.25, 0, 9)
+
+[node name="FenceL2" parent="Props" instance=ExtResource("12_DecorIronFen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.25, 0, -9)
+
+[node name="FenceR1" parent="Props" instance=ExtResource("12_DecorIronFen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.25, 0, 7)
+
+[node name="FenceR2" parent="Props" instance=ExtResource("12_DecorIronFen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.25, 0, -6)
+
+[node name="TorchL1" parent="Props" instance=ExtResource("13_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, 10)
+
+[node name="TorchL2" parent="Props" instance=ExtResource("13_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0, -14)
+
+[node name="TorchR1" parent="Props" instance=ExtResource("13_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, 2)
+
+[node name="TorchR2" parent="Props" instance=ExtResource("13_Torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0, -19)
+
+[node name="LanternGateL" parent="Props" instance=ExtResource("14_DecorLantern")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7, 0, 16.6)
+
+[node name="LanternGateR" parent="Props" instance=ExtResource("14_DecorLantern")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4.7, 0, 16.6)
+
+[node name="StoneL1" parent="Props" instance=ExtResource("10_DecorGravest")]
+transform = Transform3D(0.9659, 0, 0.2588, 0, 1, 0, -0.2588, 0, 0.9659, -5.6, 0, 1)
+
+[node name="StoneL2" parent="Props" instance=ExtResource("8_DecorGravest")]
+transform = Transform3D(0.9397, 0, -0.342, 0, 1, 0, 0.342, 0, 0.9397, -5.9, 0, -5)
+
+[node name="StoneL3" parent="Props" instance=ExtResource("11_DecorGravest")]
+transform = Transform3D(0.9903, 0, 0.1392, 0, 1, 0, -0.1392, 0, 0.9903, -5.5, 0, -17)
+
+[node name="StoneR1" parent="Props" instance=ExtResource("9_DecorGravest")]
+transform = Transform3D(0.9781, 0, -0.2079, 0, 1, 0, 0.2079, 0, 0.9781, 5.7, 0, 9)
+
+[node name="StoneR2" parent="Props" instance=ExtResource("11_DecorGravest")]
+transform = Transform3D(0.9272, 0, 0.3746, 0, 1, 0, -0.3746, 0, 0.9272, 5.6, 0, -9)
+
+[node name="StoneR3" parent="Props" instance=ExtResource("8_DecorGravest")]
+transform = Transform3D(0.9962, 0, -0.0872, 0, 1, 0, 0.0872, 0, 0.9962, 5.9, 0, -12.5)
+
+[node name="TreeL1" parent="Props" instance=ExtResource("15_DecorDeadTre")]
+transform = Transform3D(0.1202, 0, -1.1437, 0, 1.15, 0, 1.1437, 0, 0.1202, -7.6, 0, 12)
+
+[node name="TreeL2" parent="Props" instance=ExtResource("15_DecorDeadTre")]
+transform = Transform3D(0.3404, 0, -0.8869, 0, 0.95, 0, 0.8869, 0, 0.3404, -7.4, 0, -3)
+
+[node name="TreeR1" parent="Props" instance=ExtResource("15_DecorDeadTre")]
+transform = Transform3D(1.0625, 0, -0.2847, 0, 1.1, 0, 0.2847, 0, 1.0625, 7.7, 0, 15)
+
+[node name="TreeR2" parent="Props" instance=ExtResource("15_DecorDeadTre")]
+transform = Transform3D(0.9903, 0, -0.1392, 0, 1, 0, 0.1392, 0, 0.9903, 7.5, 0, -16)
+
+[node name="CrossL1" parent="Props" instance=ExtResource("16_DecorFallenC")]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, -6.4, 0, 8.5)
+
+[node name="CrossR1" parent="Props" instance=ExtResource("16_DecorFallenC")]
+transform = Transform3D(0.9063, 0, -0.4226, 0, 1, 0, 0.4226, 0, 0.9063, 6.5, 0, -1)
+
+[node name="CoffinL" parent="Props" instance=ExtResource("17_DecorCoffin")]
+transform = Transform3D(0.9848, 0, 0.1736, 0, 1, 0, -0.1736, 0, 0.9848, -6.6, 0, -14.5)
+
+[node name="BushL1" parent="Props" instance=ExtResource("18_DecorBush")]
+transform = Transform3D(-0.9969, 0, 0.0785, 0, 1, 0, -0.0785, 0, -0.9969, -6.8, 0, 19.5)
+
+[node name="BushR1" parent="Props" instance=ExtResource("18_DecorBush")]
+transform = Transform3D(-0.9995, 0, 0.0314, 0, 1, 0, -0.0314, 0, -0.9995, 6.9, 0, 19.8)
+
+[node name="BushR2" parent="Props" instance=ExtResource("18_DecorBush")]
+transform = Transform3D(0.7604, 0, 0.6494, 0, 1, 0, -0.6494, 0, 0.7604, 6.2, 0, 4.5)
+
+[node name="Obstacles" type="Node3D" parent="."]
+
+[node name="Collectibles" type="Node3D" parent="."]

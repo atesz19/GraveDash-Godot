@@ -1,0 +1,243 @@
+[gd_scene load_steps=22 format=3 uid="uid://bq8chunkcastle03"]
+
+[ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_Chunk"]
+[ext_resource type="Material" uid="uid://bq8matcastle" path="res://resources/biomes/haunted_castle_ground.tres" id="2_haunted_cast"]
+[ext_resource type="PackedScene" uid="uid://bq8decorcastlewall" path="res://scenes/levels/props/DecorCastleWall.tscn" id="3_DecorCastleW"]
+[ext_resource type="PackedScene" uid="uid://bq8decorpillar" path="res://scenes/levels/props/DecorPillar.tscn" id="4_DecorPillar"]
+[ext_resource type="Material" uid="uid://bq8matclothred" path="res://resources/materials/props/cloth_red.tres" id="5_cloth_red"]
+[ext_resource type="Material" uid="uid://bq8matgoldtrim" path="res://resources/materials/props/gold_trim.tres" id="6_gold_trim"]
+[ext_resource type="Material" uid="uid://bq8matstonedark" path="res://resources/materials/props/stone_dark.tres" id="7_stone_dark"]
+[ext_resource type="Material" uid="uid://bq8matwooddark" path="res://resources/materials/props/wood_dark.tres" id="8_wood_dark"]
+[ext_resource type="PackedScene" uid="uid://bq8decorbannerviolet" path="res://scenes/levels/props/DecorBannerViolet.tscn" id="9_DecorBannerV"]
+[ext_resource type="PackedScene" uid="uid://bq8decorwindow" path="res://scenes/levels/props/DecorWindow.tscn" id="10_DecorWindow"]
+[ext_resource type="PackedScene" uid="uid://bq8decorbanner" path="res://scenes/levels/props/DecorBanner.tscn" id="11_DecorBanner"]
+[ext_resource type="PackedScene" uid="uid://bq8walltorch" path="res://scenes/levels/props/WallTorch.tscn" id="12_WallTorch"]
+[ext_resource type="PackedScene" uid="uid://bq8chandelier" path="res://scenes/levels/props/DecorChandelier.tscn" id="13_DecorChandel"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+size = Vector3(12.6, 1, 45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
+size = Vector3(12.6, 1, 45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3"]
+albedo_color = Color(0.35, 0.22, 0.2, 1)
+emission_enabled = true
+emission = Color(0.45, 0.14, 0.1, 1)
+emission_energy_multiplier = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_4"]
+size = Vector3(0.06, 0.02, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5"]
+size = Vector3(1.6, 0.024, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6"]
+size = Vector3(0.08, 0.028, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7"]
+size = Vector3(12.6, 0.4, 45)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8"]
+size = Vector3(11.6, 0.35, 0.4)
+
+[node name="Chunk_Castle_03" type="Node3D"]
+script = ExtResource("1_Chunk")
+edge_set = "castle"
+edge_ground_y = 0
+decor_visibility_end = 130
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1")
+surface_material_override/0 = ExtResource("2_haunted_cast")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_2")
+
+[node name="LaneMarkerL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_4")
+surface_material_override/0 = SubResource("StandardMaterial3D_3")
+
+[node name="LaneMarkerR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_4")
+surface_material_override/0 = SubResource("StandardMaterial3D_3")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="WallL1" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 15)
+
+[node name="WallL2" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 0)
+
+[node name="WallL3" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -15)
+
+[node name="WallR1" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6, 0, 15)
+
+[node name="WallR2" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6, 0, 0)
+
+[node name="WallR3" parent="Props" instance=ExtResource("3_DecorCastleW")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6, 0, -15)
+
+[node name="PillarL0" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, 22.5)
+
+[node name="PillarL1" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, 15)
+
+[node name="PillarL2" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, 7.5)
+
+[node name="PillarL3" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, 0)
+
+[node name="PillarL4" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, -7.5)
+
+[node name="PillarL5" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, -5.5, 0, -15)
+
+[node name="PillarR0" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, 22.5)
+
+[node name="PillarR1" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, 15)
+
+[node name="PillarR2" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, 7.5)
+
+[node name="PillarR3" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, 0)
+
+[node name="PillarR4" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, -7.5)
+
+[node name="PillarR5" parent="Props" instance=ExtResource("4_DecorPillar")]
+transform = Transform3D(1, 0, 0, 0, 1.3, 0, 0, 0, 1, 5.5, 0, -15)
+
+[node name="Carpet" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_5")
+surface_material_override/0 = ExtResource("5_cloth_red")
+
+[node name="CarpetTrimL" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.84, 0.014, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = ExtResource("6_gold_trim")
+
+[node name="CarpetTrimR" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84, 0.014, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_6")
+surface_material_override/0 = ExtResource("6_gold_trim")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.2, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_7")
+surface_material_override/0 = ExtResource("7_stone_dark")
+
+[node name="Beam0" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, 22.5)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Beam1" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, 15)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Beam2" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, 7.5)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Beam3" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Beam4" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, -7.5)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Beam5" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.8, -15)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_8")
+surface_material_override/0 = ExtResource("8_wood_dark")
+
+[node name="Banner0" parent="Props" instance=ExtResource("9_DecorBannerV")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, 18.75)
+
+[node name="Window0" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, 18.75)
+
+[node name="Banner1" parent="Props" instance=ExtResource("11_DecorBanner")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, 11.25)
+
+[node name="Window1" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, 11.25)
+
+[node name="Banner2" parent="Props" instance=ExtResource("11_DecorBanner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, 3.75)
+
+[node name="Window2" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, 3.75)
+
+[node name="Banner3" parent="Props" instance=ExtResource("9_DecorBannerV")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, -3.75)
+
+[node name="Window3" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, -3.75)
+
+[node name="Banner4" parent="Props" instance=ExtResource("11_DecorBanner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, -11.25)
+
+[node name="Window4" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, -11.25)
+
+[node name="Banner5" parent="Props" instance=ExtResource("11_DecorBanner")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 0, -18.75)
+
+[node name="Window5" parent="Props" instance=ExtResource("10_DecorWindow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 0, -18.75)
+
+[node name="TorchL1" parent="Props" instance=ExtResource("12_WallTorch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 2, 7.5)
+cast_light = false
+
+[node name="TorchR1" parent="Props" instance=ExtResource("12_WallTorch")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5.7, 2, -7.5)
+cast_light = false
+
+[node name="Chandelier1" parent="Props" instance=ExtResource("13_DecorChandel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 11.25)
+
+[node name="Chandelier2" parent="Props" instance=ExtResource("13_DecorChandel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, -11.25)
+
+[node name="Obstacles" type="Node3D" parent="."]
+
+[node name="Collectibles" type="Node3D" parent="."]

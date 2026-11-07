@@ -17,6 +17,8 @@ metallic = 0.15
 [sub_resource type="SphereMesh" id="Mesh_core"]
 radius = 0.16
 height = 0.32
+radial_segments = 16
+rings = 8
 
 [sub_resource type="StandardMaterial3D" id="Mat_wisp"]
 transparency = 1
@@ -30,6 +32,8 @@ cull_mode = 2
 [sub_resource type="CapsuleMesh" id="Mesh_wisp"]
 radius = 0.05
 height = 0.55
+radial_segments = 12
+rings = 4
 
 [sub_resource type="StandardMaterial3D" id="Mat_shard"]
 transparency = 1
@@ -57,6 +61,8 @@ cull_mode = 2
 [sub_resource type="SphereMesh" id="Mesh_halo"]
 radius = 0.32
 height = 0.64
+radial_segments = 16
+rings = 8
 
 [sub_resource type="StandardMaterial3D" id="Mat_halo"]
 transparency = 1

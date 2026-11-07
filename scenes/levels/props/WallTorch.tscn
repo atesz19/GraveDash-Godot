@@ -1,0 +1,79 @@
+[gd_scene load_steps=10 format=3 uid="uid://bq8walltorch"]
+
+[ext_resource type="Script" path="res://scripts/props/Torch.gd" id="1_torch"]
+[ext_resource type="Material" uid="uid://bq8fxhalowarm" path="res://resources/fx/halo_warm.tres" id="2_halo"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_plate"]
+size = Vector3(0.08, 0.5, 0.26)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iron"]
+albedo_color = Color(0.16, 0.14, 0.13, 1)
+metallic = 0.75
+roughness = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cup"]
+top_radius = 0.13
+bottom_radius = 0.05
+height = 0.2
+radial_segments = 8
+
+[sub_resource type="BoxMesh" id="BoxMesh_arm"]
+size = Vector3(0.32, 0.06, 0.06)
+
+[sub_resource type="SphereMesh" id="SphereMesh_flame"]
+radius = 0.12
+height = 0.3
+radial_segments = 10
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+shading_mode = 0
+albedo_color = Color(1, 0.62, 0.22, 1)
+emission_enabled = true
+emission = Color(1, 0.42, 0.08, 1)
+emission_energy_multiplier = 6.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_halo"]
+size = Vector2(1.2, 1.2)
+
+[node name="WallTorch" type="Node3D"]
+script = ExtResource("1_torch")
+light_energy = 1.6
+light_range = 7.0
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("BoxMesh_plate")
+surface_material_override/0 = SubResource("StandardMaterial3D_iron")
+
+[node name="Arm" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16, 0.05, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_arm")
+surface_material_override/0 = SubResource("StandardMaterial3D_iron")
+
+[node name="Cup" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 0.15, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_cup")
+surface_material_override/0 = SubResource("StandardMaterial3D_iron")
+
+[node name="Flame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 0.36, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_flame")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="Halo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 0.38, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_halo")
+surface_material_override/0 = ExtResource("2_halo")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.4, 0)
+light_color = Color(1, 0.52, 0.18, 1)
+light_energy = 1.6
+light_specular = 0.5
+omni_range = 7.0
+omni_attenuation = 1.25

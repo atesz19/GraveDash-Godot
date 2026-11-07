@@ -28,6 +28,7 @@ var _biomes: Dictionary = {}
 var _castle_trigger_m: float = 1350.0
 var _castle_reached: bool = false
 var _transitioning: bool = false
+var _last_variant_idx: int = -1
 
 
 func _ready() -> void:
@@ -57,9 +58,17 @@ func _register_builtin_biomes() -> void:
 				"id": "chunk_graveyard",
 				"scene": preload("res://scenes/levels/Chunk_Graveyard_01.tscn"),
 			},
+			{
+				"id": "chunk_graveyard_02",
+				"scene": preload("res://scenes/levels/Chunk_Graveyard_02.tscn"),
+			},
+			{
+				"id": "chunk_graveyard_03",
+				"scene": preload("res://scenes/levels/Chunk_Graveyard_03.tscn"),
+			},
 		],
-		"moon_color": Color(0.58, 0.64, 1.0, 1),
-		"moon_energy": 0.78,
+		"moon_color": Color(0.62, 0.68, 1.0, 1),
+		"moon_energy": 0.95,
 		"moon_specular": 0.55,
 		"moon_rotation_degrees": Vector3(-42.0, -35.0, 12.0),
 	}
@@ -76,6 +85,10 @@ func _register_builtin_biomes() -> void:
 			{
 				"id": "chunk_haunted_castle_02",
 				"scene": preload("res://scenes/levels/Chunk_Castle_02.tscn"),
+			},
+			{
+				"id": "chunk_haunted_castle_03",
+				"scene": preload("res://scenes/levels/Chunk_Castle_03.tscn"),
 			},
 		],
 		## Keep castle mood via color, not by dimming the whole frame.
@@ -143,7 +156,12 @@ func pick_chunk_pool_id(biome_id: String = "") -> String:
 	var variants := get_chunk_variants(biome_id)
 	if variants.is_empty():
 		return get_chunk_pool_id(biome_id)
-	var pick: Dictionary = variants[randi() % variants.size()]
+	var idx: int = randi() % variants.size()
+	## No back-to-back repeats so variants read as variety, not noise.
+	if variants.size() > 1 and idx == _last_variant_idx:
+		idx = (idx + 1 + randi() % (variants.size() - 1)) % variants.size()
+	_last_variant_idx = idx
+	var pick: Dictionary = variants[idx]
 	return str(pick.get("id", get_chunk_pool_id(biome_id)))
 
 

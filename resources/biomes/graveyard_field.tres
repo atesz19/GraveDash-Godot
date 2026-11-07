@@ -1,0 +1,15 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://bq8matgyfield"]
+
+[ext_resource type="Texture2D" uid="uid://bq8texgyalbedo" path="res://resources/biomes/textures/graveyard_ground_albedo.tres" id="1_albedo"]
+[ext_resource type="Texture2D" uid="uid://bq8texgynormal" path="res://resources/biomes/textures/graveyard_ground_normal.tres" id="2_normal"]
+
+[resource]
+albedo_color = Color(0.36, 0.42, 0.3, 1)
+albedo_texture = ExtResource("1_albedo")
+metallic_specular = 0.2
+roughness = 0.95
+normal_enabled = true
+normal_scale = 1.2
+normal_texture = ExtResource("2_normal")
+uv1_scale = Vector3(6, 4, 1)
+texture_filter = 2

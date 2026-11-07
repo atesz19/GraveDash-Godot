@@ -17,6 +17,8 @@ metallic = 0.2
 [sub_resource type="SphereMesh" id="Mesh_core"]
 radius = 0.22
 height = 0.44
+radial_segments = 16
+rings = 8
 
 [sub_resource type="StandardMaterial3D" id="Mat_skull"]
 transparency = 1
@@ -30,6 +32,8 @@ cull_mode = 2
 [sub_resource type="SphereMesh" id="Mesh_dome"]
 radius = 0.38
 height = 0.55
+radial_segments = 16
+rings = 8
 
 [sub_resource type="BoxMesh" id="Mesh_jaw"]
 size = Vector3(0.42, 0.18, 0.28)
@@ -44,6 +48,8 @@ roughness = 0.1
 [sub_resource type="SphereMesh" id="Mesh_eye"]
 radius = 0.07
 height = 0.14
+radial_segments = 16
+rings = 8
 
 [sub_resource type="StandardMaterial3D" id="Mat_shard"]
 transparency = 1
@@ -59,6 +65,8 @@ size = Vector3(0.14, 0.42, 0.1)
 [sub_resource type="CapsuleMesh" id="Mesh_wisp"]
 radius = 0.06
 height = 0.7
+radial_segments = 12
+rings = 4
 
 [sub_resource type="StandardMaterial3D" id="Mat_wisp"]
 transparency = 1

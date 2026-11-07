@@ -54,6 +54,96 @@ func _build_if_needed() -> void:
 	var hill_mat: StandardMaterial3D = _make_silhouette_mat(Color(0.05, 0.055, 0.08, 1))
 	_populate_bank(left_bank, -1.0, sil_mat, hill_mat)
 	_populate_bank(right_bank, 1.0, sil_mat, hill_mat)
+	_add_church(right_bank, hill_mat, sil_mat)
+	_add_moon()
+	_disable_shadows(self)
+
+
+func _disable_shadows(n: Node) -> void:
+	if n is GeometryInstance3D:
+		(n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for c in n.get_children():
+		_disable_shadows(c)
+
+
+func _add_church(bank: Node3D, body_mat: Material, roof_mat: Material) -> void:
+	if bank == null:
+		return
+	var root := Node3D.new()
+	root.position = Vector3(34.0, 0.0, -62.0)
+	root.rotation_degrees.y = -18.0
+	bank.add_child(root)
+	var nave := MeshInstance3D.new()
+	var nave_mesh := BoxMesh.new()
+	nave_mesh.size = Vector3(7.0, 6.0, 14.0)
+	nave.mesh = nave_mesh
+	nave.material_override = body_mat
+	nave.position.y = 3.0
+	root.add_child(nave)
+	var roof := MeshInstance3D.new()
+	var roof_mesh := PrismMesh.new()
+	roof_mesh.size = Vector3(7.6, 3.2, 14.4)
+	roof.mesh = roof_mesh
+	roof.material_override = roof_mat
+	roof.position.y = 7.6
+	root.add_child(roof)
+	var tower := MeshInstance3D.new()
+	var tower_mesh := BoxMesh.new()
+	tower_mesh.size = Vector3(3.2, 12.0, 3.2)
+	tower.mesh = tower_mesh
+	tower.material_override = body_mat
+	tower.position = Vector3(0.0, 6.0, 8.0)
+	root.add_child(tower)
+	var spire := MeshInstance3D.new()
+	var spire_mesh := CylinderMesh.new()
+	spire_mesh.top_radius = 0.0
+	spire_mesh.bottom_radius = 2.2
+	spire_mesh.height = 7.0
+	spire_mesh.radial_segments = 4
+	spire.mesh = spire_mesh
+	spire.material_override = roof_mat
+	spire.position = Vector3(0.0, 15.5, 8.0)
+	spire.rotation_degrees.y = 45.0
+	root.add_child(spire)
+	## Faint lit window so the silhouette reads through fog.
+	var win := MeshInstance3D.new()
+	var win_mesh := BoxMesh.new()
+	win_mesh.size = Vector3(0.2, 1.6, 0.8)
+	win.mesh = win_mesh
+	var win_mat := StandardMaterial3D.new()
+	win_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	win_mat.albedo_color = Color(1.0, 0.62, 0.25)
+	win.material_override = win_mat
+	win.position = Vector3(-3.55, 3.2, -2.0)
+	root.add_child(win)
+
+
+func _add_moon() -> void:
+	## Sky-locked moon: rides with the backdrop, ignores fog so it stays crisp.
+	var moon := MeshInstance3D.new()
+	var disc := SphereMesh.new()
+	disc.radius = 5.5
+	disc.height = 11.0
+	disc.radial_segments = 24
+	disc.rings = 12
+	moon.mesh = disc
+	var moon_mat := StandardMaterial3D.new()
+	moon_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	moon_mat.albedo_color = Color(1.6, 1.55, 1.38)
+	moon_mat.disable_fog = true
+	moon.material_override = moon_mat
+	moon.position = Vector3(-26.0, 27.0, -165.0)
+	add_child(moon)
+	var halo := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(52.0, 52.0)
+	halo.mesh = quad
+	var halo_mat := (load("res://resources/fx/halo_cold.tres") as StandardMaterial3D).duplicate() as StandardMaterial3D
+	halo_mat.disable_fog = true
+	halo_mat.albedo_color = Color(0.55, 0.62, 1.0, 0.55)
+	halo.material_override = halo_mat
+	halo.position = moon.position + Vector3(0.0, 0.0, 8.0)
+	add_child(halo)
 
 
 func _make_silhouette_mat(color: Color) -> StandardMaterial3D:
@@ -63,10 +153,6 @@ func _make_silhouette_mat(color: Color) -> StandardMaterial3D:
 	mat.metallic = 0.0
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 	mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-	## Let fog dissolve distant silhouettes.
-	mat.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_DITHER
-	mat.distance_fade_min_distance = 55.0
-	mat.distance_fade_max_distance = 110.0
 	return mat
 
 
@@ -105,19 +191,6 @@ func _populate_bank(bank: Node3D, side: float, sil_mat: Material, hill_mat: Mate
 		tree.position = Vector3(x, trunk.height * 0.5 - 0.2, z)
 		tree.rotation_degrees = Vector3(0.0, float(i * 37 % 180), side * (4.0 + float(i % 3)))
 		bank.add_child(tree)
-		## Sparse canopy blob.
-		if i % 2 == 0:
-			var canopy: MeshInstance3D = MeshInstance3D.new()
-			var blob: SphereMesh = SphereMesh.new()
-			blob.radius = 1.4 + float(i % 3) * 0.35
-			blob.height = blob.radius * 1.6
-			blob.radial_segments = 8
-			blob.rings = 4
-			canopy.mesh = blob
-			canopy.material_override = sil_mat
-			canopy.position = Vector3(x + side * 0.4, trunk.height + 0.4, z)
-			canopy.scale = Vector3(1.0, 0.55, 1.2)
-			bank.add_child(canopy)
 	## Mid-band PBR gravestones (01–04 mix) — far enough to clear the 3 lanes.
 	var grave_scenes: Array[String] = [
 		"res://scenes/levels/props/DecorGravestone_01.tscn",

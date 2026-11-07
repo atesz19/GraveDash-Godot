@@ -1,6 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="16" fill="#1a2218"/>
-  <path d="M64 20 L92 48 L84 48 L84 100 L44 100 L44 48 L36 48 Z" fill="#6b8f5a"/>
-  <rect x="52" y="72" width="24" height="28" fill="#2a3326"/>
-  <circle cx="64" cy="56" r="8" fill="#c4d4a8"/>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1d4a"/>
+      <stop offset="1" stop-color="#0d0a18"/>
+    </linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a8796"/>
+      <stop offset="1" stop-color="#4a4756"/>
+    </linearGradient>
+    <radialGradient id="soul" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#e8fff6"/>
+      <stop offset="0.35" stop-color="#5cf2c4"/>
+      <stop offset="1" stop-color="#5cf2c4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!--BG--><rect width="128" height="128" rx="24" fill="url(#sky)"/><!--/BG-->
+  <g id="art">
+    <circle cx="94" cy="30" r="13" fill="#f1ead2"/>
+    <circle cx="100" cy="26" r="11" fill="#2a1d4a"/>
+    <path d="M0 104 Q32 92 64 100 T128 98 V128 H0 Z" fill="#0a0812"/>
+    <path d="M38 104 V58 Q38 34 64 34 Q90 34 90 58 V104 Z" fill="url(#stone)" stroke="#24212e" stroke-width="3"/>
+    <rect x="60" y="46" width="8" height="34" rx="2" fill="#2a2734"/>
+    <rect x="50" y="56" width="28" height="8" rx="2" fill="#2a2734"/>
+    <circle cx="64" cy="88" r="20" fill="url(#soul)"/>
+    <circle cx="64" cy="88" r="6" fill="#f4fffb"/>
+  </g>
 </svg>

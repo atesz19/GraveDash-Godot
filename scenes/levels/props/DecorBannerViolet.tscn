@@ -1,0 +1,57 @@
+[gd_scene load_steps=9 format=3 uid="uid://bq8decorbannerviolet"]
+
+[ext_resource type="Material" uid="uid://bq8matiron" path="res://resources/materials/props/iron.tres" id="1_iron"]
+[ext_resource type="Material" uid="uid://bq8matclothviolet" path="res://resources/materials/props/cloth_violet.tres" id="2_cloth_violet"]
+[ext_resource type="Material" uid="uid://bq8matgoldtrim" path="res://resources/materials/props/gold_trim.tres" id="3_gold_trim"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1"]
+top_radius = 0.035
+bottom_radius = 0.035
+height = 1.4
+radial_segments = 6
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_2"]
+size = Vector3(0.04, 2.5, 1.1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_3"]
+size = Vector3(1.1, 0.36, 0.04)
+left_to_right = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_4"]
+size = Vector3(0.03, 0.42, 0.42)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5"]
+size = Vector3(0.03, 0.08, 1.12)
+
+[node name="DecorBannerViolet" type="Node3D"]
+
+[node name="Rod" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.12, 4.55, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_1")
+surface_material_override/0 = ExtResource("1_iron")
+
+[node name="Cloth" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 3.25, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_2")
+surface_material_override/0 = ExtResource("2_cloth_violet")
+
+[node name="Tail" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, 1, 0.12, 1.82, 0)
+cast_shadow = 0
+mesh = SubResource("PrismMesh_3")
+surface_material_override/0 = ExtResource("2_cloth_violet")
+
+[node name="Emblem" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.7071, -0.7071, 0, 0.7071, 0.7071, 0.15, 3.55, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_4")
+surface_material_override/0 = ExtResource("3_gold_trim")
+
+[node name="Stripe" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 2.3, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_5")
+surface_material_override/0 = ExtResource("3_gold_trim")
