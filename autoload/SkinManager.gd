@@ -7,9 +7,9 @@ signal equipped_changed(skin_id: String)
 const SAVE_KEY_OWNED: String = "skins_owned"
 const SAVE_KEY_EQUIPPED: String = "skin_equipped"
 const DEFAULT_SKIN: String = "witch"
+const Economy = preload("res://scripts/economy/EconomyConfig.gd")
 
-## Catalog order = shop display order.
-## Pricing: Minion 10k, Rogue 20k, Warrior 25k, Mage 30k.
+## Catalog order = shop display order. Prices: EconomyConfig.SKIN_PRICES.
 var _catalog: Array[Dictionary] = []
 var owned_ids: PackedStringArray = PackedStringArray([DEFAULT_SKIN])
 var equipped_id: String = DEFAULT_SKIN
@@ -34,7 +34,7 @@ func _build_catalog() -> void:
 			"id": "skeleton_minion",
 			"name": "Skeleton Minion",
 			"description": "Rattling recruit of the graveyard",
-			"price": 10000,
+			"price": Economy.skin_price("skeleton_minion"),
 			"runner_scene": "res://scenes/player/SkeletonMinionRunner.tscn",
 			"preview_color": Color(0.75, 0.78, 0.7, 1),
 		},
@@ -42,7 +42,7 @@ func _build_catalog() -> void:
 			"id": "skeleton_rogue",
 			"name": "Skeleton Rogue",
 			"description": "Hooded bone thief",
-			"price": 20000,
+			"price": Economy.skin_price("skeleton_rogue"),
 			"runner_scene": "res://scenes/player/SkeletonRogueRunner.tscn",
 			"preview_color": Color(0.45, 0.55, 0.5, 1),
 		},
@@ -50,7 +50,7 @@ func _build_catalog() -> void:
 			"id": "skeleton_warrior",
 			"name": "Skeleton Warrior",
 			"description": "Armored undead vanguard",
-			"price": 25000,
+			"price": Economy.skin_price("skeleton_warrior"),
 			"runner_scene": "res://scenes/player/SkeletonWarriorRunner.tscn",
 			"preview_color": Color(0.65, 0.55, 0.4, 1),
 		},
@@ -58,7 +58,7 @@ func _build_catalog() -> void:
 			"id": "skeleton_mage",
 			"name": "Skeleton Mage",
 			"description": "Bone sorcerer of the crypt",
-			"price": 30000,
+			"price": Economy.skin_price("skeleton_mage"),
 			"runner_scene": "res://scenes/player/SkeletonMageRunner.tscn",
 			"preview_color": Color(0.4, 0.55, 0.75, 1),
 		},

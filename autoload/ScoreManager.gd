@@ -24,11 +24,19 @@ var highscore: int = 0
 ## Soul collectible points earned this run (banked into wallet on game over).
 var run_souls: int = 0
 
+## Souls granted by missions completed this run (kept apart so soul missions don't count them).
+var run_mission_souls: int = 0
+
 ## Persistent soul currency wallet (shop / meta progress).
 var total_souls: int = 0
 
+## Breakdown of the last banked run: collected, missions, bonus, multiplier, total.
+var last_run_payout: Dictionary = {}
+
 var _distance_point_carry: float = 0.0
 var _souls_banked_this_run: bool = false
+
+const Economy = preload("res://scripts/economy/EconomyConfig.gd")
 
 const POINTS_PER_METER: float = 1.0
 const SAVE_KEY_HIGHSCORE: String = "highscore"
@@ -65,6 +73,8 @@ func reset_run() -> void:
 	score = 0
 	distance = 0.0
 	run_souls = 0
+	run_mission_souls = 0
+	last_run_payout = {}
 	_distance_point_carry = 0.0
 	_souls_banked_this_run = false
 	raw_score_changed.emit(raw_score)
@@ -125,13 +135,34 @@ func commit_highscore() -> void:
 	_write_persisted(SAVE_KEY_HIGHSCORE, highscore)
 
 
+func add_mission_souls(amount: int) -> void:
+	if amount <= 0 or _souls_banked_this_run:
+		return
+	run_mission_souls += amount
+
+
+## Collected souls + mission rewards + multiplier bonus on collected souls.
+func get_run_payout() -> Dictionary:
+	var mult: int = get_multiplier()
+	var bonus: int = int(floor(float(run_souls) * Economy.multiplier_bonus_ratio(mult)))
+	return {
+		"collected": run_souls,
+		"missions": run_mission_souls,
+		"bonus": bonus,
+		"multiplier": mult,
+		"total": run_souls + run_mission_souls + bonus,
+	}
+
+
 func commit_run_souls() -> void:
 	if _souls_banked_this_run:
 		return
 	_souls_banked_this_run = true
-	if run_souls <= 0:
+	last_run_payout = get_run_payout()
+	var payout: int = int(last_run_payout.get("total", 0))
+	if payout <= 0:
 		return
-	total_souls = maxi(0, total_souls + run_souls)
+	total_souls = maxi(0, total_souls + payout)
 	total_souls_changed.emit(total_souls)
 	_write_persisted(SAVE_KEY_TOTAL_SOULS, total_souls)
 

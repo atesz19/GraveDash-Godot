@@ -2,9 +2,10 @@ extends Node
 ## MainMenu — Subway Surfers–style runner chrome over live MenuWorld.
 
 const THEME_PATH := "res://resources/ui/MainMenuTheme.tres"
-const SAVE_KEY_LUCKY_CHARM := "shop_lucky_charm"
-const COST_MAGNET := 120
-const COST_DEMO := 25
+const Economy = preload("res://scripts/economy/EconomyConfig.gd")
+const HINT_SKINS := "Buy skeleton skins with banked souls. Witch is free."
+const HINT_UPGRADES := "Permanent upgrades — each level makes every run stronger."
+const TAB_ACTIVE_COLOR := Color(0.18, 0.62, 0.78, 1)
 
 @onready var menu_world: Node3D = $MenuWorld
 @onready var chrome: Control = %Chrome
@@ -35,9 +36,11 @@ const COST_DEMO := 25
 @onready var shop_status_label: Label = %ShopStatusLabel
 @onready var shop_back: Button = %ShopBackButton
 @onready var skin_list: VBoxContainer = %SkinList
-@onready var buy_magnet_button: Button = %BuyMagnetButton
-@onready var buy_demo_button: Button = %BuyDemoButton
-@onready var demo_desc: Label = %DemoDesc
+@onready var upgrade_list: VBoxContainer = %UpgradeList
+@onready var shop_hint: Label = %ShopHint
+@onready var shop_scroll: ScrollContainer = %ShopScroll
+@onready var skins_tab_button: Button = %SkinsTabButton
+@onready var upgrades_tab_button: Button = %UpgradesTabButton
 @onready var transition_fade: ColorRect = %TransitionFade
 @onready var vignette_top: ColorRect = %VignetteTop
 @onready var vignette_bottom: ColorRect = %VignetteBottom
@@ -47,6 +50,9 @@ var _ui_tween: Tween = null
 var _pulse_tween: Tween = null
 var _brand_tween: Tween = null
 var _skin_action_buttons: Dictionary = {} ## skin_id -> Button
+## upgrade_id -> {button, level_label, effect_label, pips: Array[ColorRect]}
+var _upgrade_rows: Dictionary = {}
+var _shop_tab: String = "skins"
 
 
 func _ready() -> void:
@@ -62,6 +68,8 @@ func _ready() -> void:
 	_sync_audio_toggles()
 	_show_main()
 	_build_skin_shop_rows()
+	_build_upgrade_shop_rows()
+	_setup_shop_tabs()
 	_refresh_shop_state()
 	start_button.pressed.connect(_on_start)
 	shop_button.pressed.connect(_on_shop)
@@ -75,14 +83,14 @@ func _ready() -> void:
 		music_volume_slider.value_changed.connect(_on_music_volume_changed)
 	if sfx_volume_slider:
 		sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
-	buy_magnet_button.pressed.connect(_on_buy_magnet)
-	buy_demo_button.pressed.connect(_on_buy_demo)
 	if not ScoreManager.highscore_changed.is_connected(_on_highscore_changed):
 		ScoreManager.highscore_changed.connect(_on_highscore_changed)
 	if not ScoreManager.total_souls_changed.is_connected(_on_total_souls_changed):
 		ScoreManager.total_souls_changed.connect(_on_total_souls_changed)
 	if SkinManager and not SkinManager.skins_changed.is_connected(_on_skins_changed):
 		SkinManager.skins_changed.connect(_on_skins_changed)
+	if UpgradeManager and not UpgradeManager.upgrades_changed.is_connected(_on_skins_changed):
+		UpgradeManager.upgrades_changed.connect(_on_skins_changed)
 	if MissionManager:
 		if not MissionManager.multiplier_changed.is_connected(_on_multiplier_changed):
 			MissionManager.multiplier_changed.connect(_on_multiplier_changed)
@@ -403,6 +411,78 @@ func _on_quit() -> void:
 	get_tree().quit()
 
 
+func _setup_shop_tabs() -> void:
+	var group := ButtonGroup.new()
+	for btn in [skins_tab_button, upgrades_tab_button]:
+		if btn == null:
+			continue
+		btn.toggle_mode = true
+		btn.button_group = group
+		btn.focus_mode = Control.FOCUS_ALL
+	skins_tab_button.pressed.connect(_on_shop_tab.bind("skins"))
+	upgrades_tab_button.pressed.connect(_on_shop_tab.bind("upgrades"))
+	_show_shop_tab("skins")
+
+
+func _on_shop_tab(tab: String) -> void:
+	if tab == _shop_tab:
+		return
+	_ui_click()
+	_show_shop_tab(tab)
+
+
+func _show_shop_tab(tab: String) -> void:
+	_shop_tab = tab
+	var on_skins: bool = tab == "skins"
+	skin_list.visible = on_skins
+	upgrade_list.visible = not on_skins
+	skins_tab_button.set_pressed_no_signal(on_skins)
+	upgrades_tab_button.set_pressed_no_signal(not on_skins)
+	for btn in [skins_tab_button, upgrades_tab_button]:
+		var active: bool = btn.button_pressed
+		btn.self_modulate = Color(1, 1, 1, 1) if active else Color(0.72, 0.76, 0.82, 1)
+		if active:
+			btn.add_theme_stylebox_override("normal", _tab_style(TAB_ACTIVE_COLOR))
+			btn.add_theme_stylebox_override("pressed", _tab_style(TAB_ACTIVE_COLOR))
+			btn.add_theme_stylebox_override("hover", _tab_style(TAB_ACTIVE_COLOR.lightened(0.1)))
+		else:
+			btn.remove_theme_stylebox_override("normal")
+			btn.remove_theme_stylebox_override("pressed")
+			btn.remove_theme_stylebox_override("hover")
+	if shop_hint:
+		shop_hint.text = HINT_SKINS if on_skins else HINT_UPGRADES
+	if shop_scroll:
+		shop_scroll.scroll_vertical = 0
+
+
+func _tab_style(color: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.set_corner_radius_all(16)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(0.6, 0.95, 1.0, 0.9)
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 10
+	sb.shadow_color = Color(0.2, 0.8, 1.0, 0.35)
+	sb.shadow_size = 8
+	return sb
+
+
+func _card_style(accent: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.12, 0.18, 0.82)
+	sb.set_corner_radius_all(14)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(accent.r, accent.g, accent.b, 0.45)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	return sb
+
+
 func _build_skin_shop_rows() -> void:
 	if skin_list == null or SkinManager == null:
 		return
@@ -411,15 +491,21 @@ func _build_skin_shop_rows() -> void:
 	_skin_action_buttons.clear()
 	for skin in SkinManager.get_catalog():
 		var skin_id: String = str(skin.get("id", ""))
+		var color: Color = skin.get("preview_color", Color(0.5, 0.5, 0.5, 1))
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", _card_style(color))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
+		card.add_child(row)
 		## Color swatch preview.
 		var swatch := ColorRect.new()
 		swatch.custom_minimum_size = Vector2(44, 44)
-		swatch.color = skin.get("preview_color", Color(0.5, 0.5, 0.5, 1))
+		swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		swatch.color = color
 		row.add_child(swatch)
 		var info := VBoxContainer.new()
 		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info.add_theme_constant_override("separation", 0)
 		var title := Label.new()
 		title.text = str(skin.get("name", skin_id))
 		info.add_child(title)
@@ -430,12 +516,81 @@ func _build_skin_shop_rows() -> void:
 		info.add_child(desc)
 		row.add_child(info)
 		var btn := Button.new()
-		btn.custom_minimum_size = Vector2(130, 44)
+		btn.custom_minimum_size = Vector2(150, 56)
+		btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		btn.set_meta("skin_id", skin_id)
 		btn.pressed.connect(_on_skin_action.bind(skin_id))
 		row.add_child(btn)
-		skin_list.add_child(row)
+		skin_list.add_child(card)
 		_skin_action_buttons[skin_id] = btn
+
+
+func _build_upgrade_shop_rows() -> void:
+	if upgrade_list == null or UpgradeManager == null:
+		return
+	for c in upgrade_list.get_children():
+		c.queue_free()
+	_upgrade_rows.clear()
+	for def in UpgradeManager.get_catalog():
+		var upgrade_id: String = str(def.get("id", ""))
+		var color: Color = def.get("color", Color(0.5, 0.8, 1.0, 1))
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", _card_style(color))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		card.add_child(row)
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(10, 52)
+		swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		swatch.color = color
+		row.add_child(swatch)
+		var info := VBoxContainer.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info.add_theme_constant_override("separation", 2)
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 10)
+		var title := Label.new()
+		title.text = str(def.get("name", upgrade_id))
+		head.add_child(title)
+		var level_label := Label.new()
+		level_label.add_theme_font_size_override("font_size", 13)
+		level_label.add_theme_color_override("font_color", color)
+		level_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(level_label)
+		info.add_child(head)
+		var desc := Label.new()
+		desc.text = str(def.get("description", ""))
+		desc.add_theme_font_size_override("font_size", 13)
+		desc.add_theme_color_override("font_color", Color(0.6, 0.68, 0.75, 1))
+		info.add_child(desc)
+		var effect_label := Label.new()
+		effect_label.add_theme_font_size_override("font_size", 14)
+		effect_label.add_theme_color_override("font_color", Color(0.8, 0.95, 0.85, 1))
+		info.add_child(effect_label)
+		var pip_row := HBoxContainer.new()
+		pip_row.add_theme_constant_override("separation", 4)
+		var pips: Array[ColorRect] = []
+		for i in UpgradeManager.get_max_level(upgrade_id):
+			var pip := ColorRect.new()
+			pip.custom_minimum_size = Vector2(26, 6)
+			pip_row.add_child(pip)
+			pips.append(pip)
+		info.add_child(pip_row)
+		row.add_child(info)
+		var btn := Button.new()
+		btn.custom_minimum_size = Vector2(150, 56)
+		btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		btn.set_meta("upgrade_id", upgrade_id)
+		btn.pressed.connect(_on_upgrade_action.bind(upgrade_id))
+		row.add_child(btn)
+		upgrade_list.add_child(card)
+		_upgrade_rows[upgrade_id] = {
+			"button": btn,
+			"level_label": level_label,
+			"effect_label": effect_label,
+			"pips": pips,
+			"color": color,
+		}
 
 
 func _on_skins_changed() -> void:
@@ -443,17 +598,7 @@ func _on_skins_changed() -> void:
 
 
 func _refresh_shop_state() -> void:
-	var owned_charm: bool = bool(SaveSystem.get_value(SAVE_KEY_LUCKY_CHARM, false))
-	if owned_charm:
-		buy_demo_button.disabled = true
-		buy_demo_button.text = "Owned"
-		demo_desc.text = "Demo unlock — owned"
-	else:
-		buy_demo_button.disabled = ScoreManager.total_souls < COST_DEMO
-		buy_demo_button.text = "%d" % COST_DEMO
-		demo_desc.text = "Demo unlock — spends %d souls" % COST_DEMO
-	buy_magnet_button.disabled = false
-	buy_magnet_button.text = "%d" % COST_MAGNET
+	_refresh_upgrade_rows()
 	if SkinManager == null:
 		return
 	for skin in SkinManager.get_catalog():
@@ -472,8 +617,54 @@ func _refresh_shop_state() -> void:
 			btn.text = "Free"
 			btn.disabled = false
 		else:
-			btn.text = "%d" % price
+			btn.text = "%d souls" % price
 			btn.disabled = ScoreManager.total_souls < price
+
+
+func _refresh_upgrade_rows() -> void:
+	if UpgradeManager == null:
+		return
+	for upgrade_id in _upgrade_rows.keys():
+		var row: Dictionary = _upgrade_rows[upgrade_id]
+		var level: int = UpgradeManager.get_level(upgrade_id)
+		var max_level: int = UpgradeManager.get_max_level(upgrade_id)
+		var now_text: String = Economy.format_value(upgrade_id, Economy.value_at(upgrade_id, level))
+		var btn: Button = row["button"] as Button
+		(row["level_label"] as Label).text = "Lv %d/%d" % [level, max_level]
+		if level >= max_level:
+			(row["effect_label"] as Label).text = "%s  ·  MAX" % now_text
+			btn.text = "MAX"
+			btn.disabled = true
+		else:
+			var next_text: String = Economy.format_value(upgrade_id, Economy.value_at(upgrade_id, level + 1))
+			(row["effect_label"] as Label).text = "%s  →  %s" % [now_text, next_text]
+			var cost: int = UpgradeManager.get_next_cost(upgrade_id)
+			btn.text = "%d souls" % cost
+			btn.disabled = not UpgradeManager.can_afford(upgrade_id)
+		var color: Color = row["color"]
+		var pips: Array = row["pips"]
+		for i in pips.size():
+			(pips[i] as ColorRect).color = color if i < level else Color(0.25, 0.28, 0.34, 0.9)
+
+
+func _on_upgrade_action(upgrade_id: String) -> void:
+	_ui_click()
+	if UpgradeManager == null:
+		return
+	var err: String = UpgradeManager.buy_upgrade(upgrade_id)
+	if err != "":
+		shop_status_label.text = err
+		return
+	var def: Dictionary = Economy.get_upgrade_def(upgrade_id)
+	shop_status_label.text = "%s upgraded to Lv %d!" % [
+		str(def.get("name", upgrade_id)), UpgradeManager.get_level(upgrade_id)]
+	_refresh_shop_state()
+	var row: Dictionary = _upgrade_rows.get(upgrade_id, {})
+	var btn: Button = row.get("button") as Button
+	if btn:
+		btn.pivot_offset = btn.size * 0.5
+		btn.scale = Vector2(1.12, 1.12)
+		create_tween().tween_property(btn, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_skin_action(skin_id: String) -> void:
@@ -497,24 +688,4 @@ func _on_skin_action(skin_id: String) -> void:
 	shop_status_label.text = "Purchased %s!" % str(bought.get("name", skin_id))
 	## Auto-equip on purchase.
 	SkinManager.equip_skin(skin_id)
-	_refresh_shop_state()
-
-
-func _on_buy_magnet() -> void:
-	_ui_click()
-	shop_status_label.text = "Magnet upgrade — coming soon (%d souls)" % COST_MAGNET
-
-
-func _on_buy_demo() -> void:
-	_ui_click()
-	var owned: bool = bool(SaveSystem.get_value(SAVE_KEY_LUCKY_CHARM, false))
-	if owned:
-		shop_status_label.text = "Lucky Charm already owned."
-		return
-	if not ScoreManager.spend_souls(COST_DEMO):
-		shop_status_label.text = "Not enough souls."
-		return
-	SaveSystem.set_value(SAVE_KEY_LUCKY_CHARM, true)
-	SaveSystem.save()
-	shop_status_label.text = "Lucky Charm unlocked!"
 	_refresh_shop_state()

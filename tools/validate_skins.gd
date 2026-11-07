@@ -20,13 +20,7 @@ func _run() -> void:
 	else:
 		print("OK catalog=", catalog.size())
 	## Prices
-	var expect := {
-		"witch": 0,
-		"skeleton_minion": 10000,
-		"skeleton_rogue": 20000,
-		"skeleton_warrior": 25000,
-		"skeleton_mage": 30000,
-	}
+	var expect: Dictionary = preload("res://scripts/economy/EconomyConfig.gd").SKIN_PRICES
 	for skin in catalog:
 		var id: String = str(skin.get("id", ""))
 		var price: int = int(skin.get("price", -1))

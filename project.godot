@@ -20,6 +20,7 @@ ObjectPool="*res://autoload/ObjectPool.gd"
 AudioManager="*res://autoload/AudioManager.gd"
 BiomeManager="*res://autoload/BiomeManager.gd"
 SkinManager="*res://autoload/SkinManager.gd"
+UpgradeManager="*res://autoload/UpgradeManager.gd"
 TouchSwipeDetector="*res://scripts/input/TouchSwipeDetector.gd"
 
 [display]

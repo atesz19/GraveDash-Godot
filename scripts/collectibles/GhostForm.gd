@@ -22,11 +22,13 @@ func _pickup(body: Node3D) -> void:
 	monitoring = false
 	if AudioManager:
 		AudioManager.play_powerup_pickup()
-	## Activate ghost mode on the player.
+	var duration: float = GHOST_DURATION
+	if UpgradeManager:
+		duration = UpgradeManager.get_powerup_duration("ghost_form", GHOST_DURATION)
 	if body.has_method("apply_ghost_form"):
-		body.call("apply_ghost_form", GHOST_DURATION)
+		body.call("apply_ghost_form", duration)
 	elif body.has_method("apply_powerup"):
-		body.call("apply_powerup", "ghost_form", GHOST_DURATION)
+		body.call("apply_powerup", "ghost_form", duration)
 	collected.emit(0, collectible_id)
 
 	var parent_chunk := _find_chunk()

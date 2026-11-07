@@ -15,6 +15,8 @@ const SAVE_KEY_MULT: String = "score_multiplier"
 const SAVE_KEY_COMPLETED: String = "missions_completed"
 const SAVE_KEY_ACTIVE: String = "active_missions"
 
+const Economy = preload("res://scripts/economy/EconomyConfig.gd")
+
 ## type: distance | souls | dodge | powerups
 const POOL: Array[Dictionary] = [
 	{"id": "run_100", "type": "distance", "target": 100, "title": "Run 100 m"},
@@ -80,7 +82,11 @@ func format_mission_line(mission: Dictionary) -> String:
 	var progress: int = int(mission.get("progress", 0))
 	var target: int = int(mission.get("target", 1))
 	progress = mini(progress, target)
-	return "%s  (%d/%d)" % [title, progress, target]
+	return "%s  (%d/%d)  +%d souls" % [title, progress, target, get_mission_reward(mission)]
+
+
+func get_mission_reward(mission: Dictionary) -> int:
+	return Economy.mission_reward(str(mission.get("id", "")))
 
 
 func report_dodge() -> void:
@@ -189,6 +195,8 @@ func _check_complete(index: int) -> void:
 	var mid: String = str(m.get("id", ""))
 	var title: String = str(m.get("title", mid))
 	missions_completed += 1
+	if ScoreManager and ScoreManager.has_method("add_mission_souls"):
+		ScoreManager.add_mission_souls(Economy.mission_reward(mid))
 	_recompute_multiplier()
 	mission_completed.emit(mid, title)
 	## Replace slot with a fresh mission from the pool.

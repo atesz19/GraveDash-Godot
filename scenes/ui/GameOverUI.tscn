@@ -288,6 +288,15 @@ theme_override_font_sizes/font_size = 26
 text = "+0"
 horizontal_alignment = 1
 
+[node name="SoulBreakdownLabel" type="Label" parent="Root/Center/Panel/VBox/StatsRow/SoulsChip/SoulsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="ScoreChip" type="PanelContainer" parent="Root/Center/Panel/VBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_chip_score")

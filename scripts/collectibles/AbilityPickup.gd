@@ -36,4 +36,10 @@ func _pickup(body: Node3D) -> void:
 
 func _grant(body: Node3D) -> void:
 	if body.has_method("apply_powerup"):
-		body.call("apply_powerup", ability_id, ability_duration)
+		body.call("apply_powerup", ability_id, get_upgraded_duration())
+
+
+func get_upgraded_duration() -> float:
+	if UpgradeManager:
+		return UpgradeManager.get_powerup_duration(ability_id, ability_duration)
+	return ability_duration

@@ -6,6 +6,7 @@ signal collected(points: int, collectible_id: String)
 
 const LANE_POSITIONS: Array[float] = [-2.5, 0.0, 2.5]
 const FLOAT_Y: float = 1.05
+## Fallback when UpgradeManager is unavailable (base "magnet_radius" in EconomyConfig).
 const MAGNET_RANGE: float = 14.0
 const MAGNET_SPEED: float = 22.0
 const SOUL_IDS: Array[String] = ["soul_orb", "big_soul", "golden_coffin"]
@@ -67,9 +68,10 @@ func _try_magnet_pull(delta: float) -> bool:
 		return false
 	var target := player.global_position + Vector3(0.0, 1.0, 0.0)
 	var dist := global_position.distance_to(target)
-	if dist > MAGNET_RANGE:
+	var magnet_range: float = UpgradeManager.get_magnet_range() if UpgradeManager else MAGNET_RANGE
+	if dist > magnet_range:
 		return false
-	var step := (MAGNET_SPEED + (MAGNET_RANGE - dist) * 1.5) * delta
+	var step := (MAGNET_SPEED + (magnet_range - dist) * 1.5) * delta
 	global_position = global_position.move_toward(target, step)
 	return true
 
@@ -89,12 +91,13 @@ func _on_body_entered(body: Node3D) -> void:
 func _pickup(_body: Node3D) -> void:
 	_picked = true
 	monitoring = false
-	ScoreManager.add_score(points)
-	if SOUL_IDS.has(collectible_id) and points > 0:
-		ScoreManager.add_souls(points)
+	var value: int = get_soul_value()
+	ScoreManager.add_score(value)
+	if SOUL_IDS.has(collectible_id) and value > 0:
+		ScoreManager.add_souls(value)
 		if AudioManager:
 			AudioManager.play_soul_pickup()
-	collected.emit(points, collectible_id)
+	collected.emit(value, collectible_id)
 	## Tell parent chunk to drop its reference, then return to the pool.
 	var parent_chunk := _find_chunk()
 	if parent_chunk and parent_chunk.has_method("notify_collectible_picked"):
@@ -102,6 +105,11 @@ func _pickup(_body: Node3D) -> void:
 	elif pool_id != "" and ObjectPool.has_pool(pool_id):
 		on_recycled()
 		ObjectPool.release(pool_id, self)
+
+
+## Souls/points granted on pickup; subclasses resolve upgrade-driven values here.
+func get_soul_value() -> int:
+	return points
 
 
 func _find_chunk() -> Node:

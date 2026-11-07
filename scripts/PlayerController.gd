@@ -99,6 +99,9 @@ var _capsule_shape: CapsuleShape3D
 var _holy_aura_mat: StandardMaterial3D
 var _was_on_floor: bool = true
 var _just_landed: bool = false
+## Shop "Head Start": seconds of boosted ghost sprint left at run start.
+var head_start_remaining: float = 0.0
+var _suppress_mission_report: bool = false
 
 
 func _ready() -> void:
@@ -114,6 +117,21 @@ func _ready() -> void:
 	_update_animation_state(true)
 	if not GameManager.is_playing():
 		GameManager.start_game()
+	call_deferred("_apply_run_start_upgrades")
+
+
+func _apply_run_start_upgrades() -> void:
+	## Shop upgrades granted at spawn don't count toward "use N power-ups" missions.
+	if UpgradeManager == null or not is_alive:
+		return
+	_suppress_mission_report = true
+	var head_start: float = UpgradeManager.get_head_start_seconds()
+	if head_start > 0.0:
+		head_start_remaining = head_start
+		apply_ghost_form(head_start + 0.5)
+	if UpgradeManager.roll_starting_second_chance():
+		apply_second_chance()
+	_suppress_mission_report = false
 
 
 func _apply_equipped_skin() -> void:
@@ -225,9 +243,12 @@ func _tween_to_lane(target_x: float) -> void:
 
 # --- Movement ----------------------------------------------------------------
 
-func _update_speed(_delta: float) -> void:
+func _update_speed(delta: float) -> void:
 	var t: float = GameManager.run_time
 	var base := clampf(START_SPEED + t * SPEED_RAMP_PER_SECOND, START_SPEED, MAX_SPEED)
+	if head_start_remaining > 0.0:
+		head_start_remaining = maxf(0.0, head_start_remaining - delta)
+		base *= UpgradeManager.get_head_start_speed_mult() if UpgradeManager else 1.0
 	if has_cursed_speed:
 		run_speed = minf(base * CURSED_SPEED_MULT, MAX_SPEED * 1.35)
 	else:
@@ -719,7 +740,7 @@ func apply_powerup(powerup_id: String, duration: float = 5.0) -> void:
 
 
 func _report_mission_powerup(powerup_id: String) -> void:
-	if MissionManager:
+	if MissionManager and not _suppress_mission_report:
 		MissionManager.report_powerup_used(powerup_id)
 
 

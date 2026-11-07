@@ -822,68 +822,59 @@ text = "Balance  0 souls"
 horizontal_alignment = 1
 
 [node name="ShopHint" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.72, 0.8, 1)
 theme_override_font_sizes/font_size = 13
 text = "Buy skeleton skins with banked souls. Witch is free."
 horizontal_alignment = 1
 
-[node name="ShopSep" type="HSeparator" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
-layout_mode = 2
-
-[node name="SkinList" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+[node name="ShopTabs" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SkinsTabButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/ShopTabs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+button_pressed = true
+text = "Skins"
+
+[node name="UpgradesTabButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/ShopTabs"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Upgrades"
+
+[node name="ShopScroll" type="ScrollContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+scroll_deadzone = 12
+
+[node name="ShopPages" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/ShopScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SkinList" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/ShopScroll/ShopPages"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="MagnetRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="MagnetInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow"]
+[node name="UpgradeList" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/ShopScroll/ShopPages"]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="MagnetTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow/MagnetInfo"]
-layout_mode = 2
-text = "Magnet Duration +"
-
-[node name="MagnetDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow/MagnetInfo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.68, 0.75, 1)
-theme_override_font_sizes/font_size = 13
-text = "Power-up upgrade · Coming soon"
-
-[node name="BuyMagnetButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/MagnetRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 44)
-layout_mode = 2
-text = "120"
-
-[node name="DemoRow" type="HBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="DemoInfo" type="VBoxContainer" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="DemoTitle" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow/DemoInfo"]
-layout_mode = 2
-text = "Lucky Charm"
-
-[node name="DemoDesc" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow/DemoInfo"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.68, 0.75, 1)
-theme_override_font_sizes/font_size = 13
-text = "Demo unlock — spends 25 souls"
-
-[node name="BuyDemoButton" type="Button" parent="UI/Root/Chrome/ShopPanel/ShopVBox/DemoRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 44)
-layout_mode = 2
-text = "25"
+theme_override_constants/separation = 8
 
 [node name="ShopStatusLabel" type="Label" parent="UI/Root/Chrome/ShopPanel/ShopVBox"]
 unique_name_in_owner = true

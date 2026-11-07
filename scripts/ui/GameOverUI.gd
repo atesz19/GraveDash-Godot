@@ -13,6 +13,7 @@ const RETRY_PULSE_HALF := 0.55
 @onready var title_label: Label = %Title
 @onready var distance_label: Label = %DistanceLabel
 @onready var souls_label: Label = %SoulsLabel
+@onready var soul_breakdown_label: Label = get_node_or_null("%SoulBreakdownLabel") as Label
 @onready var score_label: Label = %ScoreLabel
 @onready var mult_label: Label = %MultLabel
 @onready var best_label: Label = %BestLabel
@@ -78,7 +79,9 @@ func _on_game_started() -> void:
 func _show_overlay() -> void:
 	_stop_tweens()
 	var run_score: int = ScoreManager.score if ScoreManager else 0
-	var banked: int = ScoreManager.run_souls if ScoreManager else 0
+	## Wallet already includes this payout (banked in GameManager.trigger_game_over).
+	var payout: Dictionary = _run_payout()
+	var banked: int = int(payout.get("total", 0))
 	var wallet: int = ScoreManager.total_souls if ScoreManager else 0
 	var dist: int = ScoreManager.get_distance_meters() if ScoreManager else 0
 	var best: int = ScoreManager.highscore if ScoreManager else 0
@@ -96,6 +99,8 @@ func _show_overlay() -> void:
 
 	mult_label.text = "×%d" % mult
 	wallet_label.text = "Soul wallet  %d" % wallet
+	if soul_breakdown_label:
+		soul_breakdown_label.text = _format_breakdown(payout)
 	if new_best_badge:
 		new_best_badge.visible = is_new_best
 	if best_chip:
@@ -126,6 +131,24 @@ func _show_overlay() -> void:
 
 	_start_retry_pulse()
 	restart_button.grab_focus()
+
+
+func _run_payout() -> Dictionary:
+	if ScoreManager == null:
+		return {}
+	if not ScoreManager.last_run_payout.is_empty():
+		return ScoreManager.last_run_payout
+	return ScoreManager.get_run_payout()
+
+
+func _format_breakdown(payout: Dictionary) -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	parts.append("%d collected" % int(payout.get("collected", 0)))
+	if int(payout.get("missions", 0)) > 0:
+		parts.append("+%d missions" % int(payout.get("missions", 0)))
+	if int(payout.get("bonus", 0)) > 0:
+		parts.append("+%d x%d bonus" % [int(payout.get("bonus", 0)), int(payout.get("multiplier", 1))])
+	return "  ".join(parts)
 
 
 func _set_display_distance(value: float) -> void:
