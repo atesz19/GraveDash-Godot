@@ -20,7 +20,7 @@ MVP includes menus, gameplay systems, Haunted Castle biome transition, and **And
 | Action | Keys |
 |--------|------|
 | Lane left / right | `A` / `D` or `←` / `→` |
-| Jump | `Space` or `↑` |
+| Jump | `Space` or `W` or `↑` |
 | Slide | `Ctrl` or `S` or `↓` |
 | Pause | `Esc` |
 
