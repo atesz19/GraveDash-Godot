@@ -1,0 +1,25 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8obsmatcoffin"]
+
+[sub_resource type="Gradient" id="Gradient_coffin"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.12, 0.04, 0.03, 1, 0.24, 0.09, 0.05, 1, 0.17, 0.06, 0.04, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_coffin"]
+noise_type = 3
+seed = 21
+frequency = 0.03
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_coffin"]
+width = 128
+height = 128
+seamless = true
+color_ramp = SubResource("Gradient_coffin")
+noise = SubResource("FastNoiseLite_coffin")
+
+[resource]
+albedo_texture = SubResource("NoiseTexture2D_coffin")
+roughness = 0.55
+metallic_specular = 0.45
+uv1_scale = Vector3(1.0, 3.0, 1.0)
+uv1_triplanar = true

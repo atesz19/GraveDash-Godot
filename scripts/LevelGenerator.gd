@@ -1,19 +1,29 @@
 extends Node3D
-## LevelGenerator — fair Subway Surfers–style chunk patterns.
-## Obstacles & souls only on lanes X = [-2.5, 0, 2.5]. Patterns guarantee ≥1 free lane.
+## LevelGenerator — streams hand-authored ChunkPatterns sections onto recyclable chunks.
+##
+## Sections are longer than a chunk. They are planned ahead in world space (one continuous
+## track, z = TRACK_START_Z - d), each built for the speed the player will have when they
+## reach it, then every item is attached to the chunk that holds its forward-most point
+## (so a long train is only recycled once the player is fully past it).
 
-const ChunkPatternsScript = preload("res://scripts/levels/ChunkPatterns.gd")
+const Patterns = preload("res://scripts/levels/ChunkPatterns.gd")
+const Geo = preload("res://scripts/levels/TrackGeometry.gd")
 
 const CHUNK_LENGTH: float = 45.0
 const CHUNKS_AHEAD: int = 5
 const RECYCLE_MARGIN: float = 10.0
+## Where section streaming begins (the player spawns at z≈0 on an intro soul line).
+const TRACK_START_Z: float = -10.0
+## Planned-section history kept for get_track_window() (autopilot / debug).
+const KEEP_SECTIONS: int = 8
 
 const POOL_CHUNK: String = "chunk_graveyard"
 const POOL_GRAVESTONE: String = "obstacle_gravestone"
 const POOL_LOW: String = "obstacle_low"
 const POOL_HIGH: String = "obstacle_high"
-const POOL_SIDE: String = "obstacle_side"
-const POOL_PLATFORM: String = "obstacle_platform"
+const POOL_BLOCK: String = "obstacle_block"
+const POOL_TRAIN: String = "obstacle_train"
+const POOL_CART: String = "obstacle_cart"
 const POOL_SOUL: String = "collectible_soul"
 const POOL_BIG_SOUL: String = "collectible_big_soul"
 const POOL_COFFIN: String = "collectible_golden_coffin"
@@ -24,17 +34,14 @@ const POOL_SECOND: String = "collectible_second_chance"
 const POOL_CURSED: String = "collectible_cursed_speed"
 
 const LANE_COUNT: int = 3
-## Clearance: souls must stay this far in Z from same-lane obstacles.
-const SOUL_CLEARANCE_Z: float = 5.0
-## Obstacle beats in the same pattern must stay this far apart when sharing conflicting lanes.
-const MIN_BEAT_GAP: float = 10.0
 
 @export var chunk_scene: PackedScene
 @export var gravestone_scene: PackedScene
 @export var low_scene: PackedScene
 @export var high_scene: PackedScene
-@export var side_scene: PackedScene
-@export var platform_scene: PackedScene
+@export var block_scene: PackedScene
+@export var train_scene: PackedScene
+@export var cart_scene: PackedScene
 @export var soul_scene: PackedScene
 @export var big_soul_scene: PackedScene
 @export var coffin_scene: PackedScene
@@ -44,43 +51,56 @@ const MIN_BEAT_GAP: float = 10.0
 @export var second_chance_scene: PackedScene
 @export var cursed_speed_scene: PackedScene
 @export var player_path: NodePath = ^"../Player"
-## Deprecated export kept so older Main.tscn assignments don't error hard.
+## Deprecated exports kept so older Main.tscn assignments still load (unused).
 @export var pit_scene: PackedScene
+@export var side_scene: PackedScene
+@export var platform_scene: PackedScene
 
-@export var safe_chunk_count: int = 1
-## Overall chance to place one ability power-up per chunk (after intro).
-@export var ability_powerup_chance: float = 0.18
+## Chance that a section carries one ability power-up (at a pre-validated clear slot).
+@export var ability_powerup_chance: float = 0.4
 ## Legacy export kept for scene compatibility.
 @export var ghost_form_chance: float = 0.12
-@export var obstacles_per_chunk_min: int = 1
-@export var obstacles_per_chunk_max: int = 3
-@export var souls_per_chunk_min: int = 3
-@export var souls_per_chunk_max: int = 5
+## Fixed seed for reproducible tracks (0 = random).
+@export var track_seed: int = 0
 
 var _player: Node3D
 var _chunks: Array[Node3D] = []
 var _next_spawn_z: float = 0.0
 var _chunks_spawned: int = 0
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
-## Last free-lane hint so consecutive chunks don't feel identical.
-var _last_open_lane: int = 1
+
+## Planned items not yet attached: {pool, lane, z, anchor_z, y, extras}.
+var _pending: Array[Dictionary] = []
+var _plan_end_z: float = TRACK_START_Z
+var _history: Array = []
+## Recent planned sections: {id, z_start, layout}.
+var _sections: Array[Dictionary] = []
 
 
 func _ready() -> void:
-	_rng.randomize()
+	if track_seed != 0:
+		_rng.seed = track_seed
+	else:
+		_rng.randomize()
 	_player = get_node_or_null(player_path) as Node3D
 	_sync_chunk_from_biome()
 	_ensure_scenes()
 	_register_pools()
-
-	_next_spawn_z = 0.0
-	_chunks_spawned = 0
+	_reset_state()
 	for i in CHUNKS_AHEAD:
 		_spawn_chunk_at(_next_spawn_z)
 		_next_spawn_z -= CHUNK_LENGTH
-
 	if not BiomeManager.biome_changed.is_connected(_on_biome_changed):
 		BiomeManager.biome_changed.connect(_on_biome_changed)
+
+
+func _reset_state() -> void:
+	_next_spawn_z = 0.0
+	_chunks_spawned = 0
+	_pending.clear()
+	_plan_end_z = TRACK_START_Z
+	_history.clear()
+	_sections.clear()
 
 
 func _sync_chunk_from_biome() -> void:
@@ -112,10 +132,12 @@ func _ensure_scenes() -> void:
 		low_scene = preload("res://scenes/obstacles/ObstacleLow.tscn")
 	if high_scene == null:
 		high_scene = preload("res://scenes/obstacles/ObstacleHigh.tscn")
-	if side_scene == null:
-		side_scene = preload("res://scenes/obstacles/ObstacleSideIncoming.tscn")
-	if platform_scene == null:
-		platform_scene = preload("res://scenes/obstacles/ObstaclePlatform.tscn")
+	if block_scene == null:
+		block_scene = preload("res://scenes/obstacles/ObstacleBlock.tscn")
+	if train_scene == null:
+		train_scene = preload("res://scenes/obstacles/ObstacleTrain.tscn")
+	if cart_scene == null:
+		cart_scene = preload("res://scenes/obstacles/ObstacleCart.tscn")
 	if soul_scene == null:
 		soul_scene = preload("res://scenes/powerups/SoulOrb.tscn")
 	if big_soul_scene == null:
@@ -139,36 +161,28 @@ func _register_pools() -> void:
 	if not ObjectPool.has_pool(POOL_CHUNK):
 		var gy: PackedScene = preload("res://scenes/levels/Chunk_Graveyard_01.tscn")
 		ObjectPool.register_pool(POOL_CHUNK, gy, CHUNKS_AHEAD + 2)
-	## Pits removed from fair catalog — clear any stale pool from prior runs.
-	if ObjectPool.has_pool("obstacle_pit"):
-		ObjectPool.clear_pool("obstacle_pit")
-	if not ObjectPool.has_pool(POOL_GRAVESTONE):
-		ObjectPool.register_pool(POOL_GRAVESTONE, gravestone_scene, 8)
-	if not ObjectPool.has_pool(POOL_LOW):
-		ObjectPool.register_pool(POOL_LOW, low_scene, 10)
-	if not ObjectPool.has_pool(POOL_HIGH):
-		ObjectPool.register_pool(POOL_HIGH, high_scene, 12)
-	if not ObjectPool.has_pool(POOL_SIDE):
-		ObjectPool.register_pool(POOL_SIDE, side_scene, 6)
-	if not ObjectPool.has_pool(POOL_PLATFORM):
-		ObjectPool.register_pool(POOL_PLATFORM, platform_scene, 6)
-	## Pattern lines place more orbs per chunk than scatter density.
-	if not ObjectPool.has_pool(POOL_SOUL):
-		ObjectPool.register_pool(POOL_SOUL, soul_scene, 64)
-	if not ObjectPool.has_pool(POOL_BIG_SOUL):
-		ObjectPool.register_pool(POOL_BIG_SOUL, big_soul_scene, 10)
-	if not ObjectPool.has_pool(POOL_COFFIN):
-		ObjectPool.register_pool(POOL_COFFIN, coffin_scene, 4)
-	if not ObjectPool.has_pool(POOL_GHOST):
-		ObjectPool.register_pool(POOL_GHOST, ghost_form_scene, 4)
-	if not ObjectPool.has_pool(POOL_MAGNET):
-		ObjectPool.register_pool(POOL_MAGNET, soul_magnet_scene, 4)
-	if not ObjectPool.has_pool(POOL_HOLY):
-		ObjectPool.register_pool(POOL_HOLY, holy_light_scene, 4)
-	if not ObjectPool.has_pool(POOL_SECOND):
-		ObjectPool.register_pool(POOL_SECOND, second_chance_scene, 3)
-	if not ObjectPool.has_pool(POOL_CURSED):
-		ObjectPool.register_pool(POOL_CURSED, cursed_speed_scene, 4)
+	for stale in ["obstacle_pit", "obstacle_side", "obstacle_platform"]:
+		if ObjectPool.has_pool(stale):
+			ObjectPool.clear_pool(stale)
+	var specs: Array = [
+		[POOL_GRAVESTONE, gravestone_scene, 8],
+		[POOL_LOW, low_scene, 12],
+		[POOL_HIGH, high_scene, 12],
+		[POOL_BLOCK, block_scene, 14],
+		[POOL_TRAIN, train_scene, 10],
+		[POOL_CART, cart_scene, 4],
+		[POOL_SOUL, soul_scene, 110],
+		[POOL_BIG_SOUL, big_soul_scene, 6],
+		[POOL_COFFIN, coffin_scene, 3],
+		[POOL_GHOST, ghost_form_scene, 3],
+		[POOL_MAGNET, soul_magnet_scene, 3],
+		[POOL_HOLY, holy_light_scene, 3],
+		[POOL_SECOND, second_chance_scene, 2],
+		[POOL_CURSED, cursed_speed_scene, 3],
+	]
+	for spec in specs:
+		if not ObjectPool.has_pool(str(spec[0])):
+			ObjectPool.register_pool(str(spec[0]), spec[1] as PackedScene, int(spec[2]))
 
 
 func _register_chunk_pools_for_biome() -> void:
@@ -190,309 +204,106 @@ func _register_chunk_pools_for_biome() -> void:
 			ObjectPool.register_pool(vid, scene, ceili(float(CHUNKS_AHEAD + 2) / variants.size()) + 1)
 
 
+# --- Section planning --------------------------------------------------------------
+
+func _ensure_plan(to_z: float) -> void:
+	while _plan_end_z > to_z:
+		_plan_next_section()
+
+
+func _plan_next_section() -> void:
+	var dist: float = -_plan_end_z
+	var band: int = Patterns.band_for_distance(dist)
+	var biome_id: String = str(BiomeManager.current_biome) if BiomeManager != null else "graveyard"
+	var section: Dictionary = Patterns.pick_section(_rng, band, biome_id, _history)
+	_history.append(section["id"])
+	if _history.size() > 12:
+		_history.pop_front()
+	var v: float = Geo.speed_at_distance(dist)
+	var layout: Dictionary = Patterns.build_layout(section, v)
+	var z0: float = _plan_end_z
+	for o in layout["obstacles"]:
+		var kind: String = str(o["kind"])
+		var extras: Dictionary = {}
+		var z: float = z0 - float(o["d"])
+		var anchor: float = z
+		if kind == Patterns.KIND_TRAIN:
+			extras = {"cars": int(o["cars"]), "ramp": bool(o["ramp"])}
+			anchor = z0 - float(o["d1"])
+		_pending.append({"pool": kind, "lane": int(o["lane"]), "z": z, "anchor": anchor, "y": 0.0, "extras": extras})
+	for s in layout["souls"]:
+		var sz: float = z0 - float(s["d"])
+		_pending.append({"pool": str(s["kind"]), "lane": int(s["lane"]), "z": sz, "anchor": sz, "y": float(s["y"]), "extras": {}})
+	var slots: Array = layout["powerup_slots"]
+	if not slots.is_empty() and dist > 60.0 and _rng.randf() < ability_powerup_chance:
+		var slot: Dictionary = slots[_rng.randi_range(0, slots.size() - 1)]
+		var pz: float = z0 - float(slot["d"])
+		_pending.append({"pool": _pick_ability_pool(), "lane": int(slot["lane"]), "z": pz, "anchor": pz, "y": 0.0, "extras": {}})
+	_sections.append({"id": section["id"], "z_start": z0, "layout": layout})
+	if _sections.size() > KEEP_SECTIONS:
+		_sections.pop_front()
+	_plan_end_z = z0 - float(layout["length"])
+
+
+## Planned sections as one layout in track distance (d = TRACK_START_Z - z), for tools.
+func get_track_sections() -> Array[Dictionary]:
+	return _sections
+
+
+func track_d_for_z(z: float) -> float:
+	return TRACK_START_Z - z
+
+
+# --- Chunks ------------------------------------------------------------------------
+
 func _spawn_chunk_at(origin_z: float) -> Node3D:
 	var chunk: Node3D = _acquire_chunk()
 	if chunk == null:
 		return null
-
 	if chunk.get_parent() != self:
 		if chunk.get_parent() != null:
 			chunk.get_parent().remove_child(chunk)
 		add_child(chunk)
-
 	chunk.global_position = Vector3(0.0, 0.0, origin_z)
 	if chunk.has_method("on_spawned"):
 		chunk.call("on_spawned")
-
 	var index: int = _chunks_spawned
 	_chunks_spawned += 1
-
-	var occupied: Dictionary = {}
-	var soul_cells: Dictionary = {}
-	if index < safe_chunk_count:
-		## Intro: souls only — straight center line, no hazards.
-		soul_cells = _populate_from_pattern(
-			chunk,
-			{
-				"id": "intro_safe",
-				"obstacles": [],
-				"souls": [
-					{"kind": POOL_SOUL, "lane": 1, "z": 10.0},
-					{"kind": POOL_SOUL, "lane": 1, "z": 7.8},
-					{"kind": POOL_SOUL, "lane": 1, "z": 5.6},
-					{"kind": POOL_SOUL, "lane": 1, "z": 3.4},
-					{"kind": POOL_SOUL, "lane": 1, "z": 1.2},
-					{"kind": POOL_SOUL, "lane": 1, "z": -1.0},
-				],
-			},
-			occupied
-		)
-	else:
-		var difficulty: int = _difficulty_for_chunk(index)
-		var biome_id: String = "graveyard"
-		if BiomeManager != null:
-			biome_id = str(BiomeManager.current_biome)
-		var pattern: Dictionary = ChunkPatternsScript.pick_pattern(_rng, difficulty, biome_id)
-		if not ChunkPatternsScript.validate_pattern(pattern):
-			pattern = ChunkPatternsScript.pick_pattern(_rng, 0, biome_id)
-		occupied = _populate_obstacles_from_pattern(chunk, pattern)
-		soul_cells = _populate_souls_from_pattern(chunk, pattern, occupied)
-		_maybe_spawn_ability_powerup(chunk, index, occupied, soul_cells)
-		_last_open_lane = _primary_open_lane(occupied)
-
+	var near_z: float = origin_z + CHUNK_LENGTH * 0.5
+	var far_z: float = origin_z - CHUNK_LENGTH * 0.5
+	if index == 0:
+		for i in 7:
+			_attach_item(chunk, origin_z, {"pool": POOL_SOUL, "lane": 1, "z": 8.0 - float(i) * 2.4, "y": 0.0, "extras": {}})
+	_ensure_plan(far_z - 1.0)
+	var keep: Array[Dictionary] = []
+	for item in _pending:
+		var a: float = float(item["anchor"])
+		if a <= near_z and a > far_z:
+			_attach_item(chunk, origin_z, item)
+		else:
+			keep.append(item)
+	_pending = keep
 	_chunks.append(chunk)
 	return chunk
 
 
-func _difficulty_for_chunk(chunk_index: int) -> int:
-	## Maps chunk index → pattern difficulty band (0 = easiest).
-	return clampi(chunk_index - safe_chunk_count, 0, 20)
-
-
-func _populate_from_pattern(chunk: Node3D, pattern: Dictionary, occupied: Dictionary) -> Dictionary:
-	occupied.clear()
-	var obs: Dictionary = _populate_obstacles_from_pattern(chunk, pattern)
-	for k in obs.keys():
-		occupied[k] = obs[k]
-	return _populate_souls_from_pattern(chunk, pattern, occupied)
-
-
-func _populate_obstacles_from_pattern(chunk: Node3D, pattern: Dictionary) -> Dictionary:
-	var occupied: Dictionary = {}
-	if not chunk.has_method("attach_obstacle"):
-		return occupied
-	var specs: Array = pattern.get("obstacles", []) as Array
-	## Place in Z order (descending = approaching player first).
-	var sorted: Array = specs.duplicate()
-	sorted.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var za: float = float((a as Dictionary).get("z", 0.0)) if a is Dictionary else 0.0
-		var zb: float = float((b as Dictionary).get("z", 0.0)) if b is Dictionary else 0.0
-		return za > zb
-	)
-
-	var placed: Array[Dictionary] = []
-	for item in sorted:
-		if not (item is Dictionary):
-			continue
-		var spec: Dictionary = item as Dictionary
-		var kind: String = str(spec.get("kind", POOL_HIGH))
-		## Pits are banned — skip if any stale pattern still references them.
-		if kind == "obstacle_pit":
-			continue
-		var lane: int = clampi(int(spec.get("lane", 1)), 0, LANE_COUNT - 1)
-		var z_off: float = float(spec.get("z", 0.0))
-		var width: int = clampi(int(spec.get("width", 1)), 1, 2)
-		if lane + width - 1 > 2:
-			lane = 3 - width
-		var extras: Dictionary = {
-			"width": width,
-			"ramp": bool(spec.get("ramp", false)),
-			"length": float(spec.get("length", 14.0)),
-		}
-		if not _can_place_obstacle(lane, z_off, occupied, placed, width):
-			var alt: int = _find_free_lane_at(z_off, occupied, placed, lane, width)
-			if alt < 0:
-				continue
-			lane = alt
-		var obs: Node3D = _acquire_pooled(kind)
-		if obs == null:
-			continue
-		obs.set("pool_id", kind)
-		if obs.has_method("configure"):
-			obs.call("configure", lane, z_off, extras)
-		chunk.call("attach_obstacle", obs)
-		_mark_occupied_width(occupied, lane, z_off, width)
-		for i in width:
-			placed.append({"lane": lane + i, "z": z_off, "width": width, "kind": kind})
-	occupied["_placements"] = placed
-	return occupied
-
-
-func _populate_souls_from_pattern(
-	chunk: Node3D,
-	pattern: Dictionary,
-	occupied: Dictionary
-) -> Dictionary:
-	var soul_cells: Dictionary = {}
-	if not chunk.has_method("attach_collectible"):
-		return soul_cells
-	var placements: Array = occupied.get("_placements", []) as Array
-	var specs: Array = pattern.get("souls", []) as Array
-	for item in specs:
-		if not (item is Dictionary):
-			continue
-		var spec: Dictionary = item as Dictionary
-		var lane: int = clampi(int(spec.get("lane", 1)), 0, LANE_COUNT - 1)
-		var z_off: float = float(spec.get("z", 0.0))
-		var kind: String = str(spec.get("kind", POOL_SOUL))
-		if not _soul_clear_of_obstacles(lane, z_off, placements):
-			## Nudge to a free neighboring lane if the choreography clipped an obstacle.
-			var alt: int = _nearest_clear_lane(lane, z_off, placements, soul_cells)
-			if alt < 0:
-				continue
-			lane = alt
-		var cell: String = _cell_key(lane, z_off)
-		if soul_cells.has(cell):
-			continue
-		var col: Node3D = _acquire_pooled(kind)
-		if col == null:
-			continue
-		col.pool_id = kind
-		if col.has_method("configure"):
-			col.call("configure", lane, z_off)
-		chunk.call("attach_collectible", col)
-		soul_cells[cell] = true
-	return soul_cells
-
-
-func _can_place_obstacle(
-	lane: int,
-	z_off: float,
-	occupied: Dictionary,
-	placed: Array[Dictionary],
-	width: int = 1
-) -> bool:
-	width = clampi(width, 1, 2)
-	if lane < 0 or lane + width - 1 >= LANE_COUNT:
-		return false
-	var band: int = _band(z_off)
-	var mask: int = int(occupied.get(band, 0))
-	var add: int = 0
-	for i in width:
-		var bit: int = 1 << (lane + i)
-		if mask & bit:
-			return false
-		add |= bit
-	if (mask | add) == 7:
-		return false
-	for prev in placed:
-		var pz: float = float(prev.get("z", 0.0))
-		var pl: int = int(prev.get("lane", 0))
-		if absf(pz - z_off) < MIN_BEAT_GAP and pl >= lane and pl < lane + width:
-			return false
-	return true
-
-
-func _find_free_lane_at(
-	z_off: float,
-	occupied: Dictionary,
-	placed: Array[Dictionary],
-	prefer: int,
-	width: int = 1
-) -> int:
-	width = clampi(width, 1, 2)
-	for attempt in LANE_COUNT:
-		var lane: int = (prefer + attempt) % LANE_COUNT
-		if lane + width - 1 >= LANE_COUNT:
-			continue
-		if _can_place_obstacle(lane, z_off, occupied, placed, width):
-			return lane
-	return -1
-
-
-func _mark_occupied(occupied: Dictionary, lane: int, z_off: float) -> void:
-	_mark_occupied_width(occupied, lane, z_off, 1)
-
-
-func _mark_occupied_width(occupied: Dictionary, lane: int, z_off: float, width: int) -> void:
-	var band: int = _band(z_off)
-	var mask: int = int(occupied.get(band, 0))
-	for i in clampi(width, 1, 2):
-		mask |= (1 << clampi(lane + i, 0, LANE_COUNT - 1))
-	occupied[band] = mask
-
-
-func _soul_clear_of_obstacles(lane: int, z_off: float, placements: Array) -> bool:
-	for item in placements:
-		if not (item is Dictionary):
-			continue
-		var d: Dictionary = item as Dictionary
-		if int(d.get("lane", -1)) != lane:
-			continue
-		if absf(float(d.get("z", 0.0)) - z_off) < SOUL_CLEARANCE_Z:
-			return false
-	return true
-
-
-func _nearest_clear_lane(
-	prefer: int,
-	z_off: float,
-	placements: Array,
-	soul_cells: Dictionary
-) -> int:
-	for attempt in LANE_COUNT:
-		var lane: int = (prefer + attempt) % LANE_COUNT
-		var cell: String = _cell_key(lane, z_off)
-		if soul_cells.has(cell):
-			continue
-		if _soul_clear_of_obstacles(lane, z_off, placements):
-			return lane
-	return -1
-
-
-func _primary_open_lane(occupied: Dictionary) -> int:
-	## Prefer a lane that was open on the densest band; fallback center.
-	var best_lane: int = 1
-	var best_free: int = -1
-	for lane in LANE_COUNT:
-		var free_count: int = 0
-		for band_key in occupied.keys():
-			if typeof(band_key) != TYPE_INT:
-				continue
-			var mask: int = int(occupied[band_key])
-			if (mask & (1 << lane)) == 0:
-				free_count += 1
-		if free_count > best_free:
-			best_free = free_count
-			best_lane = lane
-	return best_lane
-
-
-func _cell_key(lane: int, z_off: float) -> String:
-	return "%d|%d" % [lane, _band(z_off)]
-
-
-func _band(z_off: float) -> int:
-	return int(floor(z_off / 4.0))
-
-
-## At most one ability power-up per chunk after intro.
-## Always lane-snapped to a clear free lane.
-func _maybe_spawn_ability_powerup(
-	chunk: Node3D,
-	chunk_index: int,
-	occupied: Dictionary,
-	soul_cells: Dictionary
-) -> void:
-	if chunk_index < safe_chunk_count + 1:
+func _attach_item(chunk: Node3D, origin_z: float, item: Dictionary) -> void:
+	var pool_id: String = str(item["pool"])
+	var node: Node3D = _acquire_pooled(pool_id)
+	if node == null:
 		return
-	if not chunk.has_method("attach_collectible"):
-		return
-	if _rng.randf() > ability_powerup_chance:
-		return
-
-	var pool_id: String = _pick_ability_pool()
-	var placements: Array = occupied.get("_placements", []) as Array
-	## Prefer rhythmic Z slots away from chunk edges.
-	var z_candidates: Array[float] = [12.0, 4.0, -4.0, -12.0]
-	var lane_order: Array[int] = [_last_open_lane, 1, 0, 2]
-	for z_off in z_candidates:
-		for lane in lane_order:
-			var lane_i: int = clampi(int(lane), 0, LANE_COUNT - 1)
-			if not _soul_clear_of_obstacles(lane_i, z_off, placements):
-				continue
-			var cell: String = _cell_key(lane_i, z_off)
-			if soul_cells.has(cell):
-				continue
-			var col: Node3D = _acquire_pooled(pool_id)
-			if col == null:
-				return
-			col.pool_id = pool_id
-			if col.has_method("configure"):
-				col.call("configure", lane_i, z_off)
-			chunk.call("attach_collectible", col)
-			soul_cells[cell] = true
-			return
+	node.set("pool_id", pool_id)
+	var lane: int = clampi(int(item["lane"]), 0, LANE_COUNT - 1)
+	var local_z: float = float(item["z"]) - origin_z
+	if node.has_method("set_height_offset"):
+		node.call("configure", lane, local_z)
+		var dy: float = float(item.get("y", 0.0))
+		if absf(dy) > 0.001:
+			node.call("set_height_offset", dy)
+		chunk.call("attach_collectible", node)
+	else:
+		node.call("configure", lane, local_z, item.get("extras", {}))
+		chunk.call("attach_obstacle", node)
 
 
 func _pick_ability_pool() -> String:
@@ -559,8 +370,8 @@ func _release_chunk(chunk: Node3D) -> void:
 func _recycle_behind() -> void:
 	while not _chunks.is_empty():
 		var rear: Node3D = _chunks[0]
-		var near_edge_z: float = rear.global_position.z - CHUNK_LENGTH * 0.5
-		if near_edge_z > _player.global_position.z + RECYCLE_MARGIN:
+		var far_edge_z: float = rear.global_position.z - CHUNK_LENGTH * 0.5
+		if far_edge_z > _player.global_position.z + RECYCLE_MARGIN:
 			_chunks.pop_front()
 			_release_chunk(rear)
 		else:
@@ -571,7 +382,6 @@ func _ensure_ahead() -> void:
 	while _chunks.size() < CHUNKS_AHEAD:
 		_spawn_chunk_at(_next_spawn_z)
 		_next_spawn_z -= CHUNK_LENGTH
-
 	if _chunks.is_empty():
 		return
 	var front: Node3D = _chunks[_chunks.size() - 1]
@@ -589,9 +399,7 @@ func reset_generator() -> void:
 	for chunk in _chunks:
 		_release_chunk(chunk)
 	_chunks.clear()
-	_next_spawn_z = 0.0
-	_chunks_spawned = 0
-	_last_open_lane = 1
+	_reset_state()
 	for i in CHUNKS_AHEAD:
 		_spawn_chunk_at(_next_spawn_z)
 		_next_spawn_z -= CHUNK_LENGTH

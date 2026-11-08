@@ -1,0 +1,23 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8obsmatstripes"]
+
+[sub_resource type="Gradient" id="Gradient_stripes"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.5)
+colors = PackedColorArray(0.88, 0.84, 0.72, 1, 0.55, 0.04, 0.06, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_stripes"]
+gradient = SubResource("Gradient_stripes")
+width = 64
+height = 64
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0.25, 0.25)
+repeat = 1
+
+[resource]
+albedo_texture = SubResource("GradientTexture2D_stripes")
+roughness = 0.6
+metallic_specular = 0.4
+uv1_scale = Vector3(1.2, 0.3, 1.0)
+emission_enabled = true
+emission = Color(0.35, 0.02, 0.04, 1)
+emission_energy_multiplier = 0.35

@@ -144,8 +144,9 @@ Regenerate castle textures, the glow sprite and launcher icons: `godot --headles
 
 ```bash
 godot --headless --path . --script res://tools/validate_graveyard_visuals.gd
-godot --headless --path . --script res://tools/smoke_run.gd   # 1.9 km run through the castle switch; checks pools don't leak
-godot --path . --script res://tools/capture_gameplay.gd -- /tmp/captures   # screenshots (needs a display)
+godot --headless --fixed-fps 60 --path . --script res://tools/smoke_run.gd -- seconds=240   # autopilot through castle
+godot --headless --path . --script res://tools/validate_fairness.gd   # every section passable at every band speed
+godot --path . --script res://tools/capture_obstacles.gd -- /tmp/captures   # obstacle screenshots (needs a display)
 # Per-renderer / per-aspect render check (forward_plus | mobile | gl_compatibility; menu | gameplay | castle):
 godot --path . --rendering-method gl_compatibility --resolution 1680x720 --script res://tools/capture_render.gd -- menu /tmp/menu-21x9.png
 ```
@@ -155,8 +156,8 @@ godot --path . --rendering-method gl_compatibility --resolution 1680x720 --scrip
 | Knob | Where | Current |
 |------|-------|---------|
 | `START_SPEED` / `MAX_SPEED` / `SPEED_RAMP_PER_SECOND` | `scripts/PlayerController.gd` | **10.5** / **25.0** / **0.17** (`CURSED_SPEED_MULT` 1.48 unchanged) |
-| Pattern weights + soul lines | `scripts/levels/ChunkPatterns.gd` | Breath `open_line_*` / `breath_open_wide`; lines typically **5–6** orbs; `BEAT_GAP` 11.0 |
-| Intro souls / soul pool | `scripts/LevelGenerator.gd` | Intro line **6** orbs; `POOL_SOUL` initial size **64**; `SOUL_CLEARANCE_Z` 5.0 |
+| Hand-authored sections + soul trails | `scripts/levels/ChunkPatterns.gd` | 20 base + mirrors; bands by distance; stretch `k=(v/10.5)^0.7`; rhythm director (breath after 3 tension) |
+| Intro souls / streaming | `scripts/LevelGenerator.gd` | Intro line **7** orbs; sections stream from `TRACK_START_Z=-10`; trains/carts/blocks pooled |
 
 ## Score, missions & multiplier
 

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bq8obstacletrain"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ObstacleTrain.gd" id="1_train"]
+
+[node name="ObstacleTrain" type="Node3D"]
+script = ExtResource("1_train")

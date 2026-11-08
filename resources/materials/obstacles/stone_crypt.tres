@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8obsmatcrypt"]
+
+[ext_resource type="Texture2D" path="res://assets/textures/castle/castle_wall_albedo.png" id="1_alb"]
+[ext_resource type="Texture2D" path="res://assets/textures/castle/castle_wall_normal.png" id="2_nrm"]
+
+[resource]
+albedo_color = Color(0.62, 0.64, 0.62, 1)
+albedo_texture = ExtResource("1_alb")
+roughness = 0.92
+normal_enabled = true
+normal_scale = 1.0
+normal_texture = ExtResource("2_nrm")
+uv1_scale = Vector3(0.7, 0.7, 0.7)
+uv1_triplanar = true

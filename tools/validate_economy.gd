@@ -2,19 +2,22 @@ extends SceneTree
 ## Headless: soul economy model + UpgradeManager persistence/purchase checks.
 ## godot --headless --path . --script res://tools/validate_economy.gd
 ##
-## Model: walk a run with PlayerController's speed ramp, sample ChunkPatterns for the
-## soul value spawned per chunk, apply a pickup rate, then add mission rewards and the
-## multiplier bonus. Asserts the balance targets against EconomyConfig costs.
+## Model: walk a run with PlayerController's speed ramp, stream ChunkPatterns sections the
+## way LevelGenerator plans them (band by distance, layout built at the section's entry
+## speed), sum the soul value spawned ahead of the player, apply a pickup rate, then add
+## mission rewards and the multiplier bonus. Asserts the balance targets against EconomyConfig.
 
 const Economy = preload("res://scripts/economy/EconomyConfig.gd")
 const ChunkPatternsScript = preload("res://scripts/levels/ChunkPatterns.gd")
 
-const START_SPEED: float = 10.5
-const MAX_SPEED: float = 25.0
-const RAMP: float = 0.17
-const CHUNK_LENGTH: float = 45.0
-const SAFE_CHUNKS: int = 1
-const INTRO_SOULS: int = 6
+const Geo = preload("res://scripts/levels/TrackGeometry.gd")
+
+const INTRO_SOULS: int = 7
+const CASTLE_AT: float = 1300.0
+const MODEL_RUNS: int = 40
+## README balance target: a typical 2.5 min run banks ≈ 390 souls.
+const TARGET_PAYOUT_150S: int = 390
+const TARGET_TOLERANCE: float = 0.15
 
 ## Player skill assumptions (share of spawned soul value actually picked up).
 const PICKUP_RATE_CASUAL: float = 0.55
@@ -30,17 +33,11 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var failed: int = 0
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1337
-	var per_diff: Dictionary = {}
-	for d in 21:
-		var total: float = 0.0
-		var samples: int = 400
-		for i in samples:
-			total += _pattern_value(ChunkPatternsScript.pick_pattern(rng, d, "graveyard"), 5)
-		per_diff[d] = total / float(samples)
-	print("Soul value spawned per chunk: d0=%.1f d5=%.1f d10=%.1f d20=%.1f" % [
-		per_diff[0], per_diff[5], per_diff[10], per_diff[20]])
+	var per_section: Dictionary = {}
+	for sec in ChunkPatternsScript.all_sections():
+		var lay: Dictionary = ChunkPatternsScript.build_layout(sec, 10.5)
+		per_section[str(sec["id"])] = ChunkPatternsScript.soul_value(lay, _big_value())
+	print("Soul value per section: ", per_section)
 
 	var mission_avg: float = 0.0
 	for k in Economy.MISSION_REWARDS.keys():
@@ -62,7 +59,7 @@ func _run() -> void:
 
 	var typical_payout: int = 0
 	for secs in [60.0, 120.0, 150.0, 180.0]:
-		var spawned: float = _spawned_value_for_run(secs, per_diff)
+		var spawned: float = _spawned_value_for_run(secs)
 		var casual: int = int(spawned * PICKUP_RATE_CASUAL)
 		var good: int = int(spawned * PICKUP_RATE_GOOD)
 		var missions: int = int(MISSIONS_PER_RUN * mission_avg * secs / 150.0)
@@ -79,6 +76,13 @@ func _run() -> void:
 		typical_payout, float(max_total) / typical_payout, float(premium_skin) / typical_payout,
 		float(all_upgrades + _sum_skins()) / typical_payout])
 
+	var lo: int = int(TARGET_PAYOUT_150S * (1.0 - TARGET_TOLERANCE))
+	var hi: int = int(TARGET_PAYOUT_150S * (1.0 + TARGET_TOLERANCE))
+	if typical_payout < lo or typical_payout > hi:
+		push_error("FAIL 2.5 min payout %d outside %d..%d" % [typical_payout, lo, hi])
+		failed += 1
+	else:
+		print("OK 2.5 min payout %d within %d..%d" % [typical_payout, lo, hi])
 	if typical_payout < cheapest:
 		push_error("FAIL typical run (%d) cannot afford cheapest upgrade (%d)" % [typical_payout, cheapest])
 		failed += 1
@@ -121,31 +125,45 @@ func _sum_skins() -> int:
 	return t
 
 
-func _pattern_value(pattern: Dictionary, big_value: int) -> float:
-	var v: float = 0.0
-	for s in pattern.get("souls", []) as Array:
-		match str((s as Dictionary).get("kind", "")):
-			"collectible_big_soul":
-				v += big_value
-			"collectible_golden_coffin":
-				v += Economy.GOLDEN_COFFIN_VALUE
-			_:
-				v += Economy.SOUL_ORB_VALUE
-	return v
+func _big_value() -> int:
+	return int(Economy.value_at("big_soul_value", 0))
 
 
-func _spawned_value_for_run(seconds: float, per_diff: Dictionary) -> float:
+## Mean soul value spawned within the distance a player covers in `seconds`.
+func _spawned_value_for_run(seconds: float) -> float:
 	var t: float = 0.0
 	var dist: float = 0.0
-	var dt: float = 0.1
+	var dt: float = 0.05
 	while t < seconds:
-		dist += clampf(START_SPEED + t * RAMP, START_SPEED, MAX_SPEED) * dt
+		dist += Geo.speed_at_time(t) * dt
 		t += dt
-	var chunks: int = int(dist / CHUNK_LENGTH)
-	var value: float = float(INTRO_SOULS)
-	for i in range(SAFE_CHUNKS, chunks):
-		value += float(per_diff[clampi(i - SAFE_CHUNKS, 0, 20)])
-	return value
+	var total: float = 0.0
+	for run in MODEL_RUNS:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 1337 + run
+		var history: Array = []
+		var d0: float = 0.0
+		var value: float = float(INTRO_SOULS)
+		while d0 < dist:
+			var biome: String = "haunted_castle" if d0 >= CASTLE_AT else "graveyard"
+			var sec: Dictionary = ChunkPatternsScript.pick_section(rng, ChunkPatternsScript.band_for_distance(d0), biome, history)
+			history.append(sec["id"])
+			if history.size() > 12:
+				history.pop_front()
+			var lay: Dictionary = ChunkPatternsScript.build_layout(sec, Geo.speed_at_distance(d0))
+			for sl in lay["souls"]:
+				if d0 + float(sl["d"]) > dist:
+					continue
+				match str(sl["kind"]):
+					ChunkPatternsScript.KIND_BIG:
+						value += _big_value()
+					ChunkPatternsScript.KIND_COFFIN:
+						value += Economy.GOLDEN_COFFIN_VALUE
+					_:
+						value += Economy.SOUL_ORB_VALUE
+			d0 += float(lay["length"])
+		total += value
+	return total / float(MODEL_RUNS)
 
 
 func _check_payout() -> int:

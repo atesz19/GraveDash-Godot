@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bq8obsmatlacquer"]
+
+[resource]
+albedo_color = Color(0.055, 0.045, 0.07, 1)
+metallic = 0.35
+metallic_specular = 0.7
+roughness = 0.24
+clearcoat_enabled = true
+clearcoat = 0.8
+clearcoat_roughness = 0.2
+rim_enabled = true
+rim = 0.35
+rim_tint = 0.6

@@ -133,6 +133,12 @@ func configure(lane: int, z_offset: float) -> void:
 	_bob_t = randf() * TAU
 
 
+## Lift above the float height (train roofs, jump arcs). Call after configure().
+func set_height_offset(dy: float) -> void:
+	_base_y += dy
+	position.y = _base_y
+
+
 func on_spawned() -> void:
 	_picked = false
 	visible = true

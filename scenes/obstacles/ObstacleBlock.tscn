@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bq8obstacleblock"]
+
+[ext_resource type="Script" path="res://scripts/obstacles/ObstacleBlock.gd" id="1_block"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
+size = Vector3(2.2, 3, 1.1)
+
+[node name="ObstacleBlock" type="Area3D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_block")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_wall")

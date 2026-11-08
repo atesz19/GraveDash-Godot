@@ -36,11 +36,15 @@ const SLIDE_CAPSULE_HEIGHT: float = 0.9
 const SLIDE_CAPSULE_RADIUS: float = 0.4
 const STANDING_SHAPE_Y: float = 0.9
 const SLIDE_SHAPE_Y: float = 0.45
+## Swipe down mid-air slams back to the ground (then rolls on landing).
+const AIR_DROP_VELOCITY: float = -16.0
+## Inputs that arrive slightly early (mid-air, mid-roll) still fire for this long.
+const INPUT_BUFFER_TIME: float = 0.14
 
 # --- Collision masks ---------------------------------------------------------
-## Layer bits: 1 = world, 2 = player, 4 = hazards (layer 3).
-const MASK_NORMAL: int = 5   ## world + hazards
-const MASK_GHOST: int = 1    ## world only — phase through hazard bodies
+## Layer bits: 1 = world, 2 = player, 4 = hazards (layer 3), 16 = rideable trains (layer 5).
+const MASK_NORMAL: int = 21  ## world + hazards + train roofs / ramps
+const MASK_GHOST: int = 17   ## world + train roofs — phase through hazard bodies
 const LAYER_PLAYER: int = 2
 
 # --- Power-up defaults -------------------------------------------------------
@@ -102,6 +106,10 @@ var _just_landed: bool = false
 ## Shop "Head Start": seconds of boosted ghost sprint left at run start.
 var head_start_remaining: float = 0.0
 var _suppress_mission_report: bool = false
+## Buffered actions: "left" / "right" / "jump" / "roll" -> seconds left in buffer.
+var _queued: Dictionary = {}
+var _jumped_this_tick: bool = false
+var _roll_on_land: bool = false
 
 
 func _ready() -> void:
@@ -110,6 +118,8 @@ func _ready() -> void:
 	is_alive = true
 	_apply_equipped_skin()
 	_capsule_shape = collision_shape.shape as CapsuleShape3D
+	## Ramps keep full forward speed instead of bleeding it into the slope.
+	floor_constant_speed = true
 	_setup_materials()
 	_apply_standing_hitbox()
 	_clear_all_powerups(false)
@@ -172,6 +182,7 @@ func _physics_process(delta: float) -> void:
 		_update_animation_state(false)
 		return
 
+	_collect_input(delta)
 	_handle_lane_input()
 	_handle_jump_input()
 	_handle_slide_input(delta)
@@ -180,6 +191,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_report_distance(delta)
 	_tick_footsteps(delta)
+	_check_train_front()
 	_check_hazard_collisions()
 	_tick_powerups(delta)
 	_tick_ghost_form(delta)
@@ -190,25 +202,70 @@ func _physics_process(delta: float) -> void:
 
 # --- Input -------------------------------------------------------------------
 
-func _handle_lane_input() -> void:
+## Programmatic input (touch helpers, autopilot tests). Same rules as a swipe.
+func queue_action(action: String) -> void:
+	_queued[action] = INPUT_BUFFER_TIME
+
+
+func _collect_input(delta: float) -> void:
+	for key in _queued.keys():
+		_queued[key] = float(_queued[key]) - delta
+		if float(_queued[key]) <= 0.0:
+			_queued.erase(key)
 	if Input.is_action_just_pressed("swipe_left"):
+		queue_action("left")
+	if Input.is_action_just_pressed("swipe_right"):
+		queue_action("right")
+	if Input.is_action_just_pressed("swipe_up"):
+		queue_action("jump")
+	if Input.is_action_just_pressed("swipe_down"):
+		queue_action("roll")
+
+
+func _consume(action: String) -> bool:
+	if _queued.has(action):
+		_queued.erase(action)
+		return true
+	return false
+
+
+func _handle_lane_input() -> void:
+	if _consume("left"):
 		_change_lane(-1)
-	elif Input.is_action_just_pressed("swipe_right"):
+	elif _consume("right"):
 		_change_lane(1)
 
 
 func _handle_jump_input() -> void:
-	if Input.is_action_just_pressed("swipe_up") and is_on_floor() and not is_sliding:
-		velocity.y = JUMP_VELOCITY
-		_was_on_floor = false
-		_drive_anim("jump", true)
-		if AudioManager:
-			AudioManager.play_jump()
+	_jumped_this_tick = false
+	if not _queued.has("jump") or not is_on_floor():
+		return
+	_consume("jump")
+	## Jumping cancels a roll, like the reference runner.
+	if is_sliding:
+		_end_slide()
+	_roll_on_land = false
+	velocity.y = JUMP_VELOCITY
+	_jumped_this_tick = true
+	_was_on_floor = false
+	_drive_anim("jump", true)
+	if AudioManager:
+		AudioManager.play_jump()
 
 
 func _handle_slide_input(delta: float) -> void:
-	if Input.is_action_just_pressed("swipe_down") and is_on_floor() and not is_sliding:
-		_start_slide()
+	if _queued.has("roll"):
+		if is_on_floor() and not is_sliding:
+			_consume("roll")
+			_start_slide()
+		elif not is_on_floor():
+			_consume("roll")
+			velocity.y = minf(velocity.y, AIR_DROP_VELOCITY)
+			_roll_on_land = true
+	if _roll_on_land and is_on_floor() and not _jumped_this_tick:
+		_roll_on_land = false
+		if not is_sliding:
+			_start_slide()
 
 	if is_sliding:
 		_slide_timer -= delta
@@ -259,7 +316,8 @@ func _apply_forward_and_gravity(delta: float) -> void:
 	velocity.z = -run_speed
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
-	elif velocity.y < 0.0:
+	elif not _jumped_this_tick:
+		## Grounded (incl. ramps): drop slope-induced lift so a ramp top never launches us.
 		velocity.y = 0.0
 
 
@@ -374,6 +432,28 @@ func _check_hazard_collisions() -> void:
 			return
 		if collider.is_in_group("powerup"):
 			_on_collect_powerup(collider)
+
+
+## Running into a hearse's front face: the body is solid (so it can be ridden), so a head-on
+## hit has to be resolved here or the player would be pinned in place.
+func _check_train_front() -> void:
+	for i in get_slide_collision_count():
+		var col := get_slide_collision(i)
+		var collider := col.get_collider() as Node
+		if collider == null or col.get_normal().z < 0.7:
+			continue
+		var train := collider.get_parent()
+		if train == null or not train.is_in_group("train"):
+			continue
+		if is_ghost or is_escaping or has_shield:
+			if has_shield and not is_ghost and not is_escaping:
+				has_shield = false
+				_powerup_timers.erase("shield")
+			global_position.y = TrackGeometry.TRAIN_ROOF + 0.05
+			velocity.y = 0.0
+		else:
+			die()
+		return
 
 
 func _on_hit_hazard(_hazard: Object) -> void:
