@@ -21,6 +21,7 @@ func _run() -> void:
 		print("OK catalog=", catalog.size())
 	## Prices
 	var expect: Dictionary = preload("res://scripts/economy/EconomyConfig.gd").SKIN_PRICES
+	var skel_scale: float = -1.0
 	for skin in catalog:
 		var id: String = str(skin.get("id", ""))
 		var price: int = int(skin.get("price", -1))
@@ -47,6 +48,21 @@ func _run() -> void:
 			runner.call("play", "run", true)
 			await process_frame
 			print("OK runner ", id, " play run")
+		## Framing: every skin's body height stays in a sane band (feet → skull/hat top).
+		if runner.has_method("get_body_height"):
+			var body_h: float = float(runner.call("get_body_height"))
+			if body_h < 1.2 or body_h > 1.9:
+				push_error("FAIL %s body height %.2f" % [id, body_h])
+				failed += 1
+			else:
+				print("OK ", id, " body height=%.2f" % body_h)
+		if id != "witch":
+			var model_s: float = (runner.get_node("Model") as Node3D).scale.y
+			if skel_scale < 0.0:
+				skel_scale = model_s
+			elif absf(model_s - skel_scale) > 0.01:
+				push_error("FAIL %s fit scale %.3f != %.3f (skeletons must match)" % [id, model_s, skel_scale])
+				failed += 1
 		## Skeleton must resolve KayKit bones.
 		if id != "witch":
 			var skel: Skeleton3D = _find_skel(runner)
@@ -65,6 +81,8 @@ func _run() -> void:
 	var score: Node = get_root().get_node_or_null("ScoreManager")
 	if score:
 		score.set("total_souls", 100000)
+		sm.set("owned_ids", PackedStringArray(["witch"]))
+		sm.set("equipped_id", "witch")
 		var err: String = str(sm.call("buy_skin", "skeleton_minion"))
 		if err != "":
 			push_error("FAIL buy minion: %s" % err)

@@ -20,7 +20,8 @@ const REF_RUN_SPEED: float = 13.0
 
 ## When true, uniformly scale/seat the FBX to fit the player capsule.
 @export var auto_fit: bool = false
-## Target visual height (matches player capsule ~1.8).
+## Target body height (feet → skull top, headgear excluded). KayKit chibi skeletons
+## use ~1.4 so their big skulls read at the same on-screen mass as the 1.7 m Witch.
 @export var fit_height: float = 1.75
 ## Face −Z run direction (Witch FBX already baked with 180° yaw).
 @export var face_minus_z: bool = false
@@ -41,6 +42,9 @@ var _land_blend_t: float = 0.0
 var _bone_root_m: int = -1
 ## Witch logical name → actual skeleton bone name.
 var _bone_alias: Dictionary = {}
+
+## scene_file_path → Vector2(min_y, max_y) body span, so re-spawning a skin skips the vertex pass.
+static var _fit_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -102,31 +106,76 @@ func _fit_model_to_capsule() -> void:
 		return
 	if face_minus_z:
 		model_root.rotation_degrees.y = 180.0
-	## Measure mesh AABB in model local space.
-	var meshes: Array[MeshInstance3D] = _collect_meshes(model_root)
-	if meshes.is_empty():
-		return
-	var combined: AABB
-	var first := true
-	for mi in meshes:
-		var aabb: AABB = mi.transform * mi.get_aabb()
-		## Walk up to model_root.
-		var p: Node = mi.get_parent()
-		while p != null and p != model_root and p is Node3D:
-			aabb = (p as Node3D).transform * aabb
-			p = p.get_parent()
-		if first:
-			combined = aabb
-			first = false
-		else:
-			combined = combined.merge(aabb)
-	var h: float = combined.size.y
+	var cache_key: String = scene_file_path
+	var span: Vector2 = _fit_cache.get(cache_key, Vector2.ZERO) if cache_key != "" else Vector2.ZERO
+	if span == Vector2.ZERO:
+		span = _measure_body_span_y()
+		if cache_key != "" and span != Vector2.ZERO:
+			_fit_cache[cache_key] = span
+	var h: float = span.y - span.x
 	if h < 0.01:
 		return
 	var s: float = fit_height / h
 	model_root.scale = Vector3(s, s, s)
 	## Seat feet on y=0 in runner space.
-	model_root.position.y = -combined.position.y * s
+	model_root.position.y = -span.x * s
+
+
+## Visual body height in runner space (feet → top), before any parent scale.
+func get_body_height() -> float:
+	if auto_fit and fit_height > 0.0:
+		return fit_height
+	if model_root == null:
+		return fit_height
+	var cache_key: String = scene_file_path
+	var span: Vector2 = _fit_cache.get(cache_key, Vector2.ZERO) if cache_key != "" else Vector2.ZERO
+	if span == Vector2.ZERO:
+		span = _measure_body_span_y()
+		if cache_key != "" and span != Vector2.ZERO:
+			_fit_cache[cache_key] = span
+	if span == Vector2.ZERO:
+		return fit_height
+	return (span.y - span.x) * model_root.scale.y
+
+
+## Body height range (min_y, max_y) in Model-local space at bind pose.
+## Skinned meshes are deformed on the CPU: KayKit skull/jaw meshes are bound to
+## the head bone, so their raw mesh AABB sits near the feet. Unskinned bone
+## attachments (hats, hoods, helmets) are left out so headgear doesn't shrink the body.
+func _measure_body_span_y() -> Vector2:
+	var to_model: Transform3D = model_root.global_transform.affine_inverse()
+	var lo: float = INF
+	var hi: float = -INF
+	for mi in _collect_meshes(model_root):
+		var skel: Skeleton3D = mi.get_node_or_null(mi.skeleton) as Skeleton3D
+		if mi.mesh == null or mi.skin == null or skel == null:
+			continue
+		var skin_res: Skin = mi.skin
+		var bind_xf: Array[Transform3D] = []
+		for b in skin_res.get_bind_count():
+			var bone: int = skin_res.get_bind_bone(b)
+			if bone < 0:
+				bone = skel.find_bone(String(skin_res.get_bind_name(b)))
+			var rest: Transform3D = skel.get_bone_global_rest(bone) if bone >= 0 else Transform3D.IDENTITY
+			bind_xf.append(to_model * skel.global_transform * rest * skin_res.get_bind_pose(b))
+		for surf in mi.mesh.get_surface_count():
+			var arrays: Array = mi.mesh.surface_get_arrays(surf)
+			var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var bones_v: Variant = arrays[Mesh.ARRAY_BONES]
+			if verts.is_empty() or bones_v == null:
+				continue
+			var bones: PackedInt32Array = PackedInt32Array(bones_v)
+			var per: int = maxi(1, bones.size() / verts.size())
+			for i in verts.size():
+				var bind_idx: int = bones[i * per]
+				if bind_idx < 0 or bind_idx >= bind_xf.size():
+					continue
+				var y: float = (bind_xf[bind_idx] * verts[i]).y
+				lo = minf(lo, y)
+				hi = maxf(hi, y)
+	if lo == INF:
+		return Vector2.ZERO
+	return Vector2(lo, hi)
 
 
 func _process(delta: float) -> void:

@@ -8,6 +8,10 @@ const ATMOSPHERE_SCENE := "res://scenes/levels/GraveyardAtmosphere.tscn"
 const CHUNK_LENGTH: float = 45.0
 const CHUNK_COUNT: int = 4
 const CHARACTER_SCALE: float = 1.35
+## Body height the camera framing was composed for (Witch incl. hat). Shorter skins
+## drop the camera instead of being scaled up, so chibi skeletons don't fill the frame.
+const FRAME_BODY_HEIGHT: float = 1.7
+const FRAME_CAM_DROP_MAX: float = 0.6
 
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var camera: Camera3D = $CameraPivot/Camera3D
@@ -19,6 +23,7 @@ var _witch: Node3D = null
 var _orbit_t: float = 0.0
 var _transitioning: bool = false
 var _cam_base_pos: Vector3 = Vector3(-0.55, 1.55, 4.6)
+var _cam_scene_pos: Vector3 = Vector3(-0.55, 1.55, 4.6)
 var _dolly_t: float = 0.0
 
 
@@ -26,11 +31,13 @@ func _ready() -> void:
 	_ensure_environment()
 	_spawn_track()
 	_spawn_atmosphere()
+	if camera:
+		_cam_scene_pos = camera.position
+		_cam_base_pos = _cam_scene_pos
 	_spawn_witch()
 	_force_backdrop_visible()
 	if camera:
 		camera.current = true
-		_cam_base_pos = camera.position
 	_play_witch("idle")
 	if SkinManager and not SkinManager.equipped_changed.is_connected(_on_skin_equipped):
 		SkinManager.equipped_changed.connect(_on_skin_equipped)
@@ -151,6 +158,15 @@ func _spawn_witch() -> void:
 	witch_slot.add_child(_witch)
 	_witch.position = Vector3.ZERO
 	_witch.scale = Vector3.ONE * CHARACTER_SCALE
+	_frame_character()
+
+
+func _frame_character() -> void:
+	var body_h: float = FRAME_BODY_HEIGHT
+	if _witch != null and _witch.has_method("get_body_height"):
+		body_h = float(_witch.call("get_body_height"))
+	var drop: float = clampf((FRAME_BODY_HEIGHT - body_h) * CHARACTER_SCALE, 0.0, FRAME_CAM_DROP_MAX)
+	_cam_base_pos = _cam_scene_pos - Vector3(0.0, drop, 0.0)
 
 
 func _play_witch(anim_name: String) -> void:

@@ -6,7 +6,7 @@
 [node name="SkeletonMinionRunner" type="Node3D"]
 script = ExtResource("1_runner")
 auto_fit = true
-fit_height = 1.75
+fit_height = 1.4
 face_minus_z = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
