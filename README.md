@@ -133,10 +133,11 @@ Both biomes share `scripts/Chunk.gd`. Each chunk has baked `Props` plus an `Edge
 | Resource | Role |
 |----------|------|
 | `resources/biomes/graveyard_environment.tres` / `haunted_castle_environment.tres` | Sky / fog / glow / tonemap per biome |
-| `resources/biomes/graveyard_{ground,shoulder,field}.tres` | Track, shoulder and open-field ground |
+| `resources/biomes/graveyard_{ground,shoulder,field,far_field}.tres` | Track, shoulder, open-field and far-field ground (far field runs to ±208 m so ultrawide views never see past the map) |
 | `resources/biomes/haunted_castle_{ground,wall}.tres` | Flagstone floor, brick walls (triplanar) |
 | `resources/materials/props/*.tres` | Shared prop materials (stone, iron, wood, cloth, gold, flame, window) |
-| `resources/fx/*.tres` | Additive glow materials: torch halos, ground light pools, window glow, mist, glimmers |
+| `resources/fx/*.tres` | Alpha-blended (mix, unshaded) glow materials on `glow_radial.png`: torch halos, ground light pools, window glow, mist, glimmers — identical in Forward+, Mobile and Compatibility |
+| `scripts/CameraFraming.gd` | Aspect-aware camera framing for menu + gameplay: keeps the 16:9 width on narrow/portrait windows, keep_height on wide ones, caps horizontal FOV at 120° on 32:9 |
 | `scenes/levels/props/` | Decor props; everything stays at `|x| >= 5.2` (lanes are at -2.5 / 0 / 2.5) |
 
 Regenerate castle textures, the glow sprite and launcher icons: `godot --headless --path . --script res://tools/gen_textures.gd`
@@ -145,6 +146,8 @@ Regenerate castle textures, the glow sprite and launcher icons: `godot --headles
 godot --headless --path . --script res://tools/validate_graveyard_visuals.gd
 godot --headless --path . --script res://tools/smoke_run.gd   # 1.9 km run through the castle switch; checks pools don't leak
 godot --path . --script res://tools/capture_gameplay.gd -- /tmp/captures   # screenshots (needs a display)
+# Per-renderer / per-aspect render check (forward_plus | mobile | gl_compatibility; menu | gameplay | castle):
+godot --path . --rendering-method gl_compatibility --resolution 1680x720 --script res://tools/capture_render.gd -- menu /tmp/menu-21x9.png
 ```
 
 ## Run balance knobs

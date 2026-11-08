@@ -38,6 +38,7 @@ func _ready() -> void:
 	_force_backdrop_visible()
 	if camera:
 		camera.current = true
+		CameraFraming.attach(camera)
 	_play_witch("idle")
 	if SkinManager and not SkinManager.equipped_changed.is_connected(_on_skin_equipped):
 		SkinManager.equipped_changed.connect(_on_skin_equipped)

@@ -140,7 +140,7 @@ func _add_moon() -> void:
 	halo.mesh = quad
 	var halo_mat := (load("res://resources/fx/halo_cold.tres") as StandardMaterial3D).duplicate() as StandardMaterial3D
 	halo_mat.disable_fog = true
-	halo_mat.albedo_color = Color(0.55, 0.62, 1.0, 0.55)
+	halo_mat.albedo_color = Color(0.6, 0.66, 1.0, 0.3)
 	halo.material_override = halo_mat
 	halo.position = moon.position + Vector3(0.0, 0.0, 8.0)
 	add_child(halo)
@@ -176,6 +176,23 @@ func _populate_bank(bank: Node3D, side: float, sil_mat: Material, hill_mat: Mate
 		)
 		hill.scale = Vector3(1.6 + float(i % 3) * 0.25, 0.55 + float(i % 2) * 0.15, 1.8)
 		bank.add_child(hill)
+	## Outer ridge so ultrawide views still meet a broken horizon instead of flat fog.
+	for i in 6:
+		var ridge: MeshInstance3D = MeshInstance3D.new()
+		var ridge_mesh: SphereMesh = SphereMesh.new()
+		ridge_mesh.radius = 16.0 + float(i % 3) * 4.0
+		ridge_mesh.height = 12.0 + float(i % 2) * 5.0
+		ridge_mesh.radial_segments = 10
+		ridge_mesh.rings = 5
+		ridge.mesh = ridge_mesh
+		ridge.material_override = hill_mat
+		ridge.position = Vector3(
+			side * (62.0 + float(i % 3) * 18.0),
+			-2.5,
+			-110.0 + float(i) * 34.0
+		)
+		ridge.scale = Vector3(1.8, 0.6 + float(i % 2) * 0.2, 1.6)
+		bank.add_child(ridge)
 	## Dead-tree spikes.
 	for i in 14:
 		var tree: MeshInstance3D = MeshInstance3D.new()

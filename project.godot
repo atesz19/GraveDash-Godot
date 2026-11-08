@@ -1,4 +1,4 @@
-; Engine configuration file for GraveDash (Godot 4.4+, tested on 4.7.2).
+; Engine configuration file for GraveDash (Godot 4.7.2).
 ; Auto-generated for the MVP player + chunk slice — do not hand-edit casually.
 config_version=5
 
@@ -7,7 +7,7 @@ config_version=5
 config/name="GraveDash"
 config/description="Horror endless runner — Subway Surfers style, Android-first."
 run/main_scene="res://scenes/ui/MainMenu.tscn"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 boot_splash/bg_color=Color(0.055, 0.04, 0.09, 1)
 boot_splash/image="res://assets/icons/icon_512.png"

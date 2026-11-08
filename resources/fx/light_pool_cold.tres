@@ -4,9 +4,9 @@
 
 [resource]
 transparency = 1
-blend_mode = 1
 shading_mode = 0
 specular_mode = 2
 disable_receive_shadows = true
-albedo_color = Color(0.45, 0.6, 1, 0.15)
+albedo_color = Color(0.5, 0.64, 1, 0.2)
 albedo_texture = ExtResource("1_glow")
+texture_filter = 3

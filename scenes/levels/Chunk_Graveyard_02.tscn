@@ -1,9 +1,10 @@
-[gd_scene load_steps=25 format=3 uid="uid://bq8gravedashchunk02"]
+[gd_scene load_steps=27 format=3 uid="uid://bq8gravedashchunk02"]
 
 [ext_resource type="Script" path="res://scripts/Chunk.gd" id="1_Chunk"]
 [ext_resource type="Material" uid="uid://bq8matgraveyard" path="res://resources/biomes/graveyard_ground.tres" id="2_graveyard_gr"]
 [ext_resource type="Material" uid="uid://bq8matgyshoulder" path="res://resources/biomes/graveyard_shoulder.tres" id="3_graveyard_sh"]
 [ext_resource type="Material" uid="uid://bq8matgyfield" path="res://resources/biomes/graveyard_field.tres" id="4_graveyard_fi"]
+[ext_resource type="Material" uid="uid://0fvikfre42jg" path="res://resources/biomes/graveyard_far_field.tres" id="4_graveyard_far"]
 [ext_resource type="PackedScene" uid="uid://bq8decorgatearch" path="res://scenes/levels/props/DecorGateArch.tscn" id="5_DecorGateArc"]
 [ext_resource type="PackedScene" uid="uid://bq8decormausoleum" path="res://scenes/levels/props/DecorMausoleum.tscn" id="6_DecorMausole"]
 [ext_resource type="PackedScene" uid="uid://bq8decorobelisk" path="res://scenes/levels/props/DecorObelisk.tscn" id="7_DecorObelisk"]
@@ -30,6 +31,9 @@ size = Vector3(4.2, 0.45, 45)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_4"]
 size = Vector2(40, 45)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_far"]
+size = Vector2(161, 45)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5"]
 albedo_color = Color(0.2, 0.24, 0.16, 1)
@@ -81,6 +85,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.5, 0.105, 0)
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4")
 surface_material_override/0 = ExtResource("4_graveyard_fi")
+
+[node name="FieldFarL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -128, 0.09, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_far")
+surface_material_override/0 = ExtResource("4_graveyard_far")
+
+[node name="FieldFarR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 128, 0.09, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_far")
+surface_material_override/0 = ExtResource("4_graveyard_far")
 
 [node name="LaneMarkerL" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.012, 0)

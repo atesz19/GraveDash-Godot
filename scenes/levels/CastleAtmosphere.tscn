@@ -17,11 +17,11 @@ color = Color(1, 0.72, 0.45, 0.55)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dust"]
 transparency = 1
-blend_mode = 1
 shading_mode = 0
 vertex_color_use_as_albedo = true
 albedo_color = Color(1, 0.8, 0.6, 0.8)
 albedo_texture = ExtResource("2_glow")
+texture_filter = 3
 billboard_mode = 3
 particles_anim_h_frames = 1
 particles_anim_v_frames = 1
